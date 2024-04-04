@@ -1,0 +1,39 @@
+package com.glycin.intelligame
+
+import com.intellij.openapi.components.service
+import com.intellij.openapi.components.services
+import com.intellij.openapi.fileEditor.FileEditorManager
+import com.intellij.openapi.fileEditor.FileEditorManagerListener
+import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.psi.PsiManager
+import com.intellij.refactoring.suggested.startOffset
+import com.intellij.util.application
+import com.intellij.util.ui.GraphicsUtil
+import java.awt.Graphics
+import java.awt.Graphics2D
+import java.awt.image.BufferedImage
+import java.io.BufferedInputStream
+import javax.imageio.ImageIO
+
+class FileOpenedListener: FileEditorManagerListener {
+
+    override fun fileOpened(source: FileEditorManager, file: VirtualFile) {
+        super.fileOpened(source, file)
+        println("${file.name} opened")
+        PsiManager.getInstance(source.project).findFile(file)?.children?.forEach { c -> println(c)  }
+
+        source.selectedTextEditor?.let {editor ->
+            val caret = editor.caretModel.currentCaret
+
+            PsiManager.getInstance(source.project).findFile(file)?.children?.let {
+                it.firstOrNull { e -> e.text.lowercase().contains("class") }
+            }?.let {psi ->
+                caret.moveToOffset(psi.startOffset - 1)
+                GraphicsUtil.safelyGetGraphics(editor.component)?.let { graphics ->
+                    val g = graphics.create() as Graphics2D
+                    source.project.service<PaintService>().drawPlayer(g, caret, editor)
+                }
+            }
+        }
+    }
+}
