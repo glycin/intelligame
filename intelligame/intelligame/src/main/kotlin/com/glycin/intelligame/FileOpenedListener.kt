@@ -1,5 +1,6 @@
 package com.glycin.intelligame
 
+import com.glycin.intelligame.services.GameService
 import com.intellij.openapi.components.service
 import com.intellij.openapi.components.services
 import com.intellij.openapi.fileEditor.FileEditorManager
@@ -20,19 +21,17 @@ class FileOpenedListener: FileEditorManagerListener {
     override fun fileOpened(source: FileEditorManager, file: VirtualFile) {
         super.fileOpened(source, file)
         println("${file.name} opened")
-        PsiManager.getInstance(source.project).findFile(file)?.children?.forEach { c -> println(c)  }
 
         source.selectedTextEditor?.let {editor ->
             val caret = editor.caretModel.currentCaret
+            source.project.service<GameService>().also {
+                it.fileOpened = true
+            }
 
             PsiManager.getInstance(source.project).findFile(file)?.children?.let {
                 it.firstOrNull { e -> e.text.lowercase().contains("class") }
             }?.let {psi ->
                 caret.moveToOffset(psi.startOffset - 1)
-                GraphicsUtil.safelyGetGraphics(editor.component)?.let { graphics ->
-                    val g = graphics.create() as Graphics2D
-                    source.project.service<PaintService>().drawPlayer(g, caret, editor)
-                }
             }
         }
     }
