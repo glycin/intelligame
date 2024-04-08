@@ -19,12 +19,15 @@ class TypedKeyHandler: TypedHandlerDelegate() {
         val gameService = project.service<GameService>()
 
         if(gameService.fileOpened){
-            GraphicsUtil.safelyGetGraphics(editor.component)?.let { graphics ->
-                val g = graphics.create() as Graphics2D
-                project.service<PaintService>().drawPlayer(g, editor.getPoint())
-                val caret = editor.caretModel
-                caret.moveToOffset(caret.offset + 1)
+            project.service<PaintService>().updatePlayerPosition(editor.getPoint())
+            val caret = editor.caretModel
+
+            when(c){
+                'd' -> caret.moveToOffset(caret.offset + 1)
+                'a' -> caret.moveToOffset(caret.offset - 1)
+                else -> println("Not supported")
             }
+
         }
 
         return Result.STOP
