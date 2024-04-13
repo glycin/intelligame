@@ -1,15 +1,24 @@
 package com.glycin.intelligame.util
 
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.editor.event.CaretEvent
 import java.awt.Point
+
+private const val X_SNAP = 25
+private const val Y_SNAP = 50
 
 fun Editor.getCaretVisualPosition() = caretModel.currentCaret.visualPosition
 
-fun Editor.getPoint(): Point {
+fun Editor.getPointAboveCaret(): Point {
     val caretPosition = caretModel.offset
     val p = offsetToXY(caretPosition)
     val location = scrollingModel.visibleArea.location
-    p.translate(-location.x, - location.y)
+    p.translate((-location.x) + X_SNAP, (-location.y) - Y_SNAP)
     return p
+}
+
+fun Editor.getPointOnCaret(offset: Int): Point {
+    val p = offsetToXY(offset)
+    val location = scrollingModel.visibleArea.location
+    p.translate((-location.x) + X_SNAP, (-location.y) - 25)
+    return Point(p.x, p.y)
 }

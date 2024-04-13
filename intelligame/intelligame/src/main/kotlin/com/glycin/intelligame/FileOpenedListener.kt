@@ -2,21 +2,14 @@ package com.glycin.intelligame
 
 import com.glycin.intelligame.services.GameService
 import com.glycin.intelligame.services.PaintService
-import com.glycin.intelligame.util.getPoint
 import com.intellij.openapi.components.service
-import com.intellij.openapi.components.services
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileEditor.FileEditorManagerListener
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiManager
 import com.intellij.refactoring.suggested.startOffset
-import com.intellij.util.application
 import com.intellij.util.ui.GraphicsUtil
-import java.awt.Graphics
 import java.awt.Graphics2D
-import java.awt.image.BufferedImage
-import java.io.BufferedInputStream
-import javax.imageio.ImageIO
 
 class FileOpenedListener: FileEditorManagerListener {
 
@@ -30,9 +23,7 @@ class FileOpenedListener: FileEditorManagerListener {
             GraphicsUtil.safelyGetGraphics(editor.component)?.let { graphics ->
                 val g = graphics.create() as Graphics2D
                 source.project.service<PaintService>().startRenderLoop(g)
-                source.project.service<GameService>().also {
-                    it.fileOpened = true
-                }
+                source.project.service<GameService>().loadMap(editor, g, source.project.service<PaintService>())
             }
 
             PsiManager.getInstance(source.project).findFile(file)?.children?.let {

@@ -2,16 +2,13 @@ package com.glycin.intelligame
 
 import com.glycin.intelligame.services.GameService
 import com.glycin.intelligame.services.PaintService
-import com.glycin.intelligame.util.getCaretVisualPosition
-import com.glycin.intelligame.util.getPoint
+import com.glycin.intelligame.util.getPointAboveCaret
 import com.intellij.codeInsight.editorActions.TypedHandlerDelegate
 import com.intellij.openapi.components.service
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
-import com.intellij.util.ui.GraphicsUtil
-import java.awt.Graphics2D
 
 class TypedKeyHandler: TypedHandlerDelegate() {
 
@@ -19,7 +16,6 @@ class TypedKeyHandler: TypedHandlerDelegate() {
         val gameService = project.service<GameService>()
 
         if(gameService.fileOpened){
-            project.service<PaintService>().updatePlayerPosition(editor.getPoint())
             val caret = editor.caretModel
 
             when(c){
@@ -28,6 +24,14 @@ class TypedKeyHandler: TypedHandlerDelegate() {
                 else -> println("Not supported")
             }
 
+            project.service<PaintService>().updatePlayerPosition(editor.getPointAboveCaret())
+
+            //TODO: Do i need the font width and height
+            /*GraphicsUtil.safelyGetGraphics(editor.component)?.let { graphics ->
+                val g = graphics.create() as Graphics2D
+                //val width = g.fontMetrics.stringWidth(editor.document.getText(TextRange(caret.offset, caret.offset + 1)))
+                //val height = g.fontMetrics.height * editor.document.getLineNumber(caret.offset)
+            }*/
         }
 
         return Result.STOP

@@ -14,7 +14,6 @@ private const val FPS = 120L
 class PaintService(private val scope: CoroutineScope) {
 
     private val playerSprite = ImageIO.read(FileOpenedListener::class.java.getResourceAsStream("/Sprites/knight.png"))
-
     private var playerPosition : Point = Point(0,0)
 
     fun startRenderLoop(graphics: Graphics2D) {
@@ -27,6 +26,17 @@ class PaintService(private val scope: CoroutineScope) {
     fun updatePlayerPosition(point: Point){
         println("updating player position to $point")
         playerPosition = point
+    }
+
+    fun showMap(graphics: Graphics2D, points: List<Point>){
+        scope.launch(Dispatchers.EDT) {
+            while (true){
+                points.forEach {
+                    graphics.drawImage(playerSprite, null, it.x, it.y)
+                }
+                delay(1000)
+            }
+        }
     }
 
     private suspend fun draw(graphics: Graphics2D){
