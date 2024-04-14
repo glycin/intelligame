@@ -9,6 +9,10 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
+import com.intellij.util.ui.GraphicsUtil
+import java.awt.Graphics2D
+import java.awt.event.KeyEvent
+import java.awt.event.KeyListener
 
 class TypedKeyHandler: TypedHandlerDelegate() {
 
@@ -24,7 +28,7 @@ class TypedKeyHandler: TypedHandlerDelegate() {
                 else -> println("Not supported")
             }
 
-            project.service<PaintService>().updatePlayerPosition(editor.getPointAboveCaret())
+            project.service<PaintService>().updatePlayerPosition(editor.component, GraphicsUtil.safelyGetGraphics(editor.component)?.create() as Graphics2D, editor.getPointAboveCaret())
 
             //TODO: Do i need the font width and height
             /*GraphicsUtil.safelyGetGraphics(editor.component)?.let { graphics ->
