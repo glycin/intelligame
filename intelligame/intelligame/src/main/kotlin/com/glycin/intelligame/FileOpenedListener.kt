@@ -1,6 +1,7 @@
 package com.glycin.intelligame
 
 import com.glycin.intelligame.services.GameService
+import com.glycin.intelligame.services.InputService
 import com.glycin.intelligame.services.PaintService
 import com.intellij.openapi.components.service
 import com.intellij.openapi.fileEditor.FileEditorManager
@@ -23,6 +24,7 @@ class FileOpenedListener: FileEditorManagerListener {
             GraphicsUtil.safelyGetGraphics(editor.component)?.let { graphics ->
                 val g = graphics.create() as Graphics2D
                 source.project.service<PaintService>().startRenderLoop(g)
+                source.project.service<InputService>().init()
                 source.project.service<GameService>().loadMap(editor, g, source.project.service<PaintService>())
             }
 

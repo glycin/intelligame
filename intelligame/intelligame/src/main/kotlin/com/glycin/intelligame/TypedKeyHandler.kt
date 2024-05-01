@@ -6,15 +6,20 @@ import com.glycin.intelligame.util.getPointAboveCaret
 import com.intellij.codeInsight.editorActions.TypedHandlerDelegate
 import com.intellij.openapi.components.service
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 import com.intellij.util.ui.GraphicsUtil
 import java.awt.Graphics2D
+import java.awt.Point
 import java.awt.event.KeyEvent
 import java.awt.event.KeyListener
 
 class TypedKeyHandler: TypedHandlerDelegate() {
+
+    var x = 50
+    var y  = 126
 
     override fun beforeCharTyped(c: Char, project: Project, editor: Editor, file: PsiFile, fileType: FileType): Result {
         val gameService = project.service<GameService>()
@@ -23,12 +28,11 @@ class TypedKeyHandler: TypedHandlerDelegate() {
             val caret = editor.caretModel
 
             when(c){
-                'd' -> caret.moveToOffset(caret.offset + 1)
-                'a' -> caret.moveToOffset(caret.offset - 1)
+                'd','D' -> x += 1 //caret.moveToOffset(caret.offset + 1)
+                'a','A' -> x -= 1 //caret.moveToOffset(caret.offset - 1)
                 else -> println("Not supported")
             }
-
-            project.service<PaintService>().updatePlayerPosition(editor.component, GraphicsUtil.safelyGetGraphics(editor.component)?.create() as Graphics2D, editor.getPointAboveCaret())
+            project.service<PaintService>().updatePlayerPosition(editor.contentComponent, GraphicsUtil.safelyGetGraphics(editor.component) as Graphics2D, Point(x, y))//editor.getPointAboveCaret())
 
             //TODO: Do i need the font width and height
             /*GraphicsUtil.safelyGetGraphics(editor.component)?.let { graphics ->

@@ -27,6 +27,10 @@
   <extensions defaultExtensionNs="com.intellij">
     <postStartupActivity implementation="com.glycin.intelligame.GameStartupActivity"/>
     <typedHandler implementation="com.glycin.intelligame.TypedKeyHandler"/>
+    <intentionAction>
+      <language>JAVA</language>
+      <className>com.glycin.intelligame.pong.PongStarter</className>
+    </intentionAction>
   </extensions>
 
   <projectListeners>
