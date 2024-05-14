@@ -1,6 +1,5 @@
 package com.glycin.intelligame.pong
 
-import com.glycin.intelligame.services.InputService
 import com.intellij.codeInsight.intention.HighPriorityAction
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.openapi.components.service
@@ -19,6 +18,6 @@ class PongStarter: IntentionAction, HighPriorityAction {
     override fun isAvailable(p0: Project, p1: Editor?, p2: PsiFile?): Boolean = true
 
     override fun invoke(project: Project, editor: Editor, file: PsiFile) {
-        project.service<PongService>().initGame()
+        project.service<PongService>().initGame(editor)
     }
 }

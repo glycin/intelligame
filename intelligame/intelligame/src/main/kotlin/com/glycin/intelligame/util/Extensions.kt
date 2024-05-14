@@ -1,5 +1,6 @@
 package com.glycin.intelligame.util
 
+import com.glycin.intelligame.shared.Vec2
 import com.intellij.openapi.editor.Editor
 import java.awt.Point
 
@@ -22,3 +23,5 @@ fun Editor.getPointOnCaret(offset: Int): Point {
     p.translate((-location.x) + X_SNAP, (-location.y) - 25)
     return Point(p.x, p.y)
 }
+
+fun Point.toVec2() = Vec2(x.toFloat(), y.toFloat())

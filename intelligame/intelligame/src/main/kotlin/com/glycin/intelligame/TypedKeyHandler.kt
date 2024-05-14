@@ -33,7 +33,7 @@ class TypedKeyHandler: TypedHandlerDelegate() {
                 else -> println("Not supported")
             }
             project.service<PaintService>().updatePlayerPosition(editor.contentComponent, GraphicsUtil.safelyGetGraphics(editor.component) as Graphics2D, Point(x, y))//editor.getPointAboveCaret())
-
+            editor.contentComponent.repaint()
             //TODO: Do i need the font width and height
             /*GraphicsUtil.safelyGetGraphics(editor.component)?.let { graphics ->
                 val g = graphics.create() as Graphics2D
