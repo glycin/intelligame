@@ -4,7 +4,7 @@ import kotlin.math.sqrt
 
 data class Vec2(
     val x: Float = 0f,
-    val y: Float = 0f
+    val y: Float = 0f,
 ) {
     
     companion object {
