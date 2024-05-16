@@ -29,8 +29,8 @@ class PongService(private val scope: CoroutineScope) {
         val graphics = GraphicsUtil.safelyGetGraphics(editor.contentComponent) as Graphics2D
 
         val obstacles = createLevel(editor)
-        val ball = spawnBall(editor)
         val (p1, p2) = spawnPlayers(editor, obstacles.maxOf { it.width })
+        val ball = spawnBall(editor, PongCollider(listOf(p1, p2), obstacles))
 
         renderer = PongRenderer(obstacles, ball, p1, p2, scope, graphics, FPS)
 
@@ -82,13 +82,25 @@ class PongService(private val scope: CoroutineScope) {
                 )
             )
         }
+        // Top side of the map
+        obstacles.add(
+            Obstacle(
+                position = Vec2(0.0f, 0.0f),
+                width = editor.contentComponent.width,
+                height = 1
+            )
+        )
+
         return obstacles
     }
 
-    private fun spawnBall(editor: Editor): Ball {
+    private fun spawnBall(editor: Editor, collider: PongCollider): Ball {
         val caretModel = editor.caretModel
         val position = editor.offsetToXY(caretModel.offset).toVec2()
-        return Ball(position)
+        return Ball(
+            position = position,
+            collider = collider,
+        )
     }
 
     private fun spawnPlayers(editor: Editor, maxWidth: Int): Pair<PlayerBrick, PlayerBrick> {
