@@ -12,6 +12,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.awt.Graphics2D
 import javax.swing.JComponent
+import kotlin.math.roundToInt
 
 class PongRenderer(
     private val obstacles: MutableList<Obstacle>,
@@ -29,7 +30,7 @@ class PongRenderer(
         scope.launch (Dispatchers.EDT) {
             while(true) {
                 paint(graphics2D)
-                //component.repaint()
+                component.repaint()
                 delay(deltaTime)
             }
         }
@@ -38,27 +39,27 @@ class PongRenderer(
     private fun paint(g: Graphics2D?) {
         if(g != null) {
             drawObstacles(g)
-            drawBall(g)
             drawPlayers(g)
+            drawBall(g)
         }
     }
 
     private fun drawBall(g: Graphics2D) {
         g.color = JBColor.RED
-        g.fillOval(ball.position.x.toInt(), ball.position.y.toInt(), ball.radius, ball.radius)
+        g.fillOval(ball.position.x.roundToInt(), ball.position.y.roundToInt(), ball.radius, ball.radius)
         ball.move(deltaTime.toFloat())
     }
 
     private fun drawObstacles(g: Graphics2D) {
         obstacles.forEach { obstacle ->
             g.color = Gray._255
-            g.drawRect(obstacle.position.x.toInt(), obstacle.position.y.toInt(), obstacle.width, obstacle.height)
+            g.drawRect(obstacle.position.x.roundToInt(), obstacle.position.y.roundToInt(), obstacle.width, obstacle.height)
         }
     }
 
     private fun drawPlayers(g: Graphics2D) {
         g.color = JBColor.BLUE
-        g.fillRect(p1Brick.position.x.toInt(), p1Brick.position.y.toInt(), p1Brick.width, p1Brick.height)
+        g.fillRect(p1Brick.position.x.roundToInt(), p1Brick.position.y.roundToInt(), p1Brick.width, p1Brick.height)
 
         g.color = JBColor.GREEN
         g.fillRect(p2Brick.position.x.toInt(), p2Brick.position.y.toInt(), p2Brick.width, p2Brick.height)

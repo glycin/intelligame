@@ -10,8 +10,13 @@ class PongCollider(
     private val obstacles: List<Obstacle>,
 ) {
 
-    fun collidesBricks(positionToCheck: Vec2): CollisionObject? = playerBricks.firstOrNull { brick ->
-        (positionToCheck.x in brick.minX..brick.maxX) && (positionToCheck.y in brick.minY..brick.maxY)
+    fun collidesBricks(positionToCheck: Vec2): CollisionObject? {
+        val collides = playerBricks.firstOrNull { brick ->
+            (positionToCheck.x in brick.minX..brick.maxX) && (positionToCheck.y in brick.minY..brick.maxY)
+        }
+
+        if(collides != null) { println(collides) }
+        return collides
     }
 
     fun collidesObstacle(positionToCheck: Vec2): CollisionObject? = obstacles.firstOrNull { ob ->

@@ -9,10 +9,10 @@ class Obstacle(
     val width: Int,
     val height: Int,
 ): CollisionObject{
-    val minX = position.x - width / 2
-    val maxX = position.x + width / 2
-    val minY = position.y - height / 2
-    val maxY = position.y + height / 2
+    val minX = position.x
+    val maxX = position.x + width
+    val minY = position.y
+    val maxY = position.y + height
 
     val topLeft = Vec2(minX, maxY)
     val topRight = Vec2(maxX, maxY)

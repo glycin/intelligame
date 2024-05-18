@@ -13,7 +13,7 @@ import kotlinx.coroutines.CoroutineScope
 import java.awt.Graphics2D
 import java.awt.KeyboardFocusManager
 
-private const val FPS = 60L
+private const val FPS = 120L
 
 @Service
 class PongService(private val scope: CoroutineScope) {
@@ -29,7 +29,8 @@ class PongService(private val scope: CoroutineScope) {
         val graphics = GraphicsUtil.safelyGetGraphics(editor.contentComponent) as Graphics2D
 
         val obstacles = createLevel(editor)
-        val (p1, p2) = spawnPlayers(editor, obstacles.maxOf { it.width })
+        val maxWidth = obstacles.filter { it.width != editor.contentComponent.width }.maxOf { it.width }
+        val (p1, p2) = spawnPlayers(editor, maxWidth)
         val ball = spawnBall(editor, PongCollider(listOf(p1, p2), obstacles))
 
         renderer = PongRenderer(obstacles, ball, p1, p2, scope, graphics, FPS)
@@ -87,7 +88,16 @@ class PongService(private val scope: CoroutineScope) {
             Obstacle(
                 position = Vec2(0.0f, 0.0f),
                 width = editor.contentComponent.width,
-                height = 1
+                height = 5
+            )
+        )
+
+        // Bottom side of the map
+        obstacles.add(
+            Obstacle(
+                position = Vec2(0.0f, (editor.component.height - 5).toFloat()),
+                width = editor.contentComponent.width,
+                height = 5
             )
         )
 
@@ -107,9 +117,8 @@ class PongService(private val scope: CoroutineScope) {
         val document = editor.document
         val line = document.getLineNumber(editor.caretModel.offset)
         val p1BrickPosition = editor.offsetToXY(document.getLineStartOffset(line) + 1)
-
         val p1 = PlayerBrick(p1BrickPosition.toVec2())
-        val p2 = PlayerBrick(Vec2(p1.position.x + maxWidth + 100.0f, p1.position.y))
+        val p2 = PlayerBrick(Vec2(p1.position.x + maxWidth + 100, p1.position.y))
         return p1 to p2
     }
 }

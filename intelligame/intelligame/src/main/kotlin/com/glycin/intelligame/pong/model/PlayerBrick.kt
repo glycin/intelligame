@@ -1,23 +1,21 @@
 package com.glycin.intelligame.pong.model
 
 import com.glycin.intelligame.shared.Vec2
-import java.awt.geom.Ellipse2D
-import java.awt.geom.Rectangle2D
 import kotlin.math.abs
 import kotlin.math.min
 
 
 class PlayerBrick(
     var position: Vec2,
-    val width: Int = 10,
-    val height: Int = 40,
+    val width: Int = 20,
+    val height: Int = 60,
 ): CollisionObject {
-    val minX = position.x - width / 2
-    val maxX = position.x + width / 2
-    val minY = position.y - height / 2
-    val maxY = position.y + height / 2
+    val minX = position.x
+    val maxX = position.x + width
+    val minY = position.y
+    val maxY = position.y + height
 
-    private val speed: Float = 0.4f
+    private val speed: Float = 2f
 
     fun moveUp(deltaTime: Float) {
         position -= Vec2.up * (deltaTime * speed)
