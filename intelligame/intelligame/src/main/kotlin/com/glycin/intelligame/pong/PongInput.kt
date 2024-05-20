@@ -1,5 +1,6 @@
-package com.glycin.intelligame.pong.model
+package com.glycin.intelligame.pong
 
+import com.glycin.intelligame.pong.model.PlayerBrick
 import com.intellij.openapi.editor.CaretModel
 import java.awt.KeyEventDispatcher
 import java.awt.event.KeyEvent
@@ -9,7 +10,7 @@ class PongInput(
     private val p2: PlayerBrick,
     private val caretModel: CaretModel,
     fps: Long,
-): KeyEventDispatcher {
+): KeyEventDispatcher { //TODO: Maybe use a keylistener instead of this?
 
     private val deltaTime = 1000.0f / fps
     private val originalCaretOffset = caretModel.offset

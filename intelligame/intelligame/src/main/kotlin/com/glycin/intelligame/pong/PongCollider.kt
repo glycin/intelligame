@@ -1,22 +1,23 @@
 package com.glycin.intelligame.pong
 
 import com.glycin.intelligame.pong.model.CollisionObject
+import com.glycin.intelligame.pong.model.Goal
 import com.glycin.intelligame.pong.model.Obstacle
 import com.glycin.intelligame.pong.model.PlayerBrick
 import com.glycin.intelligame.shared.Vec2
 
 class PongCollider(
     private val playerBricks: List<PlayerBrick>,
+    private val goals: List<Goal>,
     private val obstacles: List<Obstacle>,
 ) {
 
-    fun collidesBricks(positionToCheck: Vec2): CollisionObject? {
-        val collides = playerBricks.firstOrNull { brick ->
-            (positionToCheck.x in brick.minX..brick.maxX) && (positionToCheck.y in brick.minY..brick.maxY)
-        }
+    fun collidesBricks(positionToCheck: Vec2): CollisionObject? = playerBricks.firstOrNull { brick ->
+        (positionToCheck.x in brick.minX()..brick.maxX()) && (positionToCheck.y in brick.minY()..brick.maxY())
+    }
 
-        if(collides != null) { println(collides) }
-        return collides
+    fun collidesGoal(positionToCheck: Vec2): CollisionObject? = goals.firstOrNull { goal ->
+        (positionToCheck.x in goal.minX..goal.maxX) && (positionToCheck.y in goal.minY..goal.maxY)
     }
 
     fun collidesObstacle(positionToCheck: Vec2): CollisionObject? = obstacles.firstOrNull { ob ->

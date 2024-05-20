@@ -10,10 +10,10 @@ class PlayerBrick(
     val width: Int = 20,
     val height: Int = 60,
 ): CollisionObject {
-    val minX = position.x
-    val maxX = position.x + width
-    val minY = position.y
-    val maxY = position.y + height
+    fun minX() = position.x
+    fun maxX() = position.x + width
+    fun minY() = position.y
+    fun maxY() = position.y + height
 
     private val speed: Float = 2f
 
@@ -26,10 +26,10 @@ class PlayerBrick(
     }
 
     override fun getCollisionNormal(colPosition: Vec2): Vec2 {
-        val distLeft = abs(colPosition.x - minX)
-        val distRight = abs(colPosition.x - maxX)
-        val distTop = abs(colPosition.y - minY)
-        val distBottom = abs(colPosition.y - maxY)
+        val distLeft = abs(colPosition.x - minX())
+        val distRight = abs(colPosition.x - maxX())
+        val distTop = abs(colPosition.y - minY())
+        val distBottom = abs(colPosition.y - maxY())
 
         val minDist = min(min(distLeft, distRight), min(distTop, distBottom))
 

@@ -1,6 +1,7 @@
 package com.glycin.intelligame.pong
 
 import com.glycin.intelligame.pong.model.Ball
+import com.glycin.intelligame.pong.model.Goal
 import com.glycin.intelligame.pong.model.Obstacle
 import com.glycin.intelligame.pong.model.PlayerBrick
 import com.intellij.openapi.application.EDT
@@ -10,6 +11,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.awt.Graphics
 import java.awt.Graphics2D
 import javax.swing.JComponent
 import kotlin.math.roundToInt
@@ -19,26 +21,29 @@ class PongRenderer(
     private val ball: Ball,
     private val p1Brick: PlayerBrick,
     private val p2Brick: PlayerBrick,
+    private val goal1: Goal,
+    private val goal2: Goal,
     private val scope: CoroutineScope,
-    private val graphics2D: Graphics2D?,
     fps : Long,
-) {
+): JComponent() {
 
     private val deltaTime = 1000L / fps
 
-    fun init(component: JComponent) {
+    fun start() {
+        isFocusable = true
         scope.launch (Dispatchers.EDT) {
             while(true) {
-                paint(graphics2D)
-                component.repaint()
+                repaint()
                 delay(deltaTime)
             }
         }
     }
 
-    private fun paint(g: Graphics2D?) {
-        if(g != null) {
+    override fun paintComponent(g: Graphics) {
+        super.paintComponent(g)
+        if(g is Graphics2D) {
             drawObstacles(g)
+            drawGoals(g)
             drawPlayers(g)
             drawBall(g)
         }
@@ -63,5 +68,13 @@ class PongRenderer(
 
         g.color = JBColor.GREEN
         g.fillRect(p2Brick.position.x.toInt(), p2Brick.position.y.toInt(), p2Brick.width, p2Brick.height)
+    }
+
+    private fun drawGoals(g: Graphics2D) {
+        g.color = goal1.color
+        g.fillRect(goal1.position.x.roundToInt(), goal1.position.y.roundToInt(), goal1.width, goal1.height)
+
+        g.color = goal2.color
+        g.fillRect(goal2.position.x.toInt(), goal2.position.y.toInt(), goal2.width, goal2.height)
     }
 }

@@ -8,9 +8,8 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.LogicalPosition
 import com.intellij.openapi.editor.VisualPosition
 import com.intellij.openapi.util.TextRange
-import com.intellij.util.ui.GraphicsUtil
+import com.intellij.ui.JBColor
 import kotlinx.coroutines.CoroutineScope
-import java.awt.Graphics2D
 import java.awt.KeyboardFocusManager
 
 private const val FPS = 120L
@@ -20,36 +19,42 @@ class PongService(private val scope: CoroutineScope) {
 
     private var state = GameState.IDLE
 
-    private lateinit var renderer: PongRenderer
-
     fun initGame(editor: Editor) {
         println("GAME STARTED!")
         if(state == GameState.STARTED) { return }
 
-        val graphics = GraphicsUtil.safelyGetGraphics(editor.contentComponent) as Graphics2D
-
         val obstacles = createLevel(editor)
         val maxWidth = obstacles.filter { it.width != editor.contentComponent.width }.maxOf { it.width }
         val (p1, p2) = spawnPlayers(editor, maxWidth)
-        val ball = spawnBall(editor, PongCollider(listOf(p1, p2), obstacles))
+        val (g1, g2) = createGoals(editor)
+        val ball = spawnBall(editor, PongCollider(listOf(p1, p2), listOf(g1, g2), obstacles))
 
-        renderer = PongRenderer(obstacles, ball, p1, p2, scope, graphics, FPS)
+        attachGameToEditor(editor, obstacles, ball, p1, p2, g1, g2)
+            .apply { start() }
 
-        renderer.init(editor.contentComponent)
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(PongInput(p1, p2, editor.caretModel, FPS))
-
-        //TODO: Trial implementation using a JPanel... not working atm
-        /*val pr = PRenderer(obstacles, ball)
-        editor.contentComponent.add(pr)
-        editor.contentComponent.revalidate()
-        editor.contentComponent.repaint()
-        scope.launch {
-            while (true) {
-                pr.updatePos()
-                delay(1000 / 25)
-            }
-        }*/
         state = GameState.STARTED
+    }
+
+    private fun attachGameToEditor(
+        editor: Editor, obstacles: MutableList<Obstacle>, ball: Ball, player1: PlayerBrick, player2: PlayerBrick, g1: Goal, g2: Goal
+    ): PongRenderer {
+        val contentComponent = editor.contentComponent
+
+        // Create and configure the Pong game component
+        val pongRenderer = PongRenderer(obstacles, ball, player1, player2, g1, g2, scope, FPS).apply {
+            bounds = contentComponent.bounds
+            isOpaque = false
+        }
+
+        // Add the Pong game component as an overlay
+        contentComponent.add(pongRenderer)
+        contentComponent.revalidate()
+        contentComponent.repaint()
+
+        // Request focus for the Pong game to ensure it receives key events
+        pongRenderer.requestFocusInWindow()
+        return pongRenderer
     }
 
     private fun createLevel(editor: Editor) : MutableList<Obstacle>  {
@@ -120,5 +125,36 @@ class PongService(private val scope: CoroutineScope) {
         val p1 = PlayerBrick(p1BrickPosition.toVec2())
         val p2 = PlayerBrick(Vec2(p1.position.x + maxWidth + 100, p1.position.y))
         return p1 to p2
+    }
+
+    private fun createGoals(editor: Editor): Pair<Goal, Goal> {
+        // Left side of the map
+        val g1 = Goal(
+            position = Vec2(0.0f, 0.0f),
+            height = editor.component.height,
+            goalIndex = 0,
+            color = JBColor.BLUE,
+        )
+
+        // Right side of the map
+        val g2 = Goal(
+            position = Vec2(editor.contentComponent.width.toFloat(), 0.0f),
+            height = editor.component.height,
+            goalIndex = 1,
+            color = JBColor.GREEN,
+        )
+        return g1 to g2
+    }
+
+    private fun writeScore(editor: Editor){
+        val document = editor.document
+        for(line in 0 until document.lineCount) {
+            val lineStartOffset = document.getLineStartOffset(line)
+            val lineEndOffset = document.getLineEndOffset(line)
+
+            if(document.getText(TextRange(lineStartOffset, lineEndOffset)).isEmpty()){
+                println("FIRST EMPTY LINE is $line")
+            }
+        }
     }
 }
