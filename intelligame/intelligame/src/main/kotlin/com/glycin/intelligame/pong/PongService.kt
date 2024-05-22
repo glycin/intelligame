@@ -3,10 +3,13 @@ package com.glycin.intelligame.pong
 import com.glycin.intelligame.pong.model.*
 import com.glycin.intelligame.shared.Vec2
 import com.glycin.intelligame.util.toVec2
+import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.components.Service
+import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.LogicalPosition
 import com.intellij.openapi.editor.VisualPosition
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.ui.JBColor
 import kotlinx.coroutines.CoroutineScope
@@ -18,10 +21,17 @@ private const val FPS = 120L
 class PongService(private val scope: CoroutineScope) {
 
     private var state = GameState.IDLE
+    private var score1 = 0
+    private var score2 = 0
 
-    fun initGame(editor: Editor) {
+    private var textOffset: Int = 0
+    private lateinit var openDocument: Document
+    private lateinit var openProject: Project
+
+    fun initGame(project: Project, editor: Editor) {
         println("GAME STARTED!")
         if(state == GameState.STARTED) { return }
+        openProject = project
 
         val obstacles = createLevel(editor)
         val maxWidth = obstacles.filter { it.width != editor.contentComponent.width }.maxOf { it.width }
@@ -33,7 +43,25 @@ class PongService(private val scope: CoroutineScope) {
             .apply { start() }
 
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(PongInput(p1, p2, editor.caretModel, FPS))
+        writeScore(editor)
+        openDocument = editor.document
         state = GameState.STARTED
+    }
+
+    fun updateScore(index: Int) {
+        WriteCommandAction.runWriteCommandAction(openProject) {
+            openDocument.insertString(textOffset, """
+                        // **************************************** Player One: $score1 - $score2 :Player Two **************************************** // 
+                    """.trimIndent())
+        }
+
+        if(index == 0) score1++ else score2++
+
+        WriteCommandAction.runWriteCommandAction(openProject) {
+            openDocument.insertString(textOffset, """
+                        // **************************************** Player One: $score1 - $score2 :Player Two **************************************** // 
+                    """.trimIndent())
+        }
     }
 
     private fun attachGameToEditor(
@@ -115,6 +143,7 @@ class PongService(private val scope: CoroutineScope) {
         return Ball(
             position = position,
             collider = collider,
+            service = this,
         )
     }
 
@@ -153,7 +182,13 @@ class PongService(private val scope: CoroutineScope) {
             val lineEndOffset = document.getLineEndOffset(line)
 
             if(document.getText(TextRange(lineStartOffset, lineEndOffset)).isEmpty()){
-                println("FIRST EMPTY LINE is $line")
+                textOffset = lineStartOffset
+                WriteCommandAction.runWriteCommandAction(openProject) {
+                    document.insertString(lineStartOffset, """
+                        // **************************************** Player One: $score1 - $score2 :Player Two **************************************** // 
+                    """.trimIndent())
+                }
+                return
             }
         }
     }

@@ -26,6 +26,7 @@ class PongCollider(
 
     fun getBounceVector(direction: Vec2, collisionPosition: Vec2, collisionObject: CollisionObject): Vec2 {
         val colNormal = collisionObject.getCollisionNormal(collisionPosition)
+        //TODO: We can calculate the dot product here and not bounce if its positive
         return when(colNormal) {
             Vec2.left, Vec2.right ->  Vec2(-direction.x, direction.y)
             Vec2.down, Vec2.up -> Vec2(direction.x, -direction.y)

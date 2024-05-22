@@ -10,8 +10,8 @@ data class Vec2(
     companion object {
         val zero = Vec2(0f, 0f)
         val one = Vec2(1f, 1f)
-        val up = Vec2(0f, 1f)
-        val down = Vec2(0f, -1f)
+        val up = Vec2(0f, -1f)
+        val down = Vec2(0f, 1f)
         val left = Vec2(-1f, 0f)
         val right = Vec2(1f, 0f)
     }

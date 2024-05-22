@@ -18,11 +18,11 @@ class PlayerBrick(
     private val speed: Float = 2f
 
     fun moveUp(deltaTime: Float) {
-        position -= Vec2.up * (deltaTime * speed)
+        position += Vec2.up * (deltaTime * speed)
     }
 
     fun moveDown(deltaTime: Float) {
-        position -= Vec2.down * (deltaTime * speed)
+        position += Vec2.down * (deltaTime * speed)
     }
 
     override fun getCollisionNormal(colPosition: Vec2): Vec2 {
