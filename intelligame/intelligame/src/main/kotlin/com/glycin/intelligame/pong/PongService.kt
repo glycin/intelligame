@@ -3,6 +3,7 @@ package com.glycin.intelligame.pong
 import com.glycin.intelligame.pong.model.*
 import com.glycin.intelligame.shared.Vec2
 import com.glycin.intelligame.util.toVec2
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.editor.Document
@@ -24,7 +25,7 @@ class PongService(private val scope: CoroutineScope) {
     private var score1 = 0
     private var score2 = 0
 
-    private var textOffset: Int = 0
+    private var textLine: Int = 0
     private lateinit var openDocument: Document
     private lateinit var openProject: Project
 
@@ -49,18 +50,14 @@ class PongService(private val scope: CoroutineScope) {
     }
 
     fun updateScore(index: Int) {
-        WriteCommandAction.runWriteCommandAction(openProject) {
-            openDocument.insertString(textOffset, """
-                        // **************************************** Player One: $score1 - $score2 :Player Two **************************************** // 
-                    """.trimIndent())
-        }
-
+        openDocument.getLineStartOffset(textLine)
         if(index == 0) score1++ else score2++
-
-        WriteCommandAction.runWriteCommandAction(openProject) {
-            openDocument.insertString(textOffset, """
+        ApplicationManager.getApplication().invokeLater {
+            WriteCommandAction.runWriteCommandAction(openProject) {
+                openDocument.replaceString(openDocument.getLineStartOffset(textLine), openDocument.getLineEndOffset(textLine), """
                         // **************************************** Player One: $score1 - $score2 :Player Two **************************************** // 
                     """.trimIndent())
+            }
         }
     }
 
@@ -182,7 +179,7 @@ class PongService(private val scope: CoroutineScope) {
             val lineEndOffset = document.getLineEndOffset(line)
 
             if(document.getText(TextRange(lineStartOffset, lineEndOffset)).isEmpty()){
-                textOffset = lineStartOffset
+                textLine = line
                 WriteCommandAction.runWriteCommandAction(openProject) {
                     document.insertString(lineStartOffset, """
                         // **************************************** Player One: $score1 - $score2 :Player Two **************************************** // 
