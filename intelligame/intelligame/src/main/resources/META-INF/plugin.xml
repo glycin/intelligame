@@ -31,6 +31,10 @@
       <language>JAVA</language>
       <className>com.glycin.intelligame.pong.PongStarter</className>
     </intentionAction>
+    <intentionAction>
+      <language>JAVA</language>
+      <className>com.glycin.intelligame.boom.BoomStarter</className>
+    </intentionAction>
   </extensions>
 
   <projectListeners>

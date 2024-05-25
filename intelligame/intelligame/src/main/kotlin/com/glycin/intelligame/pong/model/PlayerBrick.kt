@@ -1,5 +1,6 @@
 package com.glycin.intelligame.pong.model
 
+import com.glycin.intelligame.shared.CollisionObject
 import com.glycin.intelligame.shared.Vec2
 import kotlin.math.abs
 import kotlin.math.min

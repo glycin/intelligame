@@ -30,7 +30,7 @@ class PongService(private val scope: CoroutineScope) {
     private lateinit var openProject: Project
 
     fun initGame(project: Project, editor: Editor) {
-        println("GAME STARTED!")
+        println("PONG STARTED!")
         if(state == GameState.STARTED) { return }
         openProject = project
 

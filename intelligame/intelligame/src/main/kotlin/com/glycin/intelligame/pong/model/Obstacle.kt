@@ -1,5 +1,6 @@
 package com.glycin.intelligame.pong.model
 
+import com.glycin.intelligame.shared.CollisionObject
 import com.glycin.intelligame.shared.Vec2
 import kotlin.math.abs
 import kotlin.math.min
@@ -8,7 +9,7 @@ class Obstacle(
     val position: Vec2,
     val width: Int,
     val height: Int,
-): CollisionObject{
+): CollisionObject {
     val minX = position.x
     val maxX = position.x + width
     val minY = position.y

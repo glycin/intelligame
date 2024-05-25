@@ -1,5 +1,6 @@
 package com.glycin.intelligame.pong.model
 
+import com.glycin.intelligame.shared.CollisionObject
 import com.glycin.intelligame.shared.Vec2
 import com.intellij.ui.JBColor
 
@@ -9,7 +10,7 @@ class Goal(
     val height: Int = 60,
     val goalIndex: Int = 0,
     val color: JBColor,
-):CollisionObject{
+): CollisionObject {
     val minX = position.x
     val maxX = position.x + width
     val minY = position.y

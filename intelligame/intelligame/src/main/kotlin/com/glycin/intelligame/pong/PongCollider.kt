@@ -1,6 +1,6 @@
 package com.glycin.intelligame.pong
 
-import com.glycin.intelligame.pong.model.CollisionObject
+import com.glycin.intelligame.shared.CollisionObject
 import com.glycin.intelligame.pong.model.Goal
 import com.glycin.intelligame.pong.model.Obstacle
 import com.glycin.intelligame.pong.model.PlayerBrick
