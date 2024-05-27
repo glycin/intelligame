@@ -1,4 +1,9 @@
 package com.glycin.intelligame.boom.model
 
-class ExplosionObject {
-}
+import com.glycin.intelligame.shared.Vec2
+
+class ExplosionObject(
+    val position: Vec2,
+    val width: Int,
+    val height: Int,
+)
