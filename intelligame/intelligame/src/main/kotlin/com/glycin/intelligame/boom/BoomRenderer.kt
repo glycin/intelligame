@@ -9,11 +9,13 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.awt.Graphics
 import java.awt.Graphics2D
+import java.awt.event.MouseAdapter
+import java.awt.event.MouseEvent
 import javax.swing.JComponent
 import kotlin.math.roundToInt
 
 class BoomRenderer(
-    val boomObjects: List<ExplosionObject>,
+    private val boomObjects: List<ExplosionObject>,
     private val scope: CoroutineScope,
     fps : Long,
 ): JComponent() {
@@ -22,6 +24,14 @@ class BoomRenderer(
 
     fun start() {
         isFocusable = true
+
+        addMouseListener(object : MouseAdapter() {
+            override fun mouseClicked(e: MouseEvent) {
+                super.mouseClicked(e)
+
+            }
+        })
+
         scope.launch (Dispatchers.EDT) {
             while(true) {
                 repaint()
@@ -37,10 +47,14 @@ class BoomRenderer(
         }
     }
 
+    private fun explode(explosionX: Int, explosionY: Int, force: Int) {
+
+    }
+
     private fun drawObjects(g: Graphics2D) {
         boomObjects.forEach { boom ->
             g.color = Gray._255
-            g.drawRect(boom.position.x.roundToInt(), boom.position.y.roundToInt(), boom.width, boom.height)
+            g.drawRect(boom.position.x, boom.position.y, boom.width, boom.height)
         }
     }
 }

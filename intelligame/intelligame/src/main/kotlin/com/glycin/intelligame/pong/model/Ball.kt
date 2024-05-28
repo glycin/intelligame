@@ -4,6 +4,7 @@ import com.glycin.intelligame.pong.PongCollider
 import com.glycin.intelligame.pong.PongService
 import com.glycin.intelligame.shared.Vec2
 import java.util.Random
+import kotlin.math.roundToInt
 
 class Ball(
     var position: Vec2,
@@ -14,7 +15,7 @@ class Ball(
 ) {
     private val immunityFrames = 10
     private var lifetime = 0
-    private var direction = Vec2(1.0f, 1.0f)
+    private var direction = Vec2(1, 1)
     private var initialSafePosition = Vec2.zero
 
     fun move(deltaTime: Float){
@@ -34,7 +35,7 @@ class Ball(
             }
         }
 
-        position += direction * (deltaTime * speed)
+        position += direction * (deltaTime * speed).roundToInt()
     }
 
     private fun reset(index: Int){
@@ -44,11 +45,11 @@ class Ball(
         val rand = Random()
         val num = rand.nextInt(4)
         direction = when(num) {
-            0 -> Vec2(1.0f, 1.0f)
-            1 -> Vec2(-1.0f, 1.0f)
-            2 -> Vec2(1.0f, -1.0f)
-            3 -> Vec2(-1.0f, -1.0f)
-            else -> Vec2(1.0f, 1.0f)
+            0 -> Vec2(1, 1)
+            1 -> Vec2(-1, 1)
+            2 -> Vec2(1, -1)
+            3 -> Vec2(-1, -1)
+            else -> Vec2(1, 1)
         }
     }
 }

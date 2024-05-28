@@ -40,7 +40,7 @@ class BoomService(private val scope: CoroutineScope) {
         return boomRenderer
     }
 
-    private fun createLevel(editor: Editor): List<ExplosionObject>{
+    private fun createLevel(editor: Editor): List<ExplosionObject> {
 
         val document = editor.document
         val boomies = mutableListOf<ExplosionObject>()
@@ -66,7 +66,6 @@ class BoomService(private val scope: CoroutineScope) {
                         } else {
                             graphics.fontMetrics.charWidth(c) * 2 //The charWidth() width is always 2 small so we just make it bigger ¯\_(ツ)_/¯
                         }
-
 
                         boomies.add(
                             ExplosionObject(

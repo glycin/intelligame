@@ -24,4 +24,4 @@ fun Editor.getPointOnCaret(offset: Int): Point {
     return Point(p.x, p.y)
 }
 
-fun Point.toVec2() = Vec2(x.toFloat(), y.toFloat())
+fun Point.toVec2() = Vec2(x, y)

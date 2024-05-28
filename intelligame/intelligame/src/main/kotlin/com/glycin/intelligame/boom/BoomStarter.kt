@@ -1,6 +1,5 @@
 package com.glycin.intelligame.boom
 
-import com.glycin.intelligame.pong.PongService
 import com.intellij.codeInsight.intention.HighPriorityAction
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.openapi.components.service

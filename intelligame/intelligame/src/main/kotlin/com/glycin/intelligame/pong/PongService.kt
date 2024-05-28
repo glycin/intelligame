@@ -116,7 +116,7 @@ class PongService(private val scope: CoroutineScope) {
         // Top side of the map
         obstacles.add(
             Obstacle(
-                position = Vec2(0.0f, 0.0f),
+                position = Vec2.zero,
                 width = editor.contentComponent.width,
                 height = 5
             )
@@ -125,7 +125,7 @@ class PongService(private val scope: CoroutineScope) {
         // Bottom side of the map
         obstacles.add(
             Obstacle(
-                position = Vec2(0.0f, (editor.component.height - 5).toFloat()),
+                position = Vec2(0, (editor.component.height - 5)),
                 width = editor.contentComponent.width,
                 height = 5
             )
@@ -156,7 +156,7 @@ class PongService(private val scope: CoroutineScope) {
     private fun createGoals(editor: Editor): Pair<Goal, Goal> {
         // Left side of the map
         val g1 = Goal(
-            position = Vec2(0.0f, 0.0f),
+            position = Vec2.zero,
             height = editor.component.height,
             goalIndex = 0,
             color = JBColor.BLUE,
@@ -164,7 +164,7 @@ class PongService(private val scope: CoroutineScope) {
 
         // Right side of the map
         val g2 = Goal(
-            position = Vec2(editor.contentComponent.width.toFloat(), 0.0f),
+            position = Vec2(editor.contentComponent.width, 0),
             height = editor.component.height,
             goalIndex = 1,
             color = JBColor.GREEN,

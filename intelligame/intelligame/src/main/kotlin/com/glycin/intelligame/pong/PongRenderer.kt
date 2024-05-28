@@ -51,30 +51,30 @@ class PongRenderer(
 
     private fun drawBall(g: Graphics2D) {
         g.color = JBColor.RED
-        g.fillOval(ball.position.x.roundToInt(), ball.position.y.roundToInt(), ball.radius, ball.radius)
+        g.fillOval(ball.position.x, ball.position.y, ball.radius, ball.radius)
         ball.move(deltaTime.toFloat())
     }
 
     private fun drawObstacles(g: Graphics2D) {
         obstacles.forEach { obstacle ->
             g.color = Gray._255
-            g.drawRect(obstacle.position.x.roundToInt(), obstacle.position.y.roundToInt(), obstacle.width, obstacle.height)
+            g.drawRect(obstacle.position.x, obstacle.position.y, obstacle.width, obstacle.height)
         }
     }
 
     private fun drawPlayers(g: Graphics2D) {
         g.color = JBColor.BLUE
-        g.fillRect(p1Brick.position.x.roundToInt(), p1Brick.position.y.roundToInt(), p1Brick.width, p1Brick.height)
+        g.fillRect(p1Brick.position.x, p1Brick.position.y, p1Brick.width, p1Brick.height)
 
         g.color = JBColor.GREEN
-        g.fillRect(p2Brick.position.x.toInt(), p2Brick.position.y.toInt(), p2Brick.width, p2Brick.height)
+        g.fillRect(p2Brick.position.x, p2Brick.position.y, p2Brick.width, p2Brick.height)
     }
 
     private fun drawGoals(g: Graphics2D) {
         g.color = goal1.color
-        g.fillRect(goal1.position.x.roundToInt(), goal1.position.y.roundToInt(), goal1.width, goal1.height)
+        g.fillRect(goal1.position.x, goal1.position.y, goal1.width, goal1.height)
 
         g.color = goal2.color
-        g.fillRect(goal2.position.x.toInt(), goal2.position.y.toInt(), goal2.width, goal2.height)
+        g.fillRect(goal2.position.x, goal2.position.y, goal2.width, goal2.height)
     }
 }

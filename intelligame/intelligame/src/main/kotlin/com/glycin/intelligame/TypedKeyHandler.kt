@@ -2,19 +2,15 @@ package com.glycin.intelligame
 
 import com.glycin.intelligame.services.GameService
 import com.glycin.intelligame.services.PaintService
-import com.glycin.intelligame.util.getPointAboveCaret
 import com.intellij.codeInsight.editorActions.TypedHandlerDelegate
 import com.intellij.openapi.components.service
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 import com.intellij.util.ui.GraphicsUtil
 import java.awt.Graphics2D
 import java.awt.Point
-import java.awt.event.KeyEvent
-import java.awt.event.KeyListener
 
 class TypedKeyHandler: TypedHandlerDelegate() {
 
