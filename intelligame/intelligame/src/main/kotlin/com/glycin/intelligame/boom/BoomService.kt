@@ -24,20 +24,20 @@ class BoomService(private val scope: CoroutineScope) {
 
     private fun attachGameToEditor(
         editor: Editor, booms: List<ExplosionObject>
-    ): BoomRenderer {
+    ): BoomComponent {
         val contentComponent = editor.contentComponent
 
-        val boomRenderer = BoomRenderer(booms, scope, FPS).apply {
+        val boomComponent = BoomComponent(booms, scope, FPS).apply {
             bounds = contentComponent.bounds
             isOpaque = false
         }
 
-        contentComponent.add(boomRenderer)
+        contentComponent.add(boomComponent)
         contentComponent.revalidate()
         contentComponent.repaint()
 
-        boomRenderer.requestFocusInWindow()
-        return boomRenderer
+        boomComponent.requestFocusInWindow()
+        return boomComponent
     }
 
     private fun createLevel(editor: Editor): List<ExplosionObject> {

@@ -14,7 +14,6 @@ import kotlinx.coroutines.launch
 import java.awt.Graphics
 import java.awt.Graphics2D
 import javax.swing.JComponent
-import kotlin.math.roundToInt
 
 class PongRenderer(
     private val obstacles: MutableList<Obstacle>,
