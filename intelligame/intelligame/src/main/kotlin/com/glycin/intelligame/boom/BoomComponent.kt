@@ -12,7 +12,9 @@ import java.awt.Graphics
 import java.awt.Graphics2D
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
+import javax.swing.ImageIcon
 import javax.swing.JComponent
+import javax.swing.JLabel
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.min
@@ -24,9 +26,11 @@ class BoomComponent(
     fps : Long,
 ): JComponent() {
 
+    private val explosionGif = ImageIcon(BoomComponent::class.java.getResource("/Sprites/explode.gif"))
     private val deltaTime = 1000L / fps
 
-    private val explosionForce = 1
+    private val explosionDecay = 50
+    private val explosionForce = 5
     private val explosionRadius = 200
 
     fun start() {
@@ -34,7 +38,7 @@ class BoomComponent(
 
         addMouseListener(object : MouseAdapter() {
             override fun mouseClicked(e: MouseEvent) {
-                //super.mouseClicked(e)
+                super.mouseClicked(e)
                 println("clicked on ${e.x}, ${e.y}")
                 explode(Vec2(e.x, e.y))
             }
@@ -52,6 +56,7 @@ class BoomComponent(
         super.paintComponent(g)
         if(g is Graphics2D) {
             drawObjects(g)
+            //drawExplosion(g)
         }
     }
 
@@ -62,22 +67,30 @@ class BoomComponent(
         }
     }
 
+    private fun drawExplosion(position:Vec2): JLabel{
+        val pos = Vec2(position.x - explosionGif.iconWidth / 2, position.y - explosionGif.iconHeight / 2)
+        val expLabel = JLabel(explosionGif)
+        expLabel.setBounds(pos.x, pos.y, explosionGif.iconWidth, explosionGif.iconHeight)
+        add(expLabel)
+        repaint()
+        return expLabel
+    }
+
     private fun explode(explosionPos: Vec2) {
         val start = System.currentTimeMillis()
-        val duration = 5000 //millis
+        val duration = 1000 //millis
         val endTime = start + duration
 
-        scope.launch (Dispatchers.EDT) {
+        val label = drawExplosion(explosionPos)
+        scope.launch (Dispatchers.Unconfined) {
+            delay(50) // A little delay to make the effect match the gif
             while(System.currentTimeMillis() < endTime) {
-                val elapsed = System.currentTimeMillis() - start
-                val progress = elapsed / duration
-
                 boomObjects.onEach { b ->
                     val centerPos = b.midPoint()
                     val distance = Vec2.distance(centerPos, explosionPos)
 
                     if(distance < explosionRadius) {
-                        val forceMagnitude = (1 - progress) * (explosionRadius - distance) / explosionForce
+                        val forceMagnitude = explosionForce * (explosionRadius - distance) / explosionDecay
                         b.moveWithForce(forceMagnitude, explosionPos)
                     }else {
                         b.force = 0.0f
@@ -87,6 +100,8 @@ class BoomComponent(
                 }
                 delay(deltaTime)
             }
+
+            remove(label)
         }
     }
 
