@@ -85,9 +85,8 @@ class PongService(private val scope: CoroutineScope) {
     private fun createLevel(editor: Editor) : MutableList<Obstacle>  {
         val document = editor.document
         val obstacles = mutableListOf<Obstacle>()
-        val l1 = editor.visualPositionToXY(VisualPosition(0, 0))
-        val l2 = editor.visualPositionToXY(VisualPosition(1, 0))
-        val lineHeight = l2.y - l1.y
+        val lineHeight = editor.lineHeight
+        val scrollOffset = editor.scrollingModel.verticalScrollOffset
 
         for(line in 0 until document.lineCount) {
             val lineStartOffset = document.getLineStartOffset(line)
@@ -101,22 +100,23 @@ class PongService(private val scope: CoroutineScope) {
 
             val startLogicalPosition = LogicalPosition(line, lineTextStartIndex)
 
-            val startPos = editor.logicalPositionToXY(startLogicalPosition).toVec2()
-            val endPos = editor.offsetToXY(lineEndOffset).toVec2()
+            val startPos = editor.logicalPositionToXY(startLogicalPosition).toVec2(scrollOffset)
+            val endPos = editor.offsetToXY(lineEndOffset).toVec2(scrollOffset)
             val width = endPos.x - startPos.x
 
             obstacles.add(
                 Obstacle(
                     position = startPos,
-                    width = width.toInt(),
+                    width = width,
                     height = lineHeight,
                 )
             )
         }
+
         // Top side of the map
         obstacles.add(
             Obstacle(
-                position = Vec2.zero,
+                position = Vec2(0, scrollOffset), //TODO: For some reason here the offset resets to 0 or something
                 width = editor.contentComponent.width,
                 height = 5
             )
@@ -125,7 +125,7 @@ class PongService(private val scope: CoroutineScope) {
         // Bottom side of the map
         obstacles.add(
             Obstacle(
-                position = Vec2(0, (editor.component.height - 5)),
+                position = Vec2(0, (editor.component.height + (scrollOffset - 5))),
                 width = editor.contentComponent.width,
                 height = 5
             )
@@ -136,7 +136,8 @@ class PongService(private val scope: CoroutineScope) {
 
     private fun spawnBall(editor: Editor, collider: PongCollider): Ball {
         val caretModel = editor.caretModel
-        val position = editor.offsetToXY(caretModel.offset).toVec2()
+        val scrollOffset = editor.scrollingModel.verticalScrollOffset
+        val position = editor.offsetToXY(caretModel.offset).toVec2(scrollOffset)
         return Ball(
             position = position,
             collider = collider,
@@ -146,26 +147,29 @@ class PongService(private val scope: CoroutineScope) {
 
     private fun spawnPlayers(editor: Editor, maxWidth: Int): Pair<PlayerBrick, PlayerBrick> {
         val document = editor.document
+        val scrollOffset = editor.scrollingModel.verticalScrollOffset
         val line = document.getLineNumber(editor.caretModel.offset)
         val p1BrickPosition = editor.offsetToXY(document.getLineStartOffset(line) + 1)
-        val p1 = PlayerBrick(p1BrickPosition.toVec2())
+        val p1 = PlayerBrick(p1BrickPosition.toVec2(scrollOffset))
         val p2 = PlayerBrick(Vec2(p1.position.x + maxWidth + 100, p1.position.y))
         return p1 to p2
     }
 
     private fun createGoals(editor: Editor): Pair<Goal, Goal> {
+        val scrollOffset = editor.component.bounds.height
+
         // Left side of the map
         val g1 = Goal(
             position = Vec2.zero,
-            height = editor.component.height,
+            height = editor.contentComponent.height,
             goalIndex = 0,
             color = JBColor.BLUE,
         )
 
         // Right side of the map
         val g2 = Goal(
-            position = Vec2(editor.contentComponent.width, 0),
-            height = editor.component.height,
+            position = Vec2(editor.contentComponent.width, scrollOffset),
+            height = editor.contentComponent.height,
             goalIndex = 1,
             color = JBColor.GREEN,
         )

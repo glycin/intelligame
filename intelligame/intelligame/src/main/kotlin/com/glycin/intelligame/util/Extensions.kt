@@ -15,4 +15,6 @@ fun Editor.getPointOnCaret(offset: Int): Point {
 
 fun Point.toVec2() = Vec2(x, y)
 
+fun Point.toVec2(scrollOffset: Int) = Vec2(x, y + scrollOffset)
+
 fun Vec2.toPoint() = Point(x, y)

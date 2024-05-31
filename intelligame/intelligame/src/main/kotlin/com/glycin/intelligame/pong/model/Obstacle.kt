@@ -15,11 +15,6 @@ class Obstacle(
     val minY = position.y
     val maxY = position.y + height
 
-//    val topLeft = Vec2(minX, maxY)
-//    val topRight = Vec2(maxX, maxY)
-//    val bottomLeft = Vec2(minX, minY)
-//    val bottomRight = Vec2(maxX, minY)
-
     override fun getCollisionNormal(colPosition: Vec2): Vec2 {
         val distLeft = abs(colPosition.x - minX)
         val distRight = abs(colPosition.x - maxX)
