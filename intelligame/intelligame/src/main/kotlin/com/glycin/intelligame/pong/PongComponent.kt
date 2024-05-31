@@ -15,7 +15,7 @@ import java.awt.Graphics
 import java.awt.Graphics2D
 import javax.swing.JComponent
 
-class PongRenderer(
+class PongComponent(
     private val obstacles: MutableList<Obstacle>,
     private val ball: Ball,
     private val p1Brick: PlayerBrick,
@@ -30,6 +30,7 @@ class PongRenderer(
 
     fun start() {
         isFocusable = true
+
         scope.launch (Dispatchers.EDT) {
             while(true) {
                 repaint()

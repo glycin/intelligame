@@ -10,7 +10,7 @@ class PongInput(
     private val p2: PlayerBrick,
     private val caretModel: CaretModel,
     fps: Long,
-): KeyEventDispatcher { //TODO: Maybe use a keylistener instead of this?
+): KeyEventDispatcher {
 
     private val deltaTime = 1000.0f / fps
     private val originalCaretOffset = caretModel.offset

@@ -5,17 +5,6 @@ import com.intellij.openapi.editor.Editor
 import java.awt.Point
 
 private const val X_SNAP = 25
-private const val Y_SNAP = 50
-
-fun Editor.getCaretVisualPosition() = caretModel.currentCaret.visualPosition
-
-fun Editor.getPointAboveCaret(): Point {
-    val caretPosition = caretModel.offset
-    val p = offsetToXY(caretPosition)
-    val location = scrollingModel.visibleArea.location
-    p.translate((-location.x) + X_SNAP, (-location.y) - Y_SNAP)
-    return p
-}
 
 fun Editor.getPointOnCaret(offset: Int): Point {
     val p = offsetToXY(offset)
@@ -25,3 +14,5 @@ fun Editor.getPointOnCaret(offset: Int): Point {
 }
 
 fun Point.toVec2() = Vec2(x, y)
+
+fun Vec2.toPoint() = Point(x, y)

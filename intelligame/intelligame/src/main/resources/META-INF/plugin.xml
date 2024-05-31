@@ -26,7 +26,6 @@
        Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
   <extensions defaultExtensionNs="com.intellij">
     <postStartupActivity implementation="com.glycin.intelligame.GameStartupActivity"/>
-    <typedHandler implementation="com.glycin.intelligame.TypedKeyHandler"/>
     <intentionAction>
       <language>JAVA</language>
       <className>com.glycin.intelligame.pong.PongStarter</className>

@@ -39,11 +39,11 @@ class PongService(private val scope: CoroutineScope) {
         val (p1, p2) = spawnPlayers(editor, maxWidth)
         val (g1, g2) = createGoals(editor)
         val ball = spawnBall(editor, PongCollider(listOf(p1, p2), listOf(g1, g2), obstacles))
+        KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(PongInput(p1, p2, editor.caretModel, FPS))
 
         attachGameToEditor(editor, obstacles, ball, p1, p2, g1, g2)
             .apply { start() }
 
-        KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(PongInput(p1, p2, editor.caretModel, FPS))
         writeScore(editor)
         openDocument = editor.document
         state = GameState.STARTED
@@ -63,23 +63,23 @@ class PongService(private val scope: CoroutineScope) {
 
     private fun attachGameToEditor(
         editor: Editor, obstacles: MutableList<Obstacle>, ball: Ball, player1: PlayerBrick, player2: PlayerBrick, g1: Goal, g2: Goal
-    ): PongRenderer {
+    ): PongComponent {
         val contentComponent = editor.contentComponent
 
         // Create and configure the Pong game component
-        val pongRenderer = PongRenderer(obstacles, ball, player1, player2, g1, g2, scope, FPS).apply {
+        val pongComponent = PongComponent(obstacles, ball, player1, player2, g1, g2, scope, FPS).apply {
             bounds = contentComponent.bounds
             isOpaque = false
         }
 
         // Add the Pong game component as an overlay
-        contentComponent.add(pongRenderer)
+        contentComponent.add(pongComponent)
         contentComponent.revalidate()
         contentComponent.repaint()
 
         // Request focus for the Pong game to ensure it receives key events
-        pongRenderer.requestFocusInWindow()
-        return pongRenderer
+        pongComponent.requestFocusInWindow()
+        return pongComponent
     }
 
     private fun createLevel(editor: Editor) : MutableList<Obstacle>  {
