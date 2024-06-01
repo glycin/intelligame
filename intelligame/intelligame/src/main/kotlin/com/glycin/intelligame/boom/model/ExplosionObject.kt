@@ -1,6 +1,7 @@
 package com.glycin.intelligame.boom.model
 
 import com.glycin.intelligame.shared.Vec2
+import javax.swing.JLabel
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.roundToInt
@@ -12,6 +13,9 @@ class ExplosionObject(
     var position: Vec2,
     val width: Int,
     val height: Int,
+    val char: String,
+    var label: JLabel? = null,
+    private var moving: Boolean = false
 ){
     fun minX() = position.x
     fun maxX() = position.x + width
@@ -30,6 +34,11 @@ class ExplosionObject(
     }
 
     fun moveWithForce(forceMagnitude: Float, explosionPos: Vec2) {
+        if(!moving) {
+            moving = true
+            label?.isVisible = moving
+        }
+
         this.force = forceMagnitude
         val angle = atan2((midPoint().y - explosionPos.y).toDouble(), (midPoint().x - explosionPos.x).toDouble())
         val deltaX = ((force * cos(angle)) * DRAG).roundToInt()
@@ -39,5 +48,11 @@ class ExplosionObject(
         //position += velocity
 
         position = Vec2(position.x + deltaX, position.y + deltaY)
+        label?.setBounds(position.x, position.y, width, height)
+    }
+
+    fun rest(){
+        moving = false
+        label?.isVisible = moving
     }
 }

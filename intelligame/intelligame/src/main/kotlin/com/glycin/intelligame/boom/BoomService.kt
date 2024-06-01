@@ -5,7 +5,6 @@ import com.glycin.intelligame.util.toVec2
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.LogicalPosition
-import com.intellij.openapi.editor.VisualPosition
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.util.ui.GraphicsUtil
@@ -16,18 +15,22 @@ private const val FPS = 120L
 @Service
 class BoomService(private val scope: CoroutineScope) {
 
+    private val explObjects = mutableListOf<ExplosionObject>()
+
     fun kaboom(project: Project, editor: Editor){
         println("BOOM!!!")
-        val booms = createLevel(editor)
-        attachGameToEditor(editor, booms).apply { start() }
+        explObjects.addAll(createLevel(editor))
+        attachGameToEditor(editor, project, explObjects).apply { start() }
     }
 
     private fun attachGameToEditor(
-        editor: Editor, booms: List<ExplosionObject>
+        editor: Editor, project: Project, booms: List<ExplosionObject>
     ): BoomComponent {
         val contentComponent = editor.contentComponent
+        editor.settings.isVirtualSpace = true
 
-        val boomComponent = BoomComponent(booms, scope, FPS).apply {
+        val state = ExplosionGrid(project, editor).apply { initGrid() }
+        val boomComponent = BoomComponent(booms, state, scope, FPS).apply {
             bounds = contentComponent.bounds
             isOpaque = false
         }
@@ -44,9 +47,8 @@ class BoomService(private val scope: CoroutineScope) {
 
         val document = editor.document
         val boomies = mutableListOf<ExplosionObject>()
-        val l1 = editor.visualPositionToXY(VisualPosition(0, 0))
-        val l2 = editor.visualPositionToXY(VisualPosition(1, 0))
-        val lineHeight = l2.y - l1.y
+        val lineHeight = editor.lineHeight
+        val scrollOffset = editor.scrollingModel.verticalScrollOffset
         return GraphicsUtil.safelyGetGraphics(editor.component)?.let { graphics ->
             for(line in 0 until document.lineCount) {
                 val lineStartOffset = document.getLineStartOffset(line)
@@ -57,12 +59,12 @@ class BoomService(private val scope: CoroutineScope) {
                 lineText.forEachIndexed { index, c ->
                     if(!c.isWhitespace()){
                         val charLogicalPosition = LogicalPosition(line, index)
-                        val charPos = editor.logicalPositionToXY(charLogicalPosition).toVec2()
+                        val charPos = editor.logicalPositionToXY(charLogicalPosition).toVec2(scrollOffset)
                         val nextCharOffset = lineStartOffset + index + 1
 
                         val charWidth = if (nextCharOffset < lineEndOffset) {
                             val nextCharPos = editor.offsetToXY(nextCharOffset)
-                            (nextCharPos.x - charPos.x).toInt()
+                            (nextCharPos.x - charPos.x)
                         } else {
                             graphics.fontMetrics.charWidth(c) * 2 //The charWidth() width is always 2 small so we just make it bigger ¯\_(ツ)_/¯
                         }
@@ -72,6 +74,7 @@ class BoomService(private val scope: CoroutineScope) {
                                 position = charPos,
                                 width = charWidth,
                                 height = lineHeight,
+                                char = c.toString(),
                             )
                         )
                     }
