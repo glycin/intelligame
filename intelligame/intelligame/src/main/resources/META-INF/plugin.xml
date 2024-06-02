@@ -34,6 +34,10 @@
       <language>JAVA</language>
       <className>com.glycin.intelligame.boom.BoomStarter</className>
     </intentionAction>
+    <intentionAction>
+      <language>JAVA</language>
+      <className>com.glycin.intelligame.stateinvaders.StateInvadersStarter</className>
+    </intentionAction>
   </extensions>
 
   <projectListeners>
