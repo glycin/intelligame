@@ -34,10 +34,6 @@ class ExplosionObject(
     }
 
     fun moveWithForce(forceMagnitude: Float, explosionPos: Vec2) {
-        if(!moving) {
-            moving = true
-            label?.isVisible = moving
-        }
 
         this.force = forceMagnitude
         val angle = atan2((midPoint().y - explosionPos.y).toDouble(), (midPoint().x - explosionPos.x).toDouble())
@@ -51,8 +47,11 @@ class ExplosionObject(
         label?.setBounds(position.x, position.y, width, height)
     }
 
+    fun show() {
+        label?.isVisible = true
+    }
+
     fun rest(){
-        moving = false
-        label?.isVisible = moving
+        label?.isVisible = false
     }
 }

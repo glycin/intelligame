@@ -24,7 +24,7 @@ import kotlin.math.sin
 
 class BoomComponent(
     private val boomObjects: List<ExplosionObject>,
-    private val explosionGrid: ExplosionGrid,
+    private val explosionWriter: ExplosionWriter,
     private val scope: CoroutineScope,
     fps : Long,
 ): JComponent() {
@@ -42,12 +42,13 @@ class BoomComponent(
         addMouseListener(object : MouseAdapter() {
             override fun mouseClicked(e: MouseEvent) {
                 super.mouseClicked(e)
-                println("clicked on ${e.x}, ${e.y}")
+                boomObjects.forEach { it.show() }
+                explosionWriter.clear()
                 explode(Vec2(e.x, e.y))
             }
         })
 
-        //createLabels()
+        createLabels()
 
         scope.launch (Dispatchers.EDT) {
             while(true) {
@@ -61,7 +62,6 @@ class BoomComponent(
         super.paintComponent(g)
         if(g is Graphics2D) {
             //drawObjects(g)
-            debugGrid(g)
         }
     }
 
@@ -69,13 +69,6 @@ class BoomComponent(
         boomObjects.forEach { boom ->
             g.color = Gray._117
             g.drawRect(boom.position.x, boom.position.y, boom.width, boom.height)
-        }
-    }
-
-    private fun debugGrid(g: Graphics2D) {
-        explosionGrid.getDebuPositions().onEach {
-            g.color = Gray._255
-            g.drawRect(it.x, it.y, 5, 5)
         }
     }
 
@@ -110,7 +103,7 @@ class BoomComponent(
         val endTime = start + duration
 
         val label = drawExplosion(explosionPos)
-        scope.launch (Dispatchers.Unconfined) {
+        scope.launch (Dispatchers.Main) {
             delay(50) // A little delay to make the effect match the gif
             while(System.currentTimeMillis() < endTime) {
                 boomObjects.onEach { b ->
@@ -130,6 +123,8 @@ class BoomComponent(
             }
             boomObjects.forEach { it.rest() }
             remove(label)
+        }.invokeOnCompletion {
+            explosionWriter.writeText(boomObjects)
         }
     }
 

@@ -18,6 +18,7 @@ import java.awt.KeyboardFocusManager
 
 private const val FPS = 120L
 
+//TODO: Add cleanup
 @Service
 class PongService(private val scope: CoroutineScope) {
 

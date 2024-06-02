@@ -12,6 +12,7 @@ import kotlinx.coroutines.CoroutineScope
 
 private const val FPS = 120L
 
+//TODO: Add cleanup
 @Service
 class BoomService(private val scope: CoroutineScope) {
 
@@ -29,7 +30,7 @@ class BoomService(private val scope: CoroutineScope) {
         val contentComponent = editor.contentComponent
         editor.settings.isVirtualSpace = true
 
-        val state = ExplosionGrid(project, editor).apply { initGrid() }
+        val state = ExplosionWriter(project, editor)
         val boomComponent = BoomComponent(booms, state, scope, FPS).apply {
             bounds = contentComponent.bounds
             isOpaque = false
