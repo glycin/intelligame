@@ -18,6 +18,6 @@ class BoomStarter: IntentionAction, HighPriorityAction {
     override fun isAvailable(p0: Project, p1: Editor?, p2: PsiFile?): Boolean = true
 
     override fun invoke(project: Project, editor: Editor, file: PsiFile) {
-        project.service<BoomService>().kaboom(project, editor)
+        project.service<BoomGame>().kaboom(project, editor)
     }
 }

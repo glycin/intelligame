@@ -9,7 +9,6 @@ import com.intellij.openapi.components.Service
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.LogicalPosition
-import com.intellij.openapi.editor.VisualPosition
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.ui.JBColor
@@ -20,7 +19,7 @@ private const val FPS = 120L
 
 //TODO: Add cleanup
 @Service
-class PongService(private val scope: CoroutineScope) {
+class PongGame(private val scope: CoroutineScope) {
 
     private var state = GameState.IDLE
     private var score1 = 0

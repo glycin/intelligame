@@ -14,7 +14,7 @@ private const val FPS = 120L
 
 //TODO: Add cleanup
 @Service
-class BoomService(private val scope: CoroutineScope) {
+class BoomGame(private val scope: CoroutineScope) {
 
     private val explObjects = mutableListOf<ExplosionObject>()
 

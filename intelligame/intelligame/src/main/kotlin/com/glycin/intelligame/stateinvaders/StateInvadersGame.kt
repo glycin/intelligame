@@ -10,7 +10,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.Processor
 
 @Service
-class StateInvadersService {
+class StateInvadersGame {
 
     fun initGame(project: Project, editor: Editor) {
         println("STATE INVADERS STARTED")

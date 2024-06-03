@@ -1,7 +1,7 @@
 package com.glycin.intelligame.pong.model
 
 import com.glycin.intelligame.pong.PongCollider
-import com.glycin.intelligame.pong.PongService
+import com.glycin.intelligame.pong.PongGame
 import com.glycin.intelligame.shared.Vec2
 import java.util.Random
 import kotlin.math.roundToInt
@@ -10,7 +10,7 @@ class Ball(
     var position: Vec2,
     val radius: Int = 10,
     val collider: PongCollider,
-    val service: PongService,
+    val service: PongGame,
     private val speed: Float = 0.25f,
 ) {
     private val immunityFrames = 10
