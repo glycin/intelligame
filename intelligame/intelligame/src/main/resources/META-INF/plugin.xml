@@ -21,11 +21,11 @@
   <!-- Product and plugin compatibility requirements.
        Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
   <depends>com.intellij.modules.platform</depends>
+  <depends>com.intellij.java</depends>
 
   <!-- Extension points defined by the plugin.
        Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
   <extensions defaultExtensionNs="com.intellij">
-    <postStartupActivity implementation="com.glycin.intelligame.GameStartupActivity"/>
     <intentionAction>
       <language>JAVA</language>
       <className>com.glycin.intelligame.pong.PongStarter</className>
@@ -40,7 +40,4 @@
     </intentionAction>
   </extensions>
 
-  <projectListeners>
-    <listener class="com.glycin.intelligame.FileOpenedListener" topic="com.intellij.openapi.fileEditor.FileEditorManagerListener" />
-  </projectListeners>
 </idea-plugin>
