@@ -1,5 +1,7 @@
 package com.glycin.intelligame.stateinvaders
 
+import com.glycin.intelligame.shared.Vec2
+import com.glycin.intelligame.stateinvaders.model.Stalien
 import com.intellij.codeInsight.completion.AllClassesGetter
 import com.intellij.codeInsight.completion.PlainPrefixMatcher
 import com.intellij.openapi.components.Service
@@ -9,12 +11,21 @@ import com.intellij.psi.*
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.Processor
 
+private const val FPS = 120L
+
 @Service
 class StateInvadersGame {
 
     fun initGame(project: Project, editor: Editor) {
         println("STATE INVADERS STARTED")
-        val fields = collectMutableFields(project)
+        val o = collectMutableFields(project).map { field ->
+            Stalien(
+                position = Vec2.zero,
+                width = field.text.length * 5,
+                height = editor.lineHeight,
+                text = field.text,
+            )
+        }
     }
 
     private fun collectMutableFields(project: Project) : List<PsiField> {

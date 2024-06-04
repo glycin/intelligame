@@ -6,5 +6,6 @@ class Stalien(
     var position: Vec2,
     val width: Int,
     val height: Int,
+    val text: String,
 ) {
 }
