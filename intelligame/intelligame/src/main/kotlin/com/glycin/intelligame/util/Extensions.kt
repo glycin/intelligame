@@ -6,15 +6,12 @@ import java.awt.Point
 
 private const val X_SNAP = 25
 
-fun Editor.getPointOnCaret(offset: Int): Point {
-    val p = offsetToXY(offset)
-    val location = scrollingModel.visibleArea.location
-    p.translate((-location.x) + X_SNAP, (-location.y) - 25)
-    return Point(p.x, p.y)
-}
-
 fun Point.toVec2() = Vec2(x, y)
 
 fun Point.toVec2(scrollOffset: Int) = Vec2(x, y + scrollOffset)
 
 fun Vec2.toPoint() = Point(x, y)
+
+fun Long.toDeltaTime() = 1000f / this
+
+fun Long.toLongDeltaTime() = 1000L / this
