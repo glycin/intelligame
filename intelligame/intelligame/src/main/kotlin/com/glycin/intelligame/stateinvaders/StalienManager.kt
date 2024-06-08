@@ -16,6 +16,7 @@ class StalienManager(
     private val deltaTime = fps.toDeltaTime()
     private val firingChance = staliens.size / 4
     private val staliensToRemove = mutableSetOf<Stalien>()
+    private val shootAllowedTime = System.currentTimeMillis() + 5000
 
     private var groupDirection = Vec2.right
     private var curFrame = 0L
@@ -56,12 +57,14 @@ class StalienManager(
             println("game over")
         }
 
-        staliens.forEachIndexed { index, stalien ->
-            val random = Random.nextInt(100)
-            stalien.move(groupDirection, deltaTime)
+        if(System.currentTimeMillis() > shootAllowedTime) {
+            staliens.forEach { stalien ->
+                val random = Random.nextInt(100)
+                stalien.move(groupDirection, deltaTime)
 
-            if(random <= firingChance) {
-                stalien.shoot()
+                if (random <= firingChance) {
+                    stalien.shoot()
+                }
             }
         }
 

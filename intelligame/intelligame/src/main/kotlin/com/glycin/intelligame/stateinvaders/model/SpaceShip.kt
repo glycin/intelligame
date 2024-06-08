@@ -22,18 +22,20 @@ class SpaceShip(
     private val shootCooldown = 500L
 
     fun moveLeft(deltaTime: Float) {
-        if(position.x > mapMinX) {
+        if(position.x > mapMinX && game.state == GameState.STARTED) {
             position += Vec2.left * (deltaTime * speed).roundToInt()
         }
     }
 
     fun moveRight(deltaTime: Float) {
-        if(position.x < mapMaxX) {
+        if(position.x < mapMaxX && game.state == GameState.STARTED)  {
             position += Vec2.right * (deltaTime * speed).roundToInt()
         }
     }
 
     fun shoot() {
+        if(game.state != GameState.STARTED) return
+        
         if(System.currentTimeMillis() >= shootTime) {
             val bullet = Bullet(Vec2(position.x + width / 2, position.y), 10, 25, false, Vec2.up, game)
             game.bm.submitBullet(bullet)
