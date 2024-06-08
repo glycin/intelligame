@@ -7,20 +7,23 @@ import com.glycin.intelligame.util.toDeltaTime
 import kotlin.random.Random
 
 class StalienManager(
-    private val staliens: List<Stalien>,
+    val staliens: MutableList<Stalien>,
     private val minX: Int,
     private val maxX: Int,
     private val ship: SpaceShip,
     fps: Long,
 ) {
     private val deltaTime = fps.toDeltaTime()
-    private val firingChance = staliens.size
+    private val firingChance = staliens.size / 4
+    private val staliensToRemove = mutableSetOf<Stalien>()
 
     private var groupDirection = Vec2.right
     private var curFrame = 0L
     private var skipTime = fps / 10
 
     fun moveGroup() {
+        if(staliens.isEmpty()) return
+
         if(curFrame < skipTime) {
             curFrame++
             return
@@ -54,11 +57,22 @@ class StalienManager(
         }
 
         staliens.forEachIndexed { index, stalien ->
-            val random = Random(index).nextInt(100)
-            stalien.move(groupDirection, deltaTime.toFloat())
+            val random = Random.nextInt(100)
+            stalien.move(groupDirection, deltaTime)
 
             if(random <= firingChance) {
+                stalien.shoot()
             }
         }
+
+        if(staliensToRemove.isNotEmpty()) {
+            staliensToRemove.forEach { stalien -> staliens.remove(stalien) }
+            staliensToRemove.clear()
+        }
+    }
+
+    fun destroyAlien(collided: Stalien) {
+        staliensToRemove.add(collided)
+        collided.die()
     }
 }

@@ -20,6 +20,11 @@ private const val FPS = 120L
 @Service
 class StateInvadersGame(private val scope: CoroutineScope) {
 
+    lateinit var cm: CollisionManager
+    lateinit var bm: BulletManager
+    lateinit var sm: StalienManager
+    lateinit var gameComponent: StateInvadersComponent
+
     fun initGame(project: Project, editor: Editor) {
         println("STATE INVADERS STARTED")
 
@@ -30,26 +35,28 @@ class StateInvadersGame(private val scope: CoroutineScope) {
                 height = editor.lineHeight,
                 text = field.text,
                 originalPsiField = field,
+                game = this,
             )
         }.positionAliens(editor)
 
-        val bm = BulletManager(mutableListOf(), FPS)
+        bm = BulletManager(mutableListOf(), FPS)
 
-        val spaceShip = SpaceShip(
+        val spaceship = SpaceShip(
             position = Vec2(
                 x = editor.component.width / 2,
                 y = editor.component.height - 100
             ),
             width = 50,
             height = 50,
-            minX = 0,
-            maxX = editor.contentComponent.width - 50,
-            bm = bm,
+            mapMinX = 0,
+            mapMaxX = editor.contentComponent.width - 50,
+            game = this,
         )
 
-        KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(StateInvadersInput(spaceShip, FPS))
+        cm = CollisionManager(spaceship, staliens.toMutableList())
+        KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(StateInvadersInput(spaceship, FPS))
 
-        attachGameToEditor(editor, staliens, spaceShip, bm)
+        attachGameToEditor(editor, staliens, spaceship)
             .apply { start() }
     }
 
@@ -94,24 +101,33 @@ class StateInvadersGame(private val scope: CoroutineScope) {
     }
 
     private fun attachGameToEditor(
-        editor: Editor, aliens: List<Stalien>, spaceShip: SpaceShip, bulletManager: BulletManager
+        editor: Editor, aliens: List<Stalien>, spaceShip: SpaceShip
     ): StateInvadersComponent {
         val contentComponent = editor.contentComponent
 
-        val sm = StalienManager(aliens, 0, editor.contentComponent.width, spaceShip, FPS)
+        sm = StalienManager(aliens.toMutableList(), 0, editor.contentComponent.width, spaceShip, FPS)
         // Create and configure the Pong game component
-        val spaceComponent = StateInvadersComponent(aliens, spaceShip, sm, bulletManager, scope, FPS).apply {
+        gameComponent = StateInvadersComponent(spaceShip, this, scope, FPS).apply {
             bounds = contentComponent.bounds
             isOpaque = false
         }
 
         // Add the Pong game component as an overlay
-        contentComponent.add(spaceComponent)
+        contentComponent.add(gameComponent)
         contentComponent.revalidate()
         contentComponent.repaint()
 
         // Request focus for the Pong game to ensure it receives key events
-        spaceComponent.requestFocusInWindow()
-        return spaceComponent
+        gameComponent.requestFocusInWindow()
+        return gameComponent
+    }
+
+    fun gameOver() {
+        println("game over!")
+    }
+
+    fun destroyStalien(collided: Stalien) {
+        gameComponent.removeStalien(collided)
+        sm.destroyAlien(collided)
     }
 }

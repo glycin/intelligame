@@ -17,10 +17,8 @@ import javax.swing.JComponent
 import javax.swing.JLabel
 
 class StateInvadersComponent(
-    private val aliens: List<Stalien>,
     private val spaceShip: SpaceShip,
-    private val manager: StalienManager,
-    private val bulletManager: BulletManager,
+    private val game: StateInvadersGame,
     private val scope: CoroutineScope,
     fps: Long
 ) : JComponent() {
@@ -38,19 +36,23 @@ class StateInvadersComponent(
         }
     }
 
+    fun removeStalien(stalien: Stalien) {
+        remove(stalien.label)
+    }
+
     override fun paintComponent(g: Graphics) {
         super.paintComponent(g)
         if(g is Graphics2D) {
             drawSpaceShip(g)
             drawAliens(g)
             drawBullets(g)
-            bulletManager.moveBullets()
-            manager.moveGroup()
+            game.bm.moveBullets()
+            game.sm.moveGroup()
         }
     }
 
     private fun drawAliens(g: Graphics2D) {
-        aliens.forEach {
+        game.sm.staliens.forEach {
             g.color = JBColor.RED
             g.drawRect(it.position.x, it.position.y, it.width, it.height)
         }
@@ -62,7 +64,7 @@ class StateInvadersComponent(
     }
 
     private fun drawBullets(g: Graphics2D) {
-        bulletManager.getAllActiveBullets().forEach {
+        game.bm.getAllActiveBullets().forEach {
             g.color = JBColor.yellow
             g.fillRect(it.position.x, it.position.y, it.width, it.height)
         }
@@ -72,7 +74,7 @@ class StateInvadersComponent(
         val scheme = EditorColorsManager.getInstance().globalScheme
         val fontPreferences = scheme.fontPreferences
 
-        aliens.forEach { alien ->
+        game.sm.staliens.forEach { alien ->
             val objLabel = JLabel(alien.text)
             objLabel.font = Font(fontPreferences.fontFamily, 0, fontPreferences.getSize(fontPreferences.fontFamily))
             objLabel.setBounds(alien.position.x, alien.position.y, alien.width, alien.height)

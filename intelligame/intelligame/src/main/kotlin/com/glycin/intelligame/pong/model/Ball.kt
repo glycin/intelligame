@@ -18,13 +18,15 @@ class Ball(
     private var direction = Vec2(1, 1)
     private var initialSafePosition = Vec2.zero
 
+    private fun midPoint() = Vec2(position.x + (radius / 2), position.y + (radius / 2))
+
     fun move(deltaTime: Float){
         if(lifetime <= immunityFrames) {
             lifetime++
         }else {
-            val colObj = collider.collidesBricks(position)
-                ?: collider.collidesGoal(position)
-                ?: collider.collidesObstacle(position)
+            val colObj = collider.collidesBricks(midPoint())
+                ?: collider.collidesGoal(midPoint())
+                ?: collider.collidesObstacle(midPoint())
 
             if(colObj != null) {
                 if(colObj is Goal) reset(colObj.goalIndex) else direction = collider.getBounceVector(direction, position, colObj)
