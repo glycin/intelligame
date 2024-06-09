@@ -26,6 +26,10 @@ class StateInvadersInput(
                     KeyEvent.VK_SPACE -> {
                         game.player.shoot()
                     }
+
+                    KeyEvent.VK_ESCAPE -> {
+                        game.cleanUp()
+                    }
                 }
             }else if (game.state == GameState.MAIN_MENU) {
                 game.mainMenuTyped(e.keyChar)

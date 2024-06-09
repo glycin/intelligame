@@ -7,6 +7,8 @@ import com.glycin.intelligame.stateinvaders.model.SpaceShip
 import com.glycin.intelligame.stateinvaders.model.Stalien
 import com.intellij.codeInsight.completion.AllClassesGetter
 import com.intellij.codeInsight.completion.PlainPrefixMatcher
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
@@ -33,9 +35,12 @@ class StateInvadersGame(private val scope: CoroutineScope) {
     private lateinit var gameComponent: StateInvadersComponent
     private lateinit var openEditor: Editor
     private lateinit var openProject: Project
+    private lateinit var input: StateInvadersInput
     private var codeBlock = ""
     private var staliens = listOf<Stalien>()
     private var mainMenuTyped = ""
+    private var aliveStaliens = 0;
+    private var score = 100
 
     fun initGame(project: Project, editor: Editor) {
         println("STATE INVADERS STARTED")
@@ -50,15 +55,35 @@ class StateInvadersGame(private val scope: CoroutineScope) {
         println("game over!")
     }
 
+    fun cleanUp(){
+        openEditor.contentComponent.remove(gameComponent)
+        KeyboardFocusManager.getCurrentKeyboardFocusManager().removeKeyEventDispatcher(input)
+        openEditor.contentComponent.revalidate()
+        openEditor.contentComponent.repaint()
+        score = 100
+        codeBlock = ""
+        state = GameState.DESTROYED
+    }
+
     fun destroyStalien(collided: Stalien) {
         gameComponent.removeStalien(collided)
         sm.destroyAlien(collided)
+        val oldTextLength = GameTexts.getScoreText(score).length
+        aliveStaliens--
+        score = ((aliveStaliens.toDouble() / staliens.size.toDouble()) * 100.0).roundToInt()
+        ApplicationManager.getApplication().invokeLater {
+            WriteCommandAction.runWriteCommandAction(openProject) {
+                collided.originalPsiField.delete()
+            }
+        }
+        TextWriter.replaceText(15, 15 + oldTextLength, GameTexts.getScoreText(score), openEditor, openProject)
     }
 
     fun mainMenuTyped(char: Char) {
         mainMenuTyped += char
         if (mainMenuTyped.contains("start")) {
             state = GameState.CUTSCENE
+            mainMenuTyped = ""
             doOpeningAnimation()
         }
     }
@@ -86,7 +111,7 @@ class StateInvadersGame(private val scope: CoroutineScope) {
     private fun startGame() {
         TextWriter.deleteText(0, openEditor.document.textLength - codeBlock.length, openEditor, openProject)
         TextWriter.writeText(0, GameTexts.getCutscenePlaceholder(), openEditor, openProject)
-        TextWriter.writeText(15, GameTexts.getScoreText(100), openEditor, openProject)
+        TextWriter.writeText(15, GameTexts.getScoreText(score), openEditor, openProject)
         bm = BulletManager(mutableListOf(), FPS)
 
         player = SpaceShip(
@@ -94,8 +119,8 @@ class StateInvadersGame(private val scope: CoroutineScope) {
                 x = openEditor.component.width / 2,
                 y = openEditor.component.height - 100
             ),
-            width = 50,
-            height = 50,
+            width = 64,
+            height = 64,
             mapMinX = 0,
             mapMaxX = openEditor.contentComponent.width - 50,
             game = this,
@@ -109,14 +134,15 @@ class StateInvadersGame(private val scope: CoroutineScope) {
 
     private fun List<Stalien>.positionAliens(editor: Editor): List<Stalien> {
         val maxWidth = (editor.contentComponent.width * 0.5).roundToInt()
-        val widthSpacing = 50
+        val widthSpacing = 70
+        val heightSpacing = (editor.lineHeight * 2.5).roundToInt()
         var curWidth = 0
-        var curHeight = 0
+        var curHeight = -(heightSpacing * 2)
         forEach { alien ->
             alien.position = Vec2(curWidth, curHeight)
             if (curWidth + alien.width + widthSpacing > maxWidth) {
                 curWidth = 0
-                curHeight += (editor.lineHeight * 1.5).roundToInt()
+                curHeight += heightSpacing
             } else {
                 curWidth += (alien.width + widthSpacing)
             }
@@ -181,6 +207,7 @@ class StateInvadersGame(private val scope: CoroutineScope) {
             )
         }.positionAliens(openEditor)
 
+        aliveStaliens = staliens.size
         val docText = openEditor.document.text
         val flattened = docText.replace("\n", "").replace("\t", "").replace(" ", "")
         val maxCharsPerLine = 150
@@ -206,6 +233,7 @@ class StateInvadersGame(private val scope: CoroutineScope) {
         sb.insert(0, GameTexts.banner)
         TextWriter.replaceText(0, openEditor.document.textLength, sb.toString(), openEditor, openProject)
 
-        KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(StateInvadersInput(this, FPS))
+        input = StateInvadersInput(this, FPS)
+        KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(input)
     }
 }

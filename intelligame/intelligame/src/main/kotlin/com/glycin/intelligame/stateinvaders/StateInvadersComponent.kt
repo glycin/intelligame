@@ -1,5 +1,6 @@
 package com.glycin.intelligame.stateinvaders
 
+import com.glycin.intelligame.shared.Vec2
 import com.glycin.intelligame.stateinvaders.model.SpaceShip
 import com.glycin.intelligame.stateinvaders.model.Stalien
 import com.glycin.intelligame.util.toLongDeltaTime
@@ -24,9 +25,9 @@ class StateInvadersComponent(
 ) : JComponent() {
 
     private val deltaTime = fps.toLongDeltaTime()
+    private var aliensHorizontal = false
 
     fun start() {
-        //aliens.forEach { it.originalPsiField.delete() } //TODO: This has to be be done on the main thread
         scope.launch (Dispatchers.EDT) {
             createLabels()
             while(true) {
@@ -52,25 +53,49 @@ class StateInvadersComponent(
     }
 
     private fun drawAliens(g: Graphics2D) {
+        val shouldSwitch = game.sm.shouldAnimate()
+        if (shouldSwitch) {
+            aliensHorizontal = !aliensHorizontal
+        }
+
         game.sm.staliens.forEach {
             g.color = JBColor.RED
             g.drawRect(it.position.x, it.position.y, it.width, it.height)
+
+            if(aliensHorizontal) {
+                g.fillRect(it.minX() - 10, it.maxY(), 10, 5)
+                g.fillRect(it.minX() - 10, it.minY(), 10, 5)
+                g.fillRect(it.maxX(), it.maxY(), 10, 5)
+                g.fillRect(it.maxX(), it.minY(), 10, 5)
+            } else {
+                g.fillRect(it.minX(), it.maxY(), 5, 10)
+                g.fillRect(it.minX(), it.minY() - 10, 5, 10)
+                g.fillRect(it.maxX(), it.maxY(), 5, 10)
+                g.fillRect(it.maxX(), it.minY() - 10, 5, 10)
+            }
+
+            g.color = JBColor.MAGENTA
+            val leftEyePos = Vec2((it.position.x + it.width / 2) - 30, it.position.y - 15)
+            val rightEyePos = Vec2((it.position.x + it.width / 2) + 30, it.position.y - 15)
+            g.fillOval(leftEyePos.x, leftEyePos.y, 15, 15)
+            g.fillOval(rightEyePos.x, rightEyePos.y, 15, 15)
         }
     }
 
     private fun drawSpaceShip(g: Graphics2D) {
-        g.color = JBColor.GREEN
-        g.fillRect(spaceShip.position.x, spaceShip.position.y, spaceShip.width, spaceShip.height)
+        val x = spaceShip.position.x + spaceShip.width / 2
+        val y = spaceShip.position.y + spaceShip.height / 2
+        g.drawImage(spaceShip.spaceShipImage, x, y, this)
     }
 
     private fun drawBullets(g: Graphics2D) {
         game.bm.getAllActiveBullets().forEach {
-            g.color = JBColor.yellow
+            g.color = if(it.isHostile) JBColor.pink else JBColor.yellow
             g.fillRect(it.position.x, it.position.y, it.width, it.height)
         }
     }
 
-    private fun createLabels(){ // TODO: Generalize this
+    private fun createLabels(){
         val scheme = EditorColorsManager.getInstance().globalScheme
         val fontPreferences = scheme.fontPreferences
 

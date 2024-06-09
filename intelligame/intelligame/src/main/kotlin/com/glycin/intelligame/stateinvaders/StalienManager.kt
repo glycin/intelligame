@@ -20,7 +20,9 @@ class StalienManager(
 
     private var groupDirection = Vec2.right
     private var curFrame = 0L
-    private var skipTime = fps / 10
+    private val skipTime = fps / 10
+    private var curAnimationFrame = 0L
+    private val animationSkipTime = fps
 
     fun moveGroup() {
         if(staliens.isEmpty()) return
@@ -57,16 +59,17 @@ class StalienManager(
             println("game over")
         }
 
-        if(System.currentTimeMillis() > shootAllowedTime) {
-            staliens.forEach { stalien ->
-                val random = Random.nextInt(100)
-                stalien.move(groupDirection, deltaTime)
+        staliens.forEach { stalien ->
+            val random = Random.nextInt(100)
+            stalien.move(groupDirection, deltaTime)
 
+            if(System.currentTimeMillis() > shootAllowedTime) {
                 if (random <= firingChance) {
                     stalien.shoot()
                 }
             }
         }
+
 
         if(staliensToRemove.isNotEmpty()) {
             staliensToRemove.forEach { stalien -> staliens.remove(stalien) }
@@ -77,5 +80,15 @@ class StalienManager(
     fun destroyAlien(collided: Stalien) {
         staliensToRemove.add(collided)
         collided.die()
+    }
+
+    fun shouldAnimate(): Boolean {
+        if(curAnimationFrame < animationSkipTime) {
+            curAnimationFrame++
+            return false
+        }else {
+            curAnimationFrame = 0
+            return true
+        }
     }
 }

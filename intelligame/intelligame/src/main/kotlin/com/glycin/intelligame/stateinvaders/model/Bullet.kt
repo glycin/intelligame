@@ -8,7 +8,7 @@ class Bullet(
     var position: Vec2,
     val width: Int,
     val height: Int,
-    private val isHostile: Boolean = false,
+    val isHostile: Boolean = false,
     private val direction: Vec2,
     private val game: StateInvadersGame,
     private val speed: Int = 3,

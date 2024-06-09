@@ -2,6 +2,8 @@ package com.glycin.intelligame.stateinvaders.model
 
 import com.glycin.intelligame.shared.Vec2
 import com.glycin.intelligame.stateinvaders.StateInvadersGame
+import java.awt.image.BufferedImage
+import javax.imageio.ImageIO
 import kotlin.math.roundToInt
 
 class SpaceShip(
@@ -17,6 +19,7 @@ class SpaceShip(
     fun maxX() = position.x + width
     fun minY() = position.y
     fun maxY() = position.y + height
+    val spaceShipImage: BufferedImage = ImageIO.read(SpaceShip::class.java.getResource("/Sprites/spaceship.png"))
 
     private var shootTime = 0L
     private val shootCooldown = 500L
@@ -37,7 +40,7 @@ class SpaceShip(
         if(game.state != GameState.STARTED) return
         
         if(System.currentTimeMillis() >= shootTime) {
-            val bullet = Bullet(Vec2(position.x + width / 2, position.y), 10, 25, false, Vec2.up, game)
+            val bullet = Bullet(Vec2(position.x + width, position.y), 10, 25, false, Vec2.up, game)
             game.bm.submitBullet(bullet)
             shootTime = System.currentTimeMillis() + shootCooldown
         }
