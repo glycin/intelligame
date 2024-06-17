@@ -1,6 +1,5 @@
 package com.glycin.intelligame.packageman
 
-import com.glycin.intelligame.stateinvaders.StateInvadersGame
 import com.intellij.codeInsight.intention.HighPriorityAction
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.openapi.components.service

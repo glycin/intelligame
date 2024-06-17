@@ -38,6 +38,10 @@
       <language>JAVA</language>
       <className>com.glycin.intelligame.stateinvaders.StateInvadersStarter</className>
     </intentionAction>
+    <intentionAction>
+      <language>JAVA</language>
+      <className>com.glycin.intelligame.packageman.PackmanStarter</className>
+    </intentionAction>
   </extensions>
 
 </idea-plugin>
