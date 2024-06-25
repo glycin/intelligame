@@ -1,14 +1,13 @@
 package com.glycin.intelligame.packageman
 
+import com.glycin.intelligame.shared.TextWriter
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.modules
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.roots.OrderEnumerator
-import com.intellij.openapi.roots.OrderRootType
 import com.intellij.openapi.roots.impl.OrderEntryUtil
 import com.intellij.openapi.roots.libraries.LibraryTablesRegistrar
-import com.jetbrains.rd.util.string.println
 import kotlinx.coroutines.CoroutineScope
 import java.awt.Point
 
@@ -19,23 +18,34 @@ class PackmanGame(
 ) {
 
     fun startGame(){
-        collectDependencies()
+        val dependencyString = collectDependencies()
         val maxX = editor.xyToLogicalPosition(Point(editor.contentComponent.width, 0)).column
         val maxY = editor.xyToLogicalPosition(Point(0, editor.contentComponent.height)).line
         println("$maxX, $maxY vs ${editor.contentComponent.width}, ${editor.contentComponent.height}")
         val generator = MazeGenerator(maxX, maxY)
         val maze = generator.generate()
         val sb = StringBuilder()
-        maze.forEach {
-            for (c in it) {
-                sb.append(c)
+
+        var dependencyStringIndex = 0
+        maze.forEach { line ->
+            line.forEach { column ->
+                if(column == '#') {
+                    sb.append(dependencyString[dependencyStringIndex])
+                    dependencyStringIndex++
+                    if(dependencyStringIndex >= dependencyString.length) {
+                        dependencyStringIndex = 0
+                    }
+                } else {
+                    sb.append(column)
+                }
             }
-            sb.append('\n')
+            sb.append("\n")
         }
-        println(sb.toString())
+
+        TextWriter.replaceText(0, editor.document.textLength, sb.toString(), editor, project)
     }
 
-    private fun collectDependencies() : List<String> {
+    private fun collectDependencies() : String {
         val libStrings = mutableListOf<String>()
         println("collecting dependencies")
 
@@ -75,6 +85,6 @@ class PackmanGame(
 
 
         println("collected dependencies")
-        return libStrings
+        return libStrings.joinToString("")
     }
 }

@@ -7,44 +7,53 @@ class MazeGenerator(
     private val height: Int,
 ) {
     private val maze = Array(height) { CharArray(width) { '#' } }
-    private val frontier = PriorityQueue<Pair<Int, Cell>>(compareBy { it.first })
+    private val walls = mutableListOf<Cell>()
 
-    fun generate() : Array<CharArray> {
-        val startX = if (width % 2 == 0) 1 else 0
-        val startY = if (height % 2 == 0) 1 else 0
+    private val directions = arrayOf(
+        Cell(-1, 0), // Up
+        Cell(1, 0),  // Down
+        Cell(0, -1), // Left
+        Cell(0, 1)   // Right
+    )
 
-        val start = Cell(startX, startY)
-        maze[start.y][start.x] = ' '
-        addFrontierCells(start)
+    private fun isValidCell(cell: Cell): Boolean {
+        return cell.row in 0 until height && cell.col in 0 until width
+    }
 
-        while (frontier.isNotEmpty()) {
-            val next = frontier.poll().second
-            val neighbors = next.neighbors(width, height).filter { maze[it.y][it.x] == ' ' }
-            if (neighbors.isNotEmpty()) {
-                val neighbor = neighbors[Random().nextInt(neighbors.size)]
-                val inBetween = Cell((next.x + neighbor.x) / 2, (next.y + neighbor.y) / 2)
-                maze[next.y][next.x] = ' '
-                maze[inBetween.y][inBetween.x] = ' '
-                addFrontierCells(next)
+    private fun isWall(cell: Cell): Boolean {
+        return isValidCell(cell) && maze[cell.row][cell.col] == '#'
+    }
+
+    private fun isPassage(cell: Cell): Boolean {
+        return isValidCell(cell) && maze[cell.row][cell.col] == ' '
+    }
+
+    private fun getNeighbors(cell: Cell): List<Cell> {
+        return directions.map { Cell(cell.row + it.row, cell.col + it.col) }.filter { isValidCell(it) }
+    }
+
+    private fun addWalls(cell: Cell) {
+        getNeighbors(cell).filter { isWall(it) }.forEach { walls.add(it) }
+    }
+
+    fun generate(): Array<CharArray> {
+        val start = Cell(0, 0)
+        maze[start.row][start.col] = ' '
+        addWalls(start)
+
+        while (walls.isNotEmpty()) {
+            val wallIndex = Random().nextInt(walls.size)
+            val wall = walls.removeAt(wallIndex)
+
+            val passages = getNeighbors(wall).filter { isPassage(it) }
+            if (passages.size == 1) {
+                maze[wall.row][wall.col] = ' '
+                addWalls(wall)
             }
         }
+
         return maze
     }
-
-    private fun addFrontierCells(cell: Cell) {
-        cell.neighbors(width, height).filter { maze[it.y][it.x] == '#' }.forEach {
-            frontier.add(Pair(Random().nextInt(), it))
-        }
-    }
 }
 
-private data class Cell(val x: Int, val y: Int) {
-    fun neighbors(width: Int, height: Int): List<Cell> {
-        val neighbors = mutableListOf<Cell>()
-        if (x > 1) neighbors.add(Cell(x - 2, y))
-        if (x < width - 2) neighbors.add(Cell(x + 2, y))
-        if (y > 1) neighbors.add(Cell(x, y - 2))
-        if (y < height - 2) neighbors.add(Cell(x, y + 2))
-        return neighbors
-    }
-}
+private data class Cell(val row: Int, val col: Int)
