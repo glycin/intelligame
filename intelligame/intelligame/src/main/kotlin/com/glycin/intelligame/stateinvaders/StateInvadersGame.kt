@@ -24,8 +24,11 @@ import kotlin.math.roundToInt
 
 private const val FPS = 120L
 
-@Service
-class StateInvadersGame(private val scope: CoroutineScope) {
+@Service(Service.Level.PROJECT)
+class StateInvadersGame(
+    private val project: Project,
+    private val scope: CoroutineScope
+) {
 
     var state = GameState.IDLE
     lateinit var cm: CollisionManager
@@ -42,7 +45,7 @@ class StateInvadersGame(private val scope: CoroutineScope) {
     private var aliveStaliens = 0;
     private var score = 100
 
-    fun initGame(project: Project, editor: Editor) {
+    fun initGame(editor: Editor) {
         println("STATE INVADERS STARTED")
         openEditor = editor
         openProject = project
@@ -137,7 +140,7 @@ class StateInvadersGame(private val scope: CoroutineScope) {
         val widthSpacing = 70
         val heightSpacing = (editor.lineHeight * 2.5).roundToInt()
         var curWidth = 0
-        var curHeight = -(heightSpacing * 2)
+        var curHeight = -heightSpacing
         forEach { alien ->
             alien.position = Vec2(curWidth, curHeight)
             if (curWidth + alien.width + widthSpacing > maxWidth) {

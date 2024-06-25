@@ -18,8 +18,11 @@ import java.awt.KeyboardFocusManager
 private const val FPS = 120L
 
 //TODO: Add cleanup
-@Service
-class PongGame(private val scope: CoroutineScope) {
+@Service(Service.Level.PROJECT)
+class PongGame(
+    private val project: Project,
+    private val scope: CoroutineScope
+) {
 
     private var state = GameState.IDLE
     private var score1 = 0
@@ -29,7 +32,7 @@ class PongGame(private val scope: CoroutineScope) {
     private lateinit var openDocument: Document
     private lateinit var openProject: Project
 
-    fun initGame(project: Project, editor: Editor) {
+    fun initGame(editor: Editor) {
         println("PONG STARTED!")
         if(state == GameState.STARTED) { return }
         openProject = project
@@ -156,7 +159,7 @@ class PongGame(private val scope: CoroutineScope) {
     }
 
     private fun createGoals(editor: Editor): Pair<Goal, Goal> {
-        val scrollOffset = editor.component.bounds.height
+        //val scrollOffset = editor.component.bounds.height
 
         // Left side of the map
         val g1 = Goal(
@@ -168,7 +171,7 @@ class PongGame(private val scope: CoroutineScope) {
 
         // Right side of the map
         val g2 = Goal(
-            position = Vec2(editor.contentComponent.width, scrollOffset),
+            position = Vec2(editor.contentComponent.width - 50, 0),
             height = editor.contentComponent.height,
             goalIndex = 1,
             color = JBColor.GREEN,

@@ -13,12 +13,15 @@ import kotlinx.coroutines.CoroutineScope
 private const val FPS = 120L
 
 //TODO: Add cleanup
-@Service
-class BoomGame(private val scope: CoroutineScope) {
+@Service(Service.Level.PROJECT)
+class BoomGame(
+    private val project: Project,
+    private val scope: CoroutineScope
+) {
 
     private val explObjects = mutableListOf<ExplosionObject>()
 
-    fun kaboom(project: Project, editor: Editor){
+    fun kaboom(editor: Editor){
         println("BOOM!!!")
         explObjects.addAll(createLevel(editor))
         attachGameToEditor(editor, project, explObjects).apply { start() }

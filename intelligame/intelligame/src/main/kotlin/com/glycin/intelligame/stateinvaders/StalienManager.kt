@@ -20,7 +20,7 @@ class StalienManager(
 
     private var groupDirection = Vec2.right
     private var curFrame = 0L
-    private val skipTime = fps / 10
+    private val skipTime = fps / 20
     private var curAnimationFrame = 0L
     private val animationSkipTime = fps
 

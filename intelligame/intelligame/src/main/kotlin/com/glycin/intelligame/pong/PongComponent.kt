@@ -42,8 +42,8 @@ class PongComponent(
     override fun paintComponent(g: Graphics) {
         super.paintComponent(g)
         if(g is Graphics2D) {
-            drawObstacles(g)
-            drawGoals(g)
+            //drawObstacles(g)
+            //drawGoals(g)
             drawPlayers(g)
             drawBall(g)
         }
