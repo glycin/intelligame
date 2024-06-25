@@ -5,12 +5,15 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import kotlinx.coroutines.CoroutineScope
 
-@Service
-class PackmanService(private val scope: CoroutineScope) {
+@Service(Service.Level.PROJECT)
+class PackmanService(
+    private val project: Project,
+    private val scope: CoroutineScope
+) {
 
     private var game: PackmanGame? = null
 
-    fun initGame(project: Project, editor: Editor){
+    fun initGame(editor: Editor){
         println("PACKAGE MAN STARTED!")
         game = PackmanGame(editor, project, scope).apply { startGame() }
     }

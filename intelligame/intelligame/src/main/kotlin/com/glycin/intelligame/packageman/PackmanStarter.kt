@@ -17,6 +17,6 @@ class PackmanStarter: IntentionAction, HighPriorityAction {
     override fun isAvailable(p0: Project, p1: Editor?, p2: PsiFile?): Boolean = true
 
     override fun invoke(project: Project, editor: Editor, file: PsiFile) {
-        project.service<PackmanService>().initGame(project, editor)
+        project.service<PackmanService>().initGame(editor)
     }
 }
