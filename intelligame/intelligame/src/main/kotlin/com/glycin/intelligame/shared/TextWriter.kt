@@ -33,4 +33,14 @@ object TextWriter {
             }
         }
     }
+
+    fun replaceTextAndThen(startOffset: Int, endOffset: Int, text: String, editor: Editor, project: Project, onComplete: () -> Unit) {
+        val document = editor.document
+        ApplicationManager.getApplication().invokeLater {
+            WriteCommandAction.runWriteCommandAction(project) {
+                document.replaceString(startOffset, endOffset, text)
+                onComplete()
+            }
+        }
+    }
 }
