@@ -1,10 +1,10 @@
 package com.glycin.intelligame.packageman
 
+import com.glycin.intelligame.packageman.maze.MazeGenerator
 import com.glycin.intelligame.shared.TextWriter
 import com.glycin.intelligame.util.toVec2
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.LogicalPosition
-import com.intellij.openapi.editor.ScrollType
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.modules
 import com.intellij.openapi.roots.ModuleRootManager
@@ -62,7 +62,7 @@ class PackmanGame(
                 val lineText = document.getText(TextRange(lineStartOffset, lineEndOffset))
                 lineText.forEachIndexed { index, c ->
                     val charLogicalPosition = LogicalPosition(line, index)
-                    println("${charLogicalPosition.line} : ${charLogicalPosition.column}")
+
                     val charPos = editor.logicalPositionToXY(charLogicalPosition).toVec2(scrollOffset)
                     val nextCharOffset = lineStartOffset + index + 1
 
@@ -92,10 +92,9 @@ class PackmanGame(
     private fun generateMaze(dependencies: String): String {
         val maxX = editor.xyToLogicalPosition(Point(editor.contentComponent.width, 0)).column
         val maxY = editor.xyToLogicalPosition(Point(0, editor.contentComponent.height)).line
-        val generator = MazeGenerator(maxX, maxY)
-        val maze = generator.generate()
-        val sb = StringBuilder()
+        val maze = MazeGenerator(maxX, maxY).getMaze()
 
+        val sb = StringBuilder()
         var dependencyStringIndex = 0
         maze.forEach { line ->
             line.forEach { column ->
