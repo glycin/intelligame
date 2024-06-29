@@ -12,7 +12,7 @@ import java.awt.Graphics2D
 import javax.swing.JComponent
 
 class PackmanComponent(
-    private val cells: List<MazeCell>,
+    private val state: PackmanState,
     private val scope: CoroutineScope,
     fps: Long
 ) : JComponent() {
@@ -32,17 +32,27 @@ class PackmanComponent(
         super.paintComponent(g)
         if(g is Graphics2D) {
             paintMaze(g)
+            paintPlayer(g)
+            paintGhost(g)
         }
     }
 
     private fun paintMaze(g: Graphics2D) {
-        cells.forEach { cell ->
+        state.mazeCells.forEach { cell ->
             if(cell.isWall) {
-                g.color = JBColor.WHITE.brighter().brighter().brighter()
+                g.color = JBColor.WHITE.brighter().brighter()
                 g.drawRect(cell.position.x, cell.position.y, cell.width, cell.height)
             }else {
                 //g.fillRect(cell.position.x, cell.position.y, cell.width, cell.height)
             }
         }
+    }
+
+    private fun paintPlayer(g: Graphics2D) {
+        state.player.render(g)
+    }
+
+    private fun paintGhost(g: Graphics2D) {
+        state.ghosts.forEach { it.render(g) }
     }
 }

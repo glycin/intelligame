@@ -2,6 +2,7 @@ package com.glycin.intelligame.packageman
 
 import com.glycin.intelligame.packageman.maze.MazeGenerator
 import com.glycin.intelligame.shared.TextWriter
+import com.glycin.intelligame.shared.Vec2
 import com.glycin.intelligame.util.toVec2
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.LogicalPosition
@@ -12,6 +13,7 @@ import com.intellij.openapi.roots.OrderEnumerator
 import com.intellij.openapi.roots.impl.OrderEntryUtil
 import com.intellij.openapi.roots.libraries.LibraryTablesRegistrar
 import com.intellij.openapi.util.TextRange
+import com.intellij.ui.JBColor
 import com.intellij.util.ui.GraphicsUtil
 import kotlinx.coroutines.CoroutineScope
 import java.awt.Point
@@ -25,18 +27,24 @@ class PackmanGame(
 ) {
 
     fun startGame(){
-        val dependencyString = collectDependencies()
+        val (dependencyString, dependencyCount) = collectDependencies()
         val mazeString = generateMaze(dependencyString)
         TextWriter.replaceTextAndThen(0, editor.document.textLength, mazeString, editor, project) {
-            val mazeObjects = createMazeObjects()
-            val packComponent = attachComponent(mazeObjects)
+            val cells = createMazeObjects()
+            val state = PackmanState(
+                player = createPlayer(cells),
+                ghosts = createGhosts(cells, dependencyCount),
+                mazeCells = cells,
+                pickups = 0,
+            )
+            val packComponent = attachComponent(state)
         }
     }
 
-    private fun attachComponent(mazeObjects: List<MazeCell>) : PackmanComponent {
+    private fun attachComponent(state: PackmanState) : PackmanComponent {
         val contentComponent = editor.contentComponent
         editor.settings.isVirtualSpace = true
-        val component = PackmanComponent(mazeObjects, scope, FPS).apply {
+        val component = PackmanComponent(state, scope, FPS).apply {
             bounds = contentComponent.bounds
             isOpaque = false
         }.apply { start() }
@@ -114,7 +122,7 @@ class PackmanGame(
         return sb.toString()
     }
 
-    private fun collectDependencies() : String {
+    private fun collectDependencies() : Pair<String, Int> {
         val libStrings = mutableListOf<String>()
         println("collecting dependencies")
 
@@ -154,6 +162,37 @@ class PackmanGame(
 
 
         println("collected dependencies")
-        return libStrings.joinToString("")
+        return libStrings.joinToString("") to libStrings.size
+    }
+
+    private fun createPlayer(cells: List<MazeCell>): Player {
+        val cell = cells.first { !it.isWall}
+        return Player(
+            position = Vec2(cell.position.x - (cell.width / 2), cell.position.y),
+            radius = cell.width * 2,
+            cellX = cell.x,
+            cellY = cell.y,
+            fps = FPS
+        )
+    }
+
+    private fun createGhosts(cells: List<MazeCell>, count: Int): List<Ghost> {
+        val ghosts = mutableListOf<Ghost>()
+        val walls = cells.filter { !it.isWall && it.x > 10 && it.y > 10 }
+        for(i in 0 until count) {
+            val cell = walls.random()
+            println("spawning ghost: ${cell.position} and ${cell.x}, ${cell.y} with width ${cell.width} and height ${cell.height}")
+            ghosts.add(
+                Ghost(
+                    position = cell.position,
+                    width = 10,
+                    height = 20,
+                    cellX = cell.x,
+                    cellY = cell.y,
+                    color = if(i % 2 == 0) JBColor.BLUE.brighter() else JBColor.ORANGE.brighter()
+                )
+            )
+        }
+        return ghosts
     }
 }
