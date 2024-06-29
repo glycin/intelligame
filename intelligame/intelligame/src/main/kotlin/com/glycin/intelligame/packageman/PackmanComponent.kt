@@ -49,10 +49,11 @@ class PackmanComponent(
     }
 
     private fun paintPlayer(g: Graphics2D) {
+        state.player.move()
         state.player.render(g)
     }
 
     private fun paintGhost(g: Graphics2D) {
-        state.ghosts.forEach { it.render(g) }
+        state.ghosts.forEach { it.moveAndRender(g) }
     }
 }

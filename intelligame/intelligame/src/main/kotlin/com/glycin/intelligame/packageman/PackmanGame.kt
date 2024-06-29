@@ -3,6 +3,7 @@ package com.glycin.intelligame.packageman
 import com.glycin.intelligame.packageman.maze.MazeGenerator
 import com.glycin.intelligame.shared.TextWriter
 import com.glycin.intelligame.shared.Vec2
+import com.glycin.intelligame.util.toDeltaTime
 import com.glycin.intelligame.util.toVec2
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.LogicalPosition
@@ -16,6 +17,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.ui.JBColor
 import com.intellij.util.ui.GraphicsUtil
 import kotlinx.coroutines.CoroutineScope
+import java.awt.KeyboardFocusManager
 import java.awt.Point
 
 private const val FPS = 120L
@@ -31,13 +33,16 @@ class PackmanGame(
         val mazeString = generateMaze(dependencyString)
         TextWriter.replaceTextAndThen(0, editor.document.textLength, mazeString, editor, project) {
             val cells = createMazeObjects()
+            val mazeMovementManager = MazeMovementManager(cells)
+            val player = createPlayer(cells, mazeMovementManager)
             val state = PackmanState(
-                player = createPlayer(cells),
-                ghosts = createGhosts(cells, dependencyCount),
+                player = player,
+                ghosts = createGhosts(cells, dependencyCount, mazeMovementManager),
                 mazeCells = cells,
                 pickups = 0,
             )
             val packComponent = attachComponent(state)
+            KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(PackmanInput(player))
         }
     }
 
@@ -165,23 +170,23 @@ class PackmanGame(
         return libStrings.joinToString("") to libStrings.size
     }
 
-    private fun createPlayer(cells: List<MazeCell>): Player {
+    private fun createPlayer(cells: List<MazeCell>, mazeMovementManager: MazeMovementManager): Player {
         val cell = cells.first { !it.isWall}
         return Player(
             position = Vec2(cell.position.x - (cell.width / 2), cell.position.y),
             radius = cell.width * 2,
             cellX = cell.x,
             cellY = cell.y,
+            mazeMoveManager = mazeMovementManager,
             fps = FPS
         )
     }
 
-    private fun createGhosts(cells: List<MazeCell>, count: Int): List<Ghost> {
+    private fun createGhosts(cells: List<MazeCell>, count: Int, mazeMovementManager: MazeMovementManager): List<Ghost> {
         val ghosts = mutableListOf<Ghost>()
         val walls = cells.filter { !it.isWall && it.x > 10 && it.y > 10 }
         for(i in 0 until count) {
             val cell = walls.random()
-            println("spawning ghost: ${cell.position} and ${cell.x}, ${cell.y} with width ${cell.width} and height ${cell.height}")
             ghosts.add(
                 Ghost(
                     position = cell.position,
@@ -189,6 +194,8 @@ class PackmanGame(
                     height = 20,
                     cellX = cell.x,
                     cellY = cell.y,
+                    mazeMoveManager = mazeMovementManager,
+                    deltaTime = FPS.toDeltaTime(),
                     color = if(i % 2 == 0) JBColor.BLUE.brighter() else JBColor.ORANGE.brighter()
                 )
             )

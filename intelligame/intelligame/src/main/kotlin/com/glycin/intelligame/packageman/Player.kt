@@ -1,25 +1,41 @@
 package com.glycin.intelligame.packageman
 
 import com.glycin.intelligame.shared.Vec2
+import com.glycin.intelligame.util.toDeltaTime
 import com.intellij.ui.JBColor
 import java.awt.Graphics2D
+import kotlin.math.roundToInt
 
 class Player(
-    val position: Vec2,
+    var position: Vec2,
     val radius: Int,
-    val cellX: Int = 0,
-    val cellY: Int = 0,
+    private var cellX: Int = 0,
+    private var cellY: Int = 0,
+    private val mazeMoveManager: MazeMovementManager,
     fps: Long,
 ) {
+    private val deltaTime = fps.toDeltaTime()
 
-    val skipframes = fps / 4
-    var curFrames = 0
-    var mouthOpen = false
+    private val speed = 1
+    private val skipframes = fps / 10
+    private var curFrames = 0
+    private var mouthOpen = false
+    private var moving = false
+    private var moveDirection = Vec2.zero
 
     fun render(g: Graphics2D) {
         g.color = JBColor.YELLOW.brighter()
+        val arcStartAngle = when(moveDirection) {
+            Vec2.zero -> 45
+            Vec2.left -> 225
+            Vec2.right -> 45
+            Vec2.down -> -45
+            Vec2.up -> 135
+            else -> 45
+        }
+
         if(mouthOpen) {
-            g.fillArc(position.x, position.y, radius, radius, 45, 270)
+            g.fillArc(position.x, position.y, radius, radius, arcStartAngle, 270)
         }else{
             g.fillOval(position.x, position.y, radius, radius)
         }
@@ -30,4 +46,64 @@ class Player(
             curFrames = 0
         }
     }
+
+    fun move(){
+        if(moving){
+            val target = mazeMoveManager.getMazeCellMidPosition(cellX, cellY)
+            val shouldStop = when(moveDirection){
+                Vec2.left -> position.x <= target.x
+                Vec2.right -> position.x >= target.x
+                Vec2.down -> position.y >= target.y
+                Vec2.up -> position.y <= target.y
+                else -> false
+            }
+
+            if(!shouldStop){
+                position += moveDirection * (deltaTime * speed).roundToInt()
+            }else {
+                setMoving()
+            }
+        }
+    }
+
+    fun moveDown() {
+        moveDirection = Vec2.down
+        setMoving()
+    }
+
+    fun moveUp() {
+        moveDirection = Vec2.up
+        setMoving()
+    }
+
+    fun moveRight() {
+        moveDirection = Vec2.right
+        setMoving()
+    }
+
+    fun moveLeft() {
+        moveDirection = Vec2.left
+        setMoving()
+    }
+
+    private fun setMoving() {
+        val (x, y) = getTargetCellXY()
+        if(mazeMoveManager.canMoveTo(x, y)) {
+            cellX = x
+            cellY = y
+            moving = true
+        }else {
+            moving = false
+        }
+    }
+
+    private fun getTargetCellXY() =
+        when(moveDirection){
+            Vec2.zero -> cellX to cellY
+            Vec2.left -> cellX - 1 to cellY
+            Vec2.right -> cellX + 1 to cellY
+            Vec2.up -> cellX to cellY - 1
+            Vec2.down -> cellX to cellY + 1
+            else -> cellX to cellY
+        }
 }

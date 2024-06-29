@@ -21,6 +21,10 @@ data class Vec2(
             val dy = (b.y - a.y).toFloat()
             return sqrt(dx * dx + dy * dy)
         }
+
+        fun opposite(vec2: Vec2): Vec2 {
+            return Vec2(-vec2.x, -vec2.y)
+        }
     }
 
     operator fun plus(other: Vec2) = Vec2(x + other.x, y + other.y)
