@@ -1,9 +1,13 @@
 package com.glycin.intelligame.packageman
 
+import com.glycin.intelligame.packageman.git.GitHistoryDependency
 import com.glycin.intelligame.shared.Vec2
 import com.intellij.ui.JBColor
 import java.awt.Color
+import java.awt.Font
 import java.awt.Graphics2D
+import java.util.Calendar
+import javax.swing.JTextPane
 import kotlin.math.roundToInt
 
 class Ghost(
@@ -15,7 +19,11 @@ class Ghost(
     private val color: Color,
     private val mazeMoveManager: MazeMovementManager,
     private val deltaTime: Float,
+    private val gitDependency: GitHistoryDependency,
 ) {
+    var labelAdded = false
+    val textPane : JTextPane = createLabel()
+
     private val speed = 1
     private val eyeWidth: Int = 2
     private val eyeHeight: Int = 3
@@ -32,6 +40,7 @@ class Ghost(
 
     fun moveAndRender(g: Graphics2D) {
         move()
+        moveLabel()
 
         g.color = color
         g.fillRoundRect(position.x, position.y, width, height - 5, 5, 5)
@@ -87,6 +96,34 @@ class Ghost(
         }
     }
 
+    fun toggleLabels() {
+        textPane.isVisible = !textPane.isVisible
+    }
+
+    private fun createLabel(): JTextPane {
+        val calendar = Calendar.getInstance()
+        calendar.time = gitDependency.commitDate
+        val sb = StringBuilder()
+        sb.appendLine(gitDependency.dependencyString)
+        sb.appendLine(gitDependency.commitMessage)
+        sb.appendLine("\t-${gitDependency.author}, ${calendar.get(Calendar.YEAR)}")
+
+        val pane = JTextPane()
+        pane.isEditable = false
+        pane.isVisible = false
+        pane.isOpaque = true
+        pane.background = color
+        pane.font = Font(Font.SERIF, Font.PLAIN, 12)
+        pane.foreground = JBColor.black.darker().darker().darker().darker()
+        pane.setBounds(position.x - (width * 10), position.y + height, width * 20, height * 4)
+        pane.text = sb.toString()
+        return pane
+    }
+
+    private fun moveLabel() {
+        textPane.setBounds(position.x - (width * 10), position.y + height, width * 20, height * 4)
+    }
+
     private fun setMoving() {
         val potentials = listOf(
             RandomDirection(cellX - 1, cellY, Vec2.left, mazeMoveManager),
@@ -114,16 +151,6 @@ class Ghost(
             println("THIS GHOST IS STUCK HELP")
         }
     }
-
-    private fun getTargetCellXY() =
-        when(moveDirection){
-            Vec2.zero -> cellX to cellY
-            Vec2.left -> cellX - 1 to cellY
-            Vec2.right -> cellX + 1 to cellY
-            Vec2.up -> cellX to cellY - 1
-            Vec2.down -> cellX to cellY + 1
-            else -> cellX to cellY
-        }
 }
 
 private data class RandomDirection(

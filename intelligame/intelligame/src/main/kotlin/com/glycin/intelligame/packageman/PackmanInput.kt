@@ -4,7 +4,7 @@ import java.awt.KeyEventDispatcher
 import java.awt.event.KeyEvent
 
 class PackmanInput(
-    private val player: Player,
+    private val state: PackmanState,
 ): KeyEventDispatcher {
 
     override fun dispatchKeyEvent(e: KeyEvent?): Boolean {
@@ -12,17 +12,23 @@ class PackmanInput(
         if (e?.id == KeyEvent.KEY_PRESSED ) {
             when (e.keyCode) {
                 KeyEvent.VK_A -> {
-                    player.moveLeft()
+                    state.player.moveLeft()
                 }
                 KeyEvent.VK_D -> {
-                    player.moveRight()
+                    state.player.moveRight()
                 }
                 KeyEvent.VK_W -> {
-                    player.moveUp()
+                    state.player.moveUp()
                 }
 
                 KeyEvent.VK_S -> {
-                    player.moveDown()
+                    state.player.moveDown()
+                }
+
+                KeyEvent.VK_SPACE -> {
+                    state.ghosts.forEach {
+                        it.toggleLabels()
+                    }
                 }
 
                 KeyEvent.VK_ESCAPE -> {

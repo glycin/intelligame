@@ -54,6 +54,13 @@ class PackmanComponent(
     }
 
     private fun paintGhost(g: Graphics2D) {
-        state.ghosts.forEach { it.moveAndRender(g) }
+        state.ghosts.forEach {
+            if(!it.labelAdded) {
+                add(it.textPane)
+                it.labelAdded = true
+            }
+
+            it.moveAndRender(g)
+        }
     }
 }

@@ -1,5 +1,7 @@
 package com.glycin.intelligame.packageman
 
+import com.glycin.intelligame.packageman.git.GitHistoryDependency
+import com.glycin.intelligame.packageman.git.GitHistoryFinder
 import com.glycin.intelligame.packageman.maze.MazeGenerator
 import com.glycin.intelligame.shared.TextWriter
 import com.glycin.intelligame.shared.Vec2
@@ -16,7 +18,8 @@ import com.intellij.openapi.roots.libraries.LibraryTablesRegistrar
 import com.intellij.openapi.util.TextRange
 import com.intellij.ui.JBColor
 import com.intellij.util.ui.GraphicsUtil
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.*
+import java.awt.Color
 import java.awt.KeyboardFocusManager
 import java.awt.Point
 
@@ -29,20 +32,22 @@ class PackmanGame(
 ) {
 
     fun startGame(){
-        val (dependencyString, dependencyCount) = collectDependencies()
-        val mazeString = generateMaze(dependencyString)
+        val depStrings = collectDependencies()
+        val mazeString = generateMaze(depStrings.joinToString(""))
+        val gitHistoryDependencies = GitHistoryFinder(project, scope).getDependencyCommits(depStrings)
+
         TextWriter.replaceTextAndThen(0, editor.document.textLength, mazeString, editor, project) {
             val cells = createMazeObjects()
             val mazeMovementManager = MazeMovementManager(cells)
             val player = createPlayer(cells, mazeMovementManager)
             val state = PackmanState(
                 player = player,
-                ghosts = createGhosts(cells, dependencyCount, mazeMovementManager),
+                ghosts = createGhosts(cells, gitHistoryDependencies, mazeMovementManager),
                 mazeCells = cells,
                 pickups = 0,
             )
             val packComponent = attachComponent(state)
-            KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(PackmanInput(player))
+            KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(PackmanInput(state))
         }
     }
 
@@ -127,7 +132,7 @@ class PackmanGame(
         return sb.toString()
     }
 
-    private fun collectDependencies() : Pair<String, Int> {
+    private fun collectDependencies() : List<String> {
         val libStrings = mutableListOf<String>()
         println("collecting dependencies")
 
@@ -167,7 +172,7 @@ class PackmanGame(
 
 
         println("collected dependencies")
-        return libStrings.joinToString("") to libStrings.size
+        return libStrings
     }
 
     private fun createPlayer(cells: List<MazeCell>, mazeMovementManager: MazeMovementManager): Player {
@@ -182,10 +187,10 @@ class PackmanGame(
         )
     }
 
-    private fun createGhosts(cells: List<MazeCell>, count: Int, mazeMovementManager: MazeMovementManager): List<Ghost> {
+    private fun createGhosts(cells: List<MazeCell>, gitHistoryDependencies: List<GitHistoryDependency>, mazeMovementManager: MazeMovementManager): List<Ghost> {
         val ghosts = mutableListOf<Ghost>()
         val walls = cells.filter { !it.isWall && it.x > 10 && it.y > 10 }
-        for(i in 0 until count) {
+        gitHistoryDependencies.forEach { dependency ->
             val cell = walls.random()
             ghosts.add(
                 Ghost(
@@ -196,10 +201,25 @@ class PackmanGame(
                     cellY = cell.y,
                     mazeMoveManager = mazeMovementManager,
                     deltaTime = FPS.toDeltaTime(),
-                    color = if(i % 2 == 0) JBColor.BLUE.brighter() else JBColor.ORANGE.brighter()
+                    color = getRandomColor(),
+                    gitDependency = dependency,
                 )
             )
         }
         return ghosts
+    }
+
+    private fun getRandomColor(): Color {
+        val colors = listOf(
+            JBColor.ORANGE.brighter(),
+            JBColor.RED.brighter(),
+            JBColor.GREEN.brighter(),
+            JBColor.YELLOW.brighter(),
+            JBColor.BLUE.brighter(),
+            JBColor.CYAN.brighter(),
+            JBColor.MAGENTA.brighter(),
+        )
+
+        return colors.random()
     }
 }

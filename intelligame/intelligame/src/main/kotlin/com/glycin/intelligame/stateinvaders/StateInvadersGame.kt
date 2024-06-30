@@ -140,12 +140,12 @@ class StateInvadersGame(
         val widthSpacing = 70
         val heightSpacing = (editor.lineHeight * 2.5).roundToInt()
         var curWidth = 0
-        var curHeight = -heightSpacing
+        var curHeight = editor.contentComponent.height / 2
         forEach { alien ->
             alien.position = Vec2(curWidth, curHeight)
             if (curWidth + alien.width + widthSpacing > maxWidth) {
                 curWidth = 0
-                curHeight += heightSpacing
+                curHeight -= heightSpacing
             } else {
                 curWidth += (alien.width + widthSpacing)
             }
@@ -173,6 +173,7 @@ class StateInvadersGame(
             processor
         )
 
+        println("Collected ${allFields.size} mutable fields")
         return allFields
     }
 
