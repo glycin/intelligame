@@ -1,7 +1,10 @@
 package com.glycin.intelligame.packageman
 
+import com.glycin.intelligame.packageman.git.DependencyRemover
+import com.glycin.intelligame.shared.Vec2
 import com.glycin.intelligame.util.toLongDeltaTime
 import com.intellij.openapi.application.EDT
+import com.intellij.openapi.project.Project
 import com.intellij.ui.JBColor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -14,6 +17,7 @@ import javax.swing.JComponent
 class PackmanComponent(
     private val state: PackmanState,
     private val scope: CoroutineScope,
+    private val project: Project,
     fps: Long
 ) : JComponent() {
 
@@ -34,6 +38,7 @@ class PackmanComponent(
             paintMaze(g)
             paintPlayer(g)
             paintGhost(g)
+            checkCollision()
         }
     }
 
@@ -62,5 +67,23 @@ class PackmanComponent(
 
             it.moveAndRender(g)
         }
+    }
+
+    private fun checkCollision() {
+        val ghostsToRemove = mutableListOf<Ghost>()
+        state.ghosts.forEach {
+            if(Vec2.distance(it.position, state.player.position) < 10) {
+                ghostsToRemove.add(it)
+            }
+        }
+        ghostsToRemove.onEach {
+            remove(it.textPane)
+            it.kill()
+            state.ghosts.remove(it)
+            if(!it.gitDependency.dependencyString.startsWith("java") && !it.gitDependency.dependencyString.startsWith("jdk")) {
+                DependencyRemover.removeDependency(project, it.gitDependency.dependencyString)
+            }
+        }
+        ghostsToRemove.clear()
     }
 }

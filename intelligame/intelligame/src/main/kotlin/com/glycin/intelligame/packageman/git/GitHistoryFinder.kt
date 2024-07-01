@@ -1,11 +1,8 @@
 package com.glycin.intelligame.packageman.git
 
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.project.modules
-import com.intellij.openapi.project.rootManager
 import com.intellij.openapi.vcs.ProjectLevelVcsManager
 import com.intellij.openapi.vcs.history.VcsFileRevision
-import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.vcsUtil.VcsUtil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -64,7 +61,7 @@ class GitHistoryFinder(
 
 
     private fun getFileHistory(): List<VcsFileRevision> {
-        val files = getFiles()
+        val files = FileGetter.getFiles(project)
         val revisions = mutableListOf<VcsFileRevision>()
         files.forEach { file ->
             val pvcsm = ProjectLevelVcsManager.getInstance(project)
@@ -79,30 +76,5 @@ class GitHistoryFinder(
             }
         }
         return revisions
-    }
-
-    private fun getFiles() : List<VirtualFile> {
-        val filePaths = mutableListOf<VirtualFile>()
-
-        project.modules.forEach {
-            it.rootManager.contentRoots.forEach { root ->
-                val gradle = root.findChild("build.gradle.kts")
-                if(gradle != null){
-                    filePaths.add(gradle)
-                }
-
-                val maven = root.findChild("pom.xml")
-                if(maven != null){
-                    filePaths.add(maven)
-                }
-
-                val intellij = root.findChild("${project.name}.iml")
-                if(intellij != null){
-                    filePaths.add(intellij)
-                }
-            }
-        }
-
-        return filePaths
     }
 }

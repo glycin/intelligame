@@ -5,6 +5,7 @@ import java.awt.event.KeyEvent
 
 class PackmanInput(
     private val state: PackmanState,
+    private val soundManager: PackmanSounds,
 ): KeyEventDispatcher {
 
     override fun dispatchKeyEvent(e: KeyEvent?): Boolean {
@@ -28,6 +29,13 @@ class PackmanInput(
                 KeyEvent.VK_SPACE -> {
                     state.ghosts.forEach {
                         it.toggleLabels()
+                    }
+                }
+
+                KeyEvent.VK_M -> {
+                    soundManager.mute = !soundManager.mute
+                    if(soundManager.mute) {
+                        soundManager.stopMovingSound()
                     }
                 }
 

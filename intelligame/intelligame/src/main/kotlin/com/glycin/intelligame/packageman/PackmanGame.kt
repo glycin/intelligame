@@ -31,6 +31,8 @@ class PackmanGame(
     private val scope: CoroutineScope,
 ) {
 
+    private val soundManager : PackmanSounds = PackmanSounds()
+
     fun startGame(){
         val depStrings = collectDependencies()
         val mazeString = generateMaze(depStrings.joinToString(""))
@@ -44,17 +46,16 @@ class PackmanGame(
                 player = player,
                 ghosts = createGhosts(cells, gitHistoryDependencies, mazeMovementManager),
                 mazeCells = cells,
-                pickups = 0,
             )
-            val packComponent = attachComponent(state)
-            KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(PackmanInput(state))
+            attachComponent(state)
+            KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(PackmanInput(state, soundManager))
         }
     }
 
     private fun attachComponent(state: PackmanState) : PackmanComponent {
         val contentComponent = editor.contentComponent
         editor.settings.isVirtualSpace = true
-        val component = PackmanComponent(state, scope, FPS).apply {
+        val component = PackmanComponent(state, scope, project, FPS).apply {
             bounds = contentComponent.bounds
             isOpaque = false
         }.apply { start() }
@@ -183,13 +184,14 @@ class PackmanGame(
             cellX = cell.x,
             cellY = cell.y,
             mazeMoveManager = mazeMovementManager,
+            sounds = soundManager,
             fps = FPS
         )
     }
 
-    private fun createGhosts(cells: List<MazeCell>, gitHistoryDependencies: List<GitHistoryDependency>, mazeMovementManager: MazeMovementManager): List<Ghost> {
+    private fun createGhosts(cells: List<MazeCell>, gitHistoryDependencies: List<GitHistoryDependency>, mazeMovementManager: MazeMovementManager): MutableList<Ghost> {
         val ghosts = mutableListOf<Ghost>()
-        val walls = cells.filter { !it.isWall && it.x > 10 && it.y > 10 }
+        val walls = cells.filter { !it.isWall && it.x > 5 && it.y > 5 }
         gitHistoryDependencies.forEach { dependency ->
             val cell = walls.random()
             ghosts.add(

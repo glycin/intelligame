@@ -4,6 +4,8 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.vfs.VfsUtil
+import com.intellij.openapi.vfs.VirtualFile
 
 object TextWriter {
 
@@ -12,6 +14,14 @@ object TextWriter {
         ApplicationManager.getApplication().invokeLater {
             WriteCommandAction.runWriteCommandAction(project) {
                 document.insertString(offset, text)
+            }
+        }
+    }
+
+    fun writeText(text: String, virtualFile: VirtualFile, project: Project) {
+        ApplicationManager.getApplication().invokeLater {
+            WriteCommandAction.runWriteCommandAction(project) {
+                VfsUtil.saveText(virtualFile, text)
             }
         }
     }

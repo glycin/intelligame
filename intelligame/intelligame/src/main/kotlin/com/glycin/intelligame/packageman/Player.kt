@@ -12,6 +12,7 @@ class Player(
     private var cellX: Int = 0,
     private var cellY: Int = 0,
     private val mazeMoveManager: MazeMovementManager,
+    private val sounds: PackmanSounds,
     fps: Long,
 ) {
     private val deltaTime = fps.toDeltaTime()
@@ -92,6 +93,7 @@ class Player(
             cellX = x
             cellY = y
             moving = true
+            sounds.playMovingSound()
         }else {
             moving = false
         }

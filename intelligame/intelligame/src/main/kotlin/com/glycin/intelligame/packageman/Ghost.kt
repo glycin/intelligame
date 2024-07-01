@@ -14,12 +14,12 @@ class Ghost(
     var position: Vec2,
     val width: Int,
     val height: Int,
+    val gitDependency: GitHistoryDependency,
     private var cellX: Int,
     private var cellY: Int,
     private val color: Color,
     private val mazeMoveManager: MazeMovementManager,
     private val deltaTime: Float,
-    private val gitDependency: GitHistoryDependency,
 ) {
     var labelAdded = false
     val textPane : JTextPane = createLabel()
@@ -58,6 +58,11 @@ class Ghost(
         g.color = JBColor.WHITE.brighter().brighter().brighter().brighter()
         g.fillOval(position.x + eyeXOffset, position.y + eyeYOffset, eyeWidth, eyeHeight);
         g.fillOval(position.x + width - eyeXOffset - eyeWidth, position.y + eyeYOffset, eyeWidth, eyeHeight);
+    }
+
+    fun kill() {
+        position = Vec2(-1000, -1000)
+        moving = false
     }
 
     private fun move(){
