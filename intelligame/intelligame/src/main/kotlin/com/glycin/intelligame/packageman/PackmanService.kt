@@ -15,10 +15,12 @@ class PackmanService(
 
     fun initGame(editor: Editor){
         println("PACKAGE MAN STARTED!")
-        game = PackmanGame(editor, project, scope).apply { startGame() }
+        game = PackmanGame(editor, project, scope).apply { initGame() }
     }
 
     fun cleanUp() {
+        game?.stopGame()
         game = null
+        println("PACKAGE MAN STOPPED!")
     }
 }

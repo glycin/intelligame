@@ -1,16 +1,19 @@
 package com.glycin.intelligame.packageman
 
+import com.intellij.openapi.components.service
+import com.intellij.openapi.project.Project
 import java.awt.KeyEventDispatcher
 import java.awt.event.KeyEvent
 
 class PackmanInput(
     private val state: PackmanState,
     private val soundManager: PackmanSounds,
+    private val project: Project,
 ): KeyEventDispatcher {
 
     override fun dispatchKeyEvent(e: KeyEvent?): Boolean {
 
-        if (e?.id == KeyEvent.KEY_PRESSED ) {
+        if (e?.id == KeyEvent.KEY_PRESSED && state.gameState == GameState.STARTED) {
             when (e.keyCode) {
                 KeyEvent.VK_A -> {
                     state.player.moveLeft()
@@ -40,7 +43,7 @@ class PackmanInput(
                 }
 
                 KeyEvent.VK_ESCAPE -> {
-                    //game.cleanUp()
+                    project.service<PackmanService>().cleanUp()
                 }
             }
         }

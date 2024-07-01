@@ -9,6 +9,7 @@ import com.glycin.intelligame.util.toDeltaTime
 import com.glycin.intelligame.util.toVec2
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.LogicalPosition
+import com.intellij.openapi.editor.ScrollType
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.modules
 import com.intellij.openapi.roots.ModuleRootManager
@@ -30,14 +31,45 @@ class PackmanGame(
     private val project: Project,
     private val scope: CoroutineScope,
 ) {
-
+    var gameState = GameState.MAIN_MENU
+    private var mainMenuString = ""
     private val soundManager : PackmanSounds = PackmanSounds()
+    private var depStrings = listOf<String>()
+    private var mazeString = ""
+    private var gitHistoryDependencies = listOf<GitHistoryDependency>()
+    private val mainMenuInput: PackmanMainMenuInput = PackmanMainMenuInput(this)
 
-    fun startGame(){
-        val depStrings = collectDependencies()
-        val mazeString = generateMaze(depStrings.joinToString(""))
-        val gitHistoryDependencies = GitHistoryFinder(project, scope).getDependencyCommits(depStrings)
+    private lateinit var gameInput: PackmanInput
+    private lateinit var component: PackmanComponent
 
+    fun initGame(){
+        KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(mainMenuInput)
+        TextWriter.replaceText(0, editor.document.textLength, PackmanTexts.banner, editor, project)
+        depStrings = collectDependencies()
+        mazeString = generateMaze(depStrings.joinToString(""))
+        gitHistoryDependencies = GitHistoryFinder(project, scope).getDependencyCommits(depStrings)
+        soundManager.playMainMenuSound()
+    }
+
+    fun mainMenuTyped(c: Char) {
+        mainMenuString += c
+        if(mainMenuString.contains("start")){
+            startGame()
+        }
+    }
+
+    fun stopGame() {
+        component.destroy()
+        gameState = GameState.STOPPED
+        KeyboardFocusManager.getCurrentKeyboardFocusManager().removeKeyEventDispatcher(gameInput)
+        editor.contentComponent.remove(component)
+        editor.contentComponent.revalidate()
+        editor.contentComponent.repaint()
+    }
+
+    private fun startGame() {
+        KeyboardFocusManager.getCurrentKeyboardFocusManager().removeKeyEventDispatcher(mainMenuInput)
+        gameState = GameState.STARTED
         TextWriter.replaceTextAndThen(0, editor.document.textLength, mazeString, editor, project) {
             val cells = createMazeObjects()
             val mazeMovementManager = MazeMovementManager(cells)
@@ -46,9 +78,11 @@ class PackmanGame(
                 player = player,
                 ghosts = createGhosts(cells, gitHistoryDependencies, mazeMovementManager),
                 mazeCells = cells,
+                gameState = gameState,
             )
-            attachComponent(state)
-            KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(PackmanInput(state, soundManager))
+            component = attachComponent(state)
+            gameInput = PackmanInput(state, soundManager, project)
+            KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(gameInput)
         }
     }
 

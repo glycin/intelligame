@@ -9,6 +9,7 @@ class PackmanSounds {
     var mute = true
 
     private var movingClip: Clip? = null
+    private var mainMenuClip: Clip? = null
 
     fun playMovingSound() {
         if(mute) {
@@ -38,5 +39,21 @@ class PackmanSounds {
         movingClip?.stop()
         movingClip?.close()
         movingClip = null
+    }
+
+    fun playMainMenuSound() {
+        try {
+            if(mainMenuClip == null) {
+                this::class.java.getResourceAsStream("/Sounds/packman_mainmenu.wav")
+                    ?.let { BufferedInputStream(it) }
+                    ?.let { movingClipStream ->
+                        mainMenuClip = AudioSystem.getClip()
+                        mainMenuClip?.open(AudioSystem.getAudioInputStream(movingClipStream))
+                    }
+            }
+            mainMenuClip?.start()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 }

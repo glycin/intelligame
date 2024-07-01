@@ -87,6 +87,11 @@ class Player(
         setMoving()
     }
 
+    fun kill() {
+        moving = false
+        position = Vec2(-20000, -20000)
+    }
+
     private fun setMoving() {
         val (x, y) = getTargetCellXY()
         if(mazeMoveManager.canMoveTo(x, y)) {

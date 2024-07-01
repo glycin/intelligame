@@ -32,6 +32,11 @@ class PackmanComponent(
         }
     }
 
+    fun destroy() {
+        state.ghosts.onEach { ghost -> ghost.kill() }
+        state.player.kill()
+    }
+
     override fun paintComponent(g: Graphics?) {
         super.paintComponent(g)
         if(g is Graphics2D) {
