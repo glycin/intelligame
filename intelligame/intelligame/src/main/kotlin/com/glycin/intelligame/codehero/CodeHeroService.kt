@@ -1,6 +1,5 @@
 package com.glycin.intelligame.codehero
 
-import com.glycin.intelligame.packageman.PackmanGame
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project

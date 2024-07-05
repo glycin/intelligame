@@ -1,7 +1,7 @@
 osu file format v14
 
 [General]
-AudioFilename: audio.mp3
+AudioFilename: powerwolf.wav
 AudioLeadIn: 0
 PreviewTime: 101612
 Countdown: 0
@@ -89,7 +89,6 @@ Combo3 : 128,0,0
 Combo4 : 128,64,0
 
 [HitObjects]
-114,141,450,6,0,B|168:112|168:112|201:63,1,120,8|0,0:1|0:0,0:0:0:0:
 256,8,1496,1,8,0:1:0:0:
 311,63,1845,2,0,B|344:112|344:112|398:141,1,120,0|0,0:0|0:0,0:0:0:0:
 392,216,2891,6,0,L|328:224,1,60,8|8,0:1|0:1,0:0:0:0:

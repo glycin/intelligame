@@ -1,7 +1,7 @@
 osu file format v14
 
 [General]
-AudioFilename: audio.mp3
+AudioFilename: masterswordremix.wav
 AudioLeadIn: 0
 PreviewTime: 11791
 Countdown: 0
@@ -49,6 +49,9 @@ SliderTickRate:1
 //Storyboard Layer 4 (Overlay)
 //Storyboard Sound Samples
 
+[Colours]
+Combo1 : 94,204,255
+
 [TimingPoints]
 166,750,4,2,1,20,1,0
 33166,750,3,2,1,20,1,0
@@ -56,7 +59,6 @@ SliderTickRate:1
 
 
 [HitObjects]
-320,192,166,5,0,0:0:0:0:
 192,192,3166,1,0,0:0:0:0:
 448,192,6166,1,0,0:0:0:0:
 64,192,9166,1,0,0:0:0:0:
