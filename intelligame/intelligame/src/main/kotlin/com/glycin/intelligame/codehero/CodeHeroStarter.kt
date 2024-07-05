@@ -1,6 +1,5 @@
 package com.glycin.intelligame.codehero
 
-import com.glycin.intelligame.packageman.PackmanService
 import com.intellij.codeInsight.intention.HighPriorityAction
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.openapi.components.service

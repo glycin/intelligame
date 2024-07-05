@@ -1,0 +1,87 @@
+osu file format v14
+
+[General]
+AudioFilename: audio.mp3
+AudioLeadIn: 0
+PreviewTime: 11791
+Countdown: 0
+SampleSet: Soft
+StackLeniency: 0.7
+Mode: 3
+LetterboxInBreaks: 0
+SpecialStyle: 0
+WidescreenStoryboard: 1
+
+[Editor]
+DistanceSpacing: 0.8
+BeatDivisor: 1
+GridSize: 16
+TimelineZoom: 0.6
+
+[Metadata]
+Title:An Acquittal
+TitleUnicode:An Acquittal
+Artist:MasterSwordRemix
+ArtistUnicode:MasterSwordRemix
+Creator:Vincus
+Version:4K Beginner
+Source:Undertale Yellow
+Tags:video game fan game instrumental toby fox team undertale yellow teamuty ost track 097 original soundtrack waterfall rpg electronic slow ambient multi-keymode multi keymode piano multi-keys keys keymodes bgm background music uty undertaleyellow
+BeatmapID:4478041
+BeatmapSetID:2129580
+
+[Difficulty]
+HPDrainRate:8
+CircleSize:4
+OverallDifficulty:6
+ApproachRate:5
+SliderMultiplier:1.4
+SliderTickRate:1
+
+[Events]
+//Background and Video events
+0,0,"ax0tph8vnlv61.jpg",0,0
+//Break Periods
+//Storyboard Layer 0 (Background)
+//Storyboard Layer 1 (Fail)
+//Storyboard Layer 2 (Pass)
+//Storyboard Layer 3 (Foreground)
+//Storyboard Layer 4 (Overlay)
+//Storyboard Sound Samples
+
+[TimingPoints]
+166,750,4,2,1,20,1,0
+33166,750,3,2,1,20,1,0
+35416,750,4,2,1,20,1,0
+
+
+[HitObjects]
+320,192,166,5,0,0:0:0:0:
+192,192,3166,1,0,0:0:0:0:
+448,192,6166,1,0,0:0:0:0:
+64,192,9166,1,0,0:0:0:0:
+320,192,12166,1,0,0:0:0:0:
+448,192,12916,1,0,0:0:0:0:
+192,192,13666,1,0,0:0:0:0:
+64,192,14416,1,0,0:0:0:0:
+448,192,15166,1,0,0:0:0:0:
+320,192,15916,128,0,18166:0:0:0:0:
+64,192,18166,1,0,0:0:0:0:
+192,192,18916,1,0,0:0:0:0:
+448,192,19666,1,0,0:0:0:0:
+320,192,20416,1,0,0:0:0:0:
+64,192,21166,1,0,0:0:0:0:
+192,192,21916,128,0,24166:0:0:0:0:
+448,192,24166,1,0,0:0:0:0:
+64,192,24916,1,0,0:0:0:0:
+192,192,25666,1,0,0:0:0:0:
+320,192,26416,1,0,0:0:0:0:
+64,192,27166,1,0,0:0:0:0:
+448,192,27916,1,0,0:0:0:0:
+192,192,28666,1,0,0:0:0:0:
+320,192,30166,1,0,0:0:0:0:
+192,192,30916,1,0,0:0:0:0:
+448,192,31666,1,0,0:0:0:0:
+64,192,32416,1,0,0:0:0:0:
+192,192,33166,128,0,35416:0:0:0:0:
+448,192,35416,128,0,38416:0:0:0:0:
