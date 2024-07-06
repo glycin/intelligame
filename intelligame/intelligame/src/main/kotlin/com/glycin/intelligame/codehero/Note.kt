@@ -18,24 +18,35 @@ class Note(
 ){
     var active = false
     val deltaTime = fps.toDeltaTime()
-    val speed = targetPos.x / (3000 / deltaTime)
-    //TODO: Calculate the speed based on the distance that i have to travel
+    private val speed = targetPos.x / (650 / deltaTime)
+    private var draw = true
+
     fun move(){
         positionLeft += Fec2.right * speed
         positionRight += Fec2.left * speed
+
+        if((targetPos.x + 30) - positionLeft.x < 0){
+            draw = false
+        }else if(positionRight.x - (targetPos.x + 30) < 0){
+            draw = false
+        }
     }
 
     fun draw(g: Graphics2D) {
-        if(!active){
-            g.color = color
+        if(!draw) return
+
+        if(active){
+            g.color = JBColor.green.brighter()
         }else{
-            g.color = JBColor.GREEN
+            g.color = color
         }
         g.fillRect(positionLeft.x.roundToInt(), positionLeft.y.roundToInt(), width, height)
         g.fillRect(positionRight.x.roundToInt(), positionRight.y.roundToInt(), width, height)
     }
 
     fun destroy(){
+        positionLeft = Fec2(10000f, -10000f)
+        positionRight = Fec2(10000f, -10000f)
         active = false
     }
 }

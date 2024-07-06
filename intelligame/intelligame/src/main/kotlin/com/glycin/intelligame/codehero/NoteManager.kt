@@ -34,4 +34,8 @@ class NoteManager(
             n.destroy()
         }
     }
+
+    fun validHit(): Boolean {
+        return notes.values.any { it.active }
+    }
 }

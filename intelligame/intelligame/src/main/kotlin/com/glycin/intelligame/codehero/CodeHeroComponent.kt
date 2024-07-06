@@ -1,6 +1,7 @@
 package com.glycin.intelligame.codehero
 
 import com.glycin.intelligame.boom.BoomComponent
+import com.glycin.intelligame.shared.Vec2
 import com.glycin.intelligame.util.toLongDeltaTime
 import com.intellij.openapi.application.EDT
 import com.intellij.ui.JBColor
@@ -22,7 +23,8 @@ class CodeHeroComponent(
 
     private val deltaTime = fps.toLongDeltaTime()
     private val rockerGif = ImageIcon(BoomComponent::class.java.getResource("/Sprites/guitar.gif"))
-
+    private val successEffects = mutableListOf<SuccessEffect>()
+    private val failEffects = mutableListOf<FailEffect>()
     private lateinit var rockerLabel: JLabel
     private var centerX = 0
     private var centerY = 0
@@ -46,11 +48,30 @@ class CodeHeroComponent(
         showRocker()
     }
 
+
+    fun showSucces() {
+        successEffects.add(SuccessEffect(
+            position = Vec2(centerX + 100, centerY - 100),
+            width = 50,
+            height = 50,
+        ))
+    }
+
+    fun showEpicFail() {
+        failEffects.add(FailEffect(
+            position = Vec2(centerX -100, centerY - 100),
+            width = 50,
+            height = 50,
+        ))
+    }
+
     override fun paintComponent(g: Graphics?) {
         super.paintComponent(g)
         if(g is Graphics2D) {
             drawMusicalLines(g)
             drawNotes(g)
+            drawSuccesses(g)
+            drawFails(g)
         }
     }
 
@@ -60,10 +81,12 @@ class CodeHeroComponent(
         g.fillRect(0, centerY + 50, width, 5)
         g.fillRect(0, centerY + 75, width, 5)
 
+        // width = 60
+
         g.color = JBColor.RED.darker()
-        g.fillRect(centerX - 25, centerY, 60, 100)
+        g.fillRect(centerX, centerY, 60, 100)
         g.color = JBColor.WHITE.brighter().brighter().brighter()
-        g.fillRect(centerX - 20, centerY + 5, 50, 90)
+        g.fillRect(centerX + 5, centerY + 5, 50, 90)
     }
 
     private fun drawNotes(g: Graphics2D) {
@@ -81,5 +104,19 @@ class CodeHeroComponent(
         rockerLabel.setBounds(x, y, rockerGif.iconWidth, rockerGif.iconHeight)
         add(rockerLabel)
         repaint()
+    }
+
+    private fun drawSuccesses(g: Graphics2D) {
+        successEffects.forEach { it.draw(g) }
+        val toRemove = mutableListOf<SuccessEffect>()
+        successEffects.filter{ it.shown }.onEach { toRemove.add(it) }
+        toRemove.forEach { successEffects.remove(it) }
+    }
+
+    private fun drawFails(g: Graphics2D) {
+        failEffects.forEach { it.draw(g) }
+        val toRemove = mutableListOf<FailEffect>()
+        failEffects.filter{ it.shown }.onEach { toRemove.add(it) }
+        toRemove.forEach { failEffects.remove(it) }
     }
 }
