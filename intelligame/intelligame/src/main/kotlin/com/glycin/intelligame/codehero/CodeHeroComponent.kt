@@ -11,6 +11,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.awt.Graphics
 import java.awt.Graphics2D
+import java.awt.Image
+import java.awt.image.BufferedImage
+import javax.imageio.ImageIO
 import javax.swing.ImageIcon
 import javax.swing.JComponent
 import javax.swing.JLabel
@@ -20,6 +23,18 @@ class CodeHeroComponent(
     private val scope: CoroutineScope,
     fps: Long
 ) : JComponent() {
+
+    val successSprites = listOf<Image> (
+        ImageIcon(this::class.java.getResource("/Sprites/thunderFrames/frame_0.png")).image,
+        ImageIcon(this::class.java.getResource("/Sprites/thunderFrames/frame_1.png")).image,
+        ImageIcon(this::class.java.getResource("/Sprites/thunderFrames/frame_2.png")).image,
+        ImageIcon(this::class.java.getResource("/Sprites/thunderFrames/frame_3.png")).image,
+        ImageIcon(this::class.java.getResource("/Sprites/thunderFrames/frame_4.png")).image,
+        ImageIcon(this::class.java.getResource("/Sprites/thunderFrames/frame_5.png")).image,
+        ImageIcon(this::class.java.getResource("/Sprites/thunderFrames/frame_6.png")).image,
+        ImageIcon(this::class.java.getResource("/Sprites/thunderFrames/frame_7.png")).image,
+        ImageIcon(this::class.java.getResource("/Sprites/thunderFrames/frame_8.png")).image
+    )
 
     private val deltaTime = fps.toLongDeltaTime()
     private val rockerGif = ImageIcon(BoomComponent::class.java.getResource("/Sprites/guitar.gif"))
@@ -52,8 +67,7 @@ class CodeHeroComponent(
     fun showSucces() {
         successEffects.add(SuccessEffect(
             position = Vec2(centerX + 100, centerY - 100),
-            width = 50,
-            height = 50,
+            sprites = successSprites
         ))
     }
 

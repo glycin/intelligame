@@ -1,24 +1,21 @@
 package com.glycin.intelligame.codehero
 
 import com.glycin.intelligame.shared.Vec2
-import com.intellij.ui.JBColor
 import java.awt.Graphics2D
+import java.awt.Image
 
 class SuccessEffect(
     private val position: Vec2,
-    private val width: Int,
-    private val height: Int,
+    private val sprites: List<Image>,
 ) {
     var shown = false
-    private val effectDuration = 50
-    private var calls = 0
-
+    private var currentIndex = 0
+    
     fun draw(g: Graphics2D) {
-        g.color = JBColor.green.brighter()
-        g.fillOval(position.x, position.y, width, height)
-
-        calls++
-        if(calls >= effectDuration) {
+        val sprite = sprites[currentIndex]
+        g.drawImage(sprite, position.x, position.y, sprite.getWidth(null), sprite.getHeight(null), null)
+        currentIndex++
+        if(currentIndex >= sprites.size - 1) {
             shown = true
         }
     }
