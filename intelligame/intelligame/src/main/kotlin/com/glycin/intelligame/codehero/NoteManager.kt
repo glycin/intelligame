@@ -8,6 +8,7 @@ class NoteManager(
     private val spawnPositionLeft: Fec2,
     private val spawnPositionRight: Fec2,
     private val targetPosition: Fec2,
+    private val game: CodeHeroGame,
     private val fps: Long,
 ) {
 
@@ -32,10 +33,18 @@ class NoteManager(
         notes[id]?.let { n ->
             notes.remove(n.id)
             n.destroy()
+            if(!n.hitOnTime){
+                game.noteFail()
+            }
         }
     }
 
     fun validHit(): Boolean {
-        return notes.values.any { it.active }
+        val note = notes.values.firstOrNull() ?: return false
+        if(note.active) {
+            note.hitOnTime = true
+            return true
+        }
+        return false
     }
 }

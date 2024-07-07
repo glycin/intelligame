@@ -14,7 +14,7 @@ class CodeHeroService(
 
     fun initGame(editor: Editor){
         println("CODE HERO STARTED!")
-        game = CodeHeroGame(editor, project, scope).apply { initGame() }
+        game = CodeHeroGame(editor, project, scope)
     }
 
     fun cleanUp() {

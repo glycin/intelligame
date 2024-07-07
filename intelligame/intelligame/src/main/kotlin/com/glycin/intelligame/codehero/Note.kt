@@ -17,8 +17,9 @@ class Note(
     fps: Long,
 ){
     var active = false
+    var hitOnTime = false
     val deltaTime = fps.toDeltaTime()
-    private val speed = targetPos.x / (650 / deltaTime)
+    private val speed = targetPos.x / (620 / deltaTime)
     private var draw = true
 
     fun move(){
@@ -35,11 +36,14 @@ class Note(
     fun draw(g: Graphics2D) {
         if(!draw) return
 
-        if(active){
+        // Used to debug the timings
+        /*if(active){
             g.color = JBColor.green.brighter()
         }else{
             g.color = color
-        }
+        }*/
+
+        g.color = color
         g.fillRect(positionLeft.x.roundToInt(), positionLeft.y.roundToInt(), width, height)
         g.fillRect(positionRight.x.roundToInt(), positionRight.y.roundToInt(), width, height)
     }
