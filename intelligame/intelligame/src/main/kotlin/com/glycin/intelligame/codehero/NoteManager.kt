@@ -47,4 +47,8 @@ class NoteManager(
         }
         return false
     }
+
+    fun cleanup(){
+        notes.clear()
+    }
 }

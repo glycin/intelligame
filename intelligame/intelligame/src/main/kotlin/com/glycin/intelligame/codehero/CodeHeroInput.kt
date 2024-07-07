@@ -11,17 +11,34 @@ class CodeHeroInput(
 ): KeyEventDispatcher {
     override fun dispatchKeyEvent(e: KeyEvent?): Boolean {
 
-        if (e?.id == KeyEvent.KEY_PRESSED) {
+        if (e?.id == KeyEvent.KEY_PRESSED && game.gameState.state == CodeHeroStateEnum.PLAYING) {
             when (e.keyCode) {
 
                 KeyEvent.VK_SPACE -> {
-                    game.onInput()
+                    game.onInput(e.keyChar)
+                    return true
+                }
+
+                KeyEvent.VK_BACK_SPACE -> {
+                    game.resetGame()
+                    return true
                 }
 
                 KeyEvent.VK_ESCAPE -> {
                     project.service<CodeHeroService>().cleanUp()
+                    return true
+                }
+
+                KeyEvent.VK_ENTER -> {
+                    return false
+                }
+
+                KeyEvent.VK_TAB -> {
+                    return false
                 }
             }
+
+            game.onInput(e.keyChar)
         }
 
         // Returning false allows the event to be redispatched to the target component

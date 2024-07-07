@@ -2,15 +2,12 @@ package com.glycin.intelligame.codehero
 
 import kotlin.math.absoluteValue
 
-class CodeHeroState(
-    private val totalNotes : Int
-) {
+class CodeHeroState {
     var state = CodeHeroStateEnum.STARTED
     var score = 0
-    var notesHit = 0
-    var notesMissed = 0
     var multiplier = 0
-
+    private var notesHit = 0
+    private var notesMissed = 0
     fun getMotivationalText() = MotivationalTexts.getText(notesHit, notesMissed)
 
     fun onSuccess(){
@@ -23,6 +20,14 @@ class CodeHeroState(
     fun onFail(){
         multiplier = 0
         notesMissed++
+    }
+
+    fun reset() {
+        state = CodeHeroStateEnum.STARTED
+        score = 0
+        notesHit = 0
+        notesMissed = 0
+        multiplier = 0
     }
 }
 

@@ -8,7 +8,7 @@ import java.awt.Toolkit
 import java.awt.datatransfer.DataFlavor
 
 class CodeHeroPasteHandler(
-    private val originalHandler: EditorActionHandler,
+    val originalHandler: EditorActionHandler,
     private val game: CodeHeroGame,
 ): EditorActionHandler() {
 
@@ -16,10 +16,12 @@ class CodeHeroPasteHandler(
         val clipboard = Toolkit.getDefaultToolkit().systemClipboard
         val contents = clipboard.getContents(null)
 
-        if(contents != null && contents.isDataFlavorSupported(DataFlavor.stringFlavor)) {
+        if(contents != null && contents.isDataFlavorSupported(DataFlavor.stringFlavor) && game.gameState.state == CodeHeroStateEnum.STARTED) {
             val text = contents.getTransferData(DataFlavor.stringFlavor) as String
             game.initGame(text)
-        }else {
+        } else if(game.gameState.state == CodeHeroStateEnum.PLAYING) {
+          //Do nothing for now
+        } else {
             originalHandler.execute(editor, caret, dataContext)
         }
     }

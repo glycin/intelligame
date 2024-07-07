@@ -26,6 +26,17 @@ object TextWriter {
         }
     }
 
+
+    fun writeTextAndThen(offset: Int, text: String, editor: Editor, project: Project, onComplete: () -> Unit) {
+        val document = editor.document
+        ApplicationManager.getApplication().invokeLater {
+            WriteCommandAction.runWriteCommandAction(project) {
+                document.insertString(offset, text)
+                onComplete()
+            }
+        }
+    }
+
     fun replaceText(startOffset: Int, endOffset: Int, text: String, editor: Editor, project: Project ) {
         val document = editor.document
         ApplicationManager.getApplication().invokeLater {

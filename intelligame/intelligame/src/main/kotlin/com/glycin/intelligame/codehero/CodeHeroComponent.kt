@@ -16,6 +16,7 @@ import java.awt.Graphics2D
 import javax.swing.ImageIcon
 import javax.swing.JComponent
 import javax.swing.JLabel
+import javax.swing.JTextPane
 import kotlin.math.roundToInt
 
 class CodeHeroComponent(
@@ -32,6 +33,7 @@ class CodeHeroComponent(
     private lateinit var rockerLabel: JLabel
     private lateinit var scoreLabel: JLabel
     private lateinit var textLabel: JLabel
+    private lateinit var previewPane: JTextPane
     private var centerX = 0
     private var centerY = 0
 
@@ -74,6 +76,40 @@ class CodeHeroComponent(
             sprites = animationLoader.failSprites
         ))
         updateScoreLabel()
+    }
+
+
+    fun showPastePreview(textToPaste: String, position: Vec2, width: Int, height: Int, fontName: String, fontSize: Int) {
+        previewPane = JTextPane()
+        previewPane.setBounds(position.x, position.y, width, height)
+        previewPane.font = Font(fontName, JBFont.ITALIC, fontSize)
+        previewPane.foreground = JBColor.white.brighter().brighter()
+        previewPane.isOpaque = false
+        previewPane.text = textToPaste
+        add(previewPane)
+        repaint()
+    }
+
+
+    fun updatePastePreview(inputString: String) {
+        if (inputString.isBlank()) return
+        val text = StringBuilder(previewPane.text)
+        inputString.forEach { char ->
+            if(!char.isWhitespace()) {
+                val firstNonWhitespaceIndex = text.indexOfFirst { !it.isWhitespace() }
+
+                if (firstNonWhitespaceIndex != -1) {
+                    text[firstNonWhitespaceIndex] = ' '
+                }
+            }
+        }
+
+        if(text.isEmpty()) {
+            remove(previewPane)
+        }else {
+            previewPane.text = text.toString()
+            previewPane.setBounds(previewPane.x, previewPane.y, previewPane.width, previewPane.height)
+        }
     }
 
     override fun paintComponent(g: Graphics?) {
