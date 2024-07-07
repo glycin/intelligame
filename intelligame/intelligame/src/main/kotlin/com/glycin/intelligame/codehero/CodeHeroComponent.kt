@@ -79,31 +79,16 @@ class CodeHeroComponent(
     }
 
 
-    fun showPastePreview(textToPaste: String, position: Vec2, width: Int, height: Int, fontName: String, fontSize: Int) {
-        previewPane = JTextPane()
-        previewPane.setBounds(position.x, position.y, width, height)
-        previewPane.font = Font(fontName, JBFont.ITALIC, fontSize)
-        previewPane.foreground = JBColor.white.brighter().brighter()
-        previewPane.isOpaque = false
-        previewPane.text = textToPaste
+    fun showPastePreview(textToPaste: String, position: Vec2, width: Int, height: Int, fontName: String, game: CodeHeroGame) {
+        previewPane = TextIndicatorComponent(position, width, height, fontName, textToPaste, game)
         add(previewPane)
         repaint()
     }
 
 
     fun updatePastePreview(inputString: String) {
-        if (inputString.isBlank()) return
-        val text = StringBuilder(previewPane.text)
-        inputString.forEach { char ->
-            if(!char.isWhitespace()) {
-                val firstNonWhitespaceIndex = text.indexOfFirst { !it.isWhitespace() }
-
-                if (firstNonWhitespaceIndex != -1) {
-                    text[firstNonWhitespaceIndex] = ' '
-                }
-            }
-        }
-
+        val text = previewPane.text
+        previewPane.text = text.drop(inputString.length)
         if(text.isEmpty()) {
             remove(previewPane)
         }else {

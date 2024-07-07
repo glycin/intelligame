@@ -143,7 +143,7 @@ class CodeHeroGame(
             width = 10 * maxCharsInLine,
             height = editor.lineHeight * lines.size,
             fontName = editor.colorsScheme.editorFontName,
-            fontSize = editor.colorsScheme.editorFontSize,
+            game = this
         )
         textToPaste.forEach {
             lettersToWrite.add(it)
@@ -159,10 +159,10 @@ class CodeHeroGame(
             stringToInsert += lettersToWrite.remove()
         }
 
-        // TODO: I cant write the characters because this forces the whole editor to repaint, messing up with my timings
+        /*// TODO: I cant write the characters because this forces the whole editor to repaint, messing up with my timings
         TextWriter.writeTextAndThen(pos, stringToInsert, editor, project) {
             editor.caretModel.moveToOffset(pos + stringToInsert.length)
             component.updatePastePreview(stringToInsert)
-        }
+        }*/
     }
 }
