@@ -46,6 +46,10 @@
       <language>JAVA</language>
       <className>com.glycin.intelligame.codehero.CodeHeroStarter</className>
     </intentionAction>
+    <intentionAction>
+      <language>JAVA</language>
+      <className>com.glycin.intelligame.zonictestdog.ZtdStarter</className>
+    </intentionAction>
   </extensions>
 
 </idea-plugin>
