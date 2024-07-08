@@ -5,9 +5,9 @@ object IntroStrings {
         "PASTE ACTION DETECTED!",
         "TIME TO PROVE IF YOU ARE A REAL CODE ROCKSTAR!",
         "READY?!",
-        "3",
-        "2",
-        "1",
+        "THREE...",
+        "TWO...",
+        "ONE...",
         "ROCK ON!"
     )
 
