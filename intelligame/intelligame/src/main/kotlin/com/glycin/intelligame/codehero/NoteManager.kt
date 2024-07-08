@@ -42,6 +42,12 @@ class NoteManager(
         }
     }
 
+    fun deactivateFirst() {
+        if(notes.isEmpty()) return
+        val id = notes.minOf { it.key }
+        deactivateNote(id)
+    }
+
     fun validHit(): Boolean {
         val note = notes.values.firstOrNull() ?: return false
         if(note.active) {

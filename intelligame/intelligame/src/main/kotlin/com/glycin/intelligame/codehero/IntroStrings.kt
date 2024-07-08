@@ -14,7 +14,7 @@ object IntroStrings {
     fun difficultyString(size: Int): String {
         return if(size <= 30){
             "YOU PASTED A LOW AMOUNT OF TEXT, SO YOU ARE GETTING AN EASY SONG!"
-        }else if (size <= 230) {
+        }else if (size < 230) {
             "YOU PASTED A MEDIUM AMOUNT OF TEXT, SO YOU ARE GETTING A MEDIUM SONG!"
         }else {
             "YOU PASTED A SIGNIFICANT AMOUNT OF TEXT, GOOD LUCK!"

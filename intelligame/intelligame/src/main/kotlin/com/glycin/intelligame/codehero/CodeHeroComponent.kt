@@ -76,6 +76,7 @@ class CodeHeroComponent(
             if(charsToShow.isEmpty()) {
                 game.paste()
                 showSuccess()
+                noteManager.deactivateFirst()
             }else {
                 charsToShow.remove()
                 while (charsToShow.isNotEmpty() && !charsToShow.peek().isLetterOrDigit()) {
@@ -83,6 +84,7 @@ class CodeHeroComponent(
                 }
                 updateLetterIndicator()
                 showSuccess()
+                noteManager.deactivateFirst()
             }
         }else {
             showEpicFail()
