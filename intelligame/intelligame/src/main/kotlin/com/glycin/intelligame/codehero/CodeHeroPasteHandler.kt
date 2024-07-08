@@ -18,7 +18,7 @@ class CodeHeroPasteHandler(
 
         if(contents != null && contents.isDataFlavorSupported(DataFlavor.stringFlavor) && game.gameState.state == CodeHeroStateEnum.STARTED) {
             val text = contents.getTransferData(DataFlavor.stringFlavor) as String
-            game.initGame(text)
+            game.initIntro(text)
         } else if(game.gameState.state == CodeHeroStateEnum.PLAYING) {
           //Do nothing for now
         } else {

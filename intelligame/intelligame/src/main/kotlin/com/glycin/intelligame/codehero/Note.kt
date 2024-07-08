@@ -40,7 +40,7 @@ class Note(
                 nextFrameTime += frameDurationNanos
                 val sleepTime = nextFrameTime - System.nanoTime()
                 if (sleepTime > 0) {
-                    delay(sleepTime / 1_000_000L) // delay accepts time in milliseconds
+                    delay(sleepTime / 1_000_000L)
                 } else {
                     // Compensate for missed frames if the sleep time is negative
                     nextFrameTime = System.nanoTime()

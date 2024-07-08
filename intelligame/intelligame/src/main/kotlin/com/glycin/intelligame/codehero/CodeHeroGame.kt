@@ -7,6 +7,9 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.actionSystem.EditorActionManager
 import com.intellij.openapi.project.Project
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.awt.KeyboardFocusManager
 import javax.swing.JScrollPane
 import javax.swing.SwingUtilities
@@ -35,6 +38,35 @@ class CodeHeroGame(
         pasteHandler = CodeHeroPasteHandler(originalPasteHandler, this)
         editorActionManager.setActionHandler("EditorPaste", pasteHandler)
         gameState = CodeHeroState()
+    }
+
+    fun initIntro(textToPaste: String) {
+        if(gameState.state != CodeHeroStateEnum.STARTED) {
+            println("Game is already playing!")
+        }
+        val pasteOffset = editor.caretModel.offset
+        scope.launch (Dispatchers.Main) {
+            TextWriter.writeText(pasteOffset, IntroStrings.introStrings[0], editor, project)
+            delay(1000)
+            TextWriter.replaceText(pasteOffset, pasteOffset + IntroStrings.introStrings[0].length, IntroStrings.introStrings[1], editor, project)
+            delay(2000)
+            TextWriter.replaceText(pasteOffset, pasteOffset + IntroStrings.introStrings[1].length, IntroStrings.difficultyString(textToPaste.length), editor, project)
+            delay(500)
+            val isp = IntroSoundPlayer().also { it.playSong() }
+            delay(3000)
+            TextWriter.replaceText(pasteOffset, pasteOffset + IntroStrings.difficultyString(textToPaste.length).length, IntroStrings.introStrings[2], editor, project)
+            delay(1000)
+            TextWriter.replaceText(pasteOffset, pasteOffset + IntroStrings.introStrings[2].length, IntroStrings.introStrings[3], editor, project)
+            delay(1000)
+            TextWriter.replaceText(pasteOffset, pasteOffset + IntroStrings.introStrings[3].length, IntroStrings.introStrings[4], editor, project)
+            delay(1000)
+            TextWriter.replaceText(pasteOffset, pasteOffset + IntroStrings.introStrings[4].length, IntroStrings.introStrings[5], editor, project)
+            delay(1000)
+            TextWriter.replaceText(pasteOffset, pasteOffset + IntroStrings.introStrings[5].length, IntroStrings.introStrings[6], editor, project)
+            isp.stop()
+            TextWriter.deleteText(pasteOffset, pasteOffset + IntroStrings.introStrings[6].length, editor, project)
+            initGame(textToPaste)
+        }
     }
 
     fun initGame(textToPaste: String) {

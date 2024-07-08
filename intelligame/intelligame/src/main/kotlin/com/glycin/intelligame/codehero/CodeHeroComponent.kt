@@ -10,6 +10,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.awt.Color
 import java.awt.Font
 import java.awt.Graphics
 import java.awt.Graphics2D
@@ -142,9 +143,13 @@ class CodeHeroComponent(
 
         // width = 60
 
-        g.color = JBColor.blue.darker()
+        g.color = Color(44, 255, 50, 125)
+        g.drawRect(centerX - 150, centerY + 15, 375, 70)
+        g.color = Color(44, 255, 0, 150)
+        g.fillRect(centerX - 145, centerY + 20, 365, 60)
+        g.color = JBColor.red.darker().darker()
         g.fillRect(centerX, centerY, 60, 100)
-        g.color = JBColor.WHITE.brighter().brighter().brighter()
+        g.color = JBColor.red.brighter().brighter()
         g.fillRect(centerX + 5, centerY + 5, 50, 90)
     }
 
