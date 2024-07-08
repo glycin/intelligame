@@ -11,7 +11,7 @@ class CodeHeroInput(
 ): KeyEventDispatcher {
     override fun dispatchKeyEvent(e: KeyEvent?): Boolean {
 
-        if (e?.id == KeyEvent.KEY_PRESSED && game.gameState.state == CodeHeroStateEnum.PLAYING) {
+        if (e?.id == KeyEvent.KEY_PRESSED && game.gameState.state != CodeHeroStateEnum.GAME_OVER) {
             when (e.keyCode) {
                 // Can't use this because of complications with the internal rendering loops
                 KeyEvent.VK_SPACE -> {

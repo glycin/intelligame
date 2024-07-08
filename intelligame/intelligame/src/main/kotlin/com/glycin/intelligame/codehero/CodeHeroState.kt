@@ -1,7 +1,5 @@
 package com.glycin.intelligame.codehero
 
-import kotlin.math.absoluteValue
-
 class CodeHeroState {
     var state = CodeHeroStateEnum.STARTED
     var score = 0
@@ -40,20 +38,23 @@ enum class CodeHeroStateEnum {
 object MotivationalTexts {
     fun getText(hit: Int, missed: Int): String {
         val diff = hit - missed
-        if(diff > -5 && diff < 5) {
-            return neutralTexts.random()
-        }else if(diff >= 5 && hit > 5 && (hit - diff) > 10) {
-            return winningTexts.random()
-        }else if((hit - diff) <= 10){
-            return perfectTexts.random()
-        }else if(diff <= -5 && missed > 5 && (missed - diff.absoluteValue) > 10) {
-            return losingTexts.random()
-        }else if((missed - diff.absoluteValue) <= 10) {
-            return horribleTexts.random()
-        }
 
-        return neutralTexts.random()
+        return when {
+            isPerfect(hit, missed) -> perfectTexts.random()
+            isWinning(hit, missed, diff) -> winningTexts.random()
+            isNeutral(diff) -> neutralTexts.random()
+            isLosing(hit, missed, diff) -> losingTexts.random()
+            else -> horribleTexts.random() // Fallback for horrible performance
+        }
     }
+
+    private fun isPerfect(hit: Int, missed: Int) = hit > 10 && missed <= 10
+
+    private fun isWinning(hit: Int, missed: Int, diff: Int) = hit > missed && diff >= 10
+
+    private fun isNeutral(diff: Int) = diff in -10..10
+
+    private fun isLosing(hit: Int, missed: Int, diff: Int) = missed > hit && diff <= -10
 
     private val horribleTexts = listOf(
         "GET OFF THE STAGE!",

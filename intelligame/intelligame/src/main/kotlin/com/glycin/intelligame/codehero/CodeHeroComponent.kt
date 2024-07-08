@@ -87,6 +87,7 @@ class CodeHeroComponent(
                 noteManager.deactivateFirst()
             }
         }else {
+            game.gameState.onFail()
             showEpicFail()
         }
     }
@@ -94,7 +95,8 @@ class CodeHeroComponent(
     fun showEpicFail() {
         effects.add(AnimatedEffect(
             position = Vec2(centerX, centerY),
-            sprites = animationLoader.failSprites
+            sprites = animationLoader.failSprites,
+            frameHoldCount = 2,
         ))
         updateScoreLabel()
     }
@@ -224,7 +226,8 @@ class CodeHeroComponent(
     private fun showSuccess(){
         effects.add(AnimatedEffect(
             position = Vec2(centerX, centerY - (animationLoader.successSprites[0].getHeight(this)) - 25),
-            sprites = animationLoader.successSprites
+            sprites = animationLoader.successSprites,
+            frameHoldCount = 2,
         ))
         updateScoreLabel()
     }
