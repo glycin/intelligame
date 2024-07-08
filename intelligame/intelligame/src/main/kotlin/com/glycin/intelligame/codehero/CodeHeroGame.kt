@@ -3,13 +3,11 @@ package com.glycin.intelligame.codehero
 import com.glycin.intelligame.codehero.osu.OsuParser
 import com.glycin.intelligame.shared.Fec2
 import com.glycin.intelligame.shared.TextWriter
-import com.glycin.intelligame.util.toVec2
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.actionSystem.EditorActionManager
 import com.intellij.openapi.project.Project
 import kotlinx.coroutines.CoroutineScope
 import java.awt.KeyboardFocusManager
-import java.util.LinkedList
 import javax.swing.JScrollPane
 import javax.swing.SwingUtilities
 import kotlin.math.roundToInt
@@ -23,7 +21,7 @@ class CodeHeroGame(
 ){
     private val viewPort = (SwingUtilities.getAncestorOfClass(JScrollPane::class.java, editor.contentComponent) as JScrollPane).viewport
     private var pasteHandler: CodeHeroPasteHandler
-    private var lettersToWrite = LinkedList<Char>()
+    private var textToPaste = ""
 
     private lateinit var input : CodeHeroInput
     private lateinit var component : CodeHeroComponent
@@ -43,7 +41,7 @@ class CodeHeroGame(
         if(gameState.state != CodeHeroStateEnum.STARTED) {
             println("Game is already playing!")
         }
-
+        this.textToPaste = textToPaste
         val textLength = textToPaste.count { c -> c.isLetterOrDigit() }
         val beatmap = if(textLength <= 30){
             "MasterSwordRemix_An_Acquittal.osu"
@@ -59,7 +57,8 @@ class CodeHeroGame(
             spawnPositionRight = Fec2(viewPort.width.toFloat(), ((viewPort.height / 1.5).roundToInt()) + 10f),
             targetPosition = Fec2(viewPort.width.toFloat() / 2, ((viewPort.height / 1.5).roundToInt()).toFloat()),
             game = this,
-            fps = FPS
+            fps = FPS,
+            scope = scope
         )
         component = attachComponent(noteManager)
         songPlayer = SongPlayer(song , scope, noteManager)
@@ -72,7 +71,6 @@ class CodeHeroGame(
 
     fun stopGame() {
         gameState.state = CodeHeroStateEnum.GAME_OVER
-        lettersToWrite.clear()
         KeyboardFocusManager.getCurrentKeyboardFocusManager().removeKeyEventDispatcher(input)
         component.destroy()
         editor.contentComponent.remove(component)
@@ -83,7 +81,6 @@ class CodeHeroGame(
 
     fun resetGame() {
         gameState.reset()
-        lettersToWrite.clear()
         KeyboardFocusManager.getCurrentKeyboardFocusManager().removeKeyEventDispatcher(input)
         component.destroy()
         editor.contentComponent.remove(component)
@@ -92,17 +89,9 @@ class CodeHeroGame(
     }
 
     fun onInput(char: Char) {
-        if(noteManager.validHit()){
-            if(char.isWhitespace()){
-                gameState.onSuccess()
-                component.showSucces()
-            }else if(char == lettersToWrite.peek()) {
-                gameState.onSuccess()
-                component.showSucces()
-                writeChar()
-            }else {
-                noteFail()
-            }
+        if(noteManager.validHit() && (char.isLetterOrDigit() || char.isWhitespace())){
+            gameState.onSuccess()
+            component.checkSuccess(char.uppercaseChar())
         }else{
             noteFail()
         }
@@ -113,10 +102,16 @@ class CodeHeroGame(
         component.showEpicFail()
     }
 
+    fun paste() {
+        val offset = editor.caretModel.offset
+        TextWriter.writeText(offset, textToPaste, editor, project)
+        textToPaste = ""
+    }
+
     private fun attachComponent(noteManager: NoteManager) : CodeHeroComponent {
         val contentComponent = editor.contentComponent
         editor.settings.isVirtualSpace = true
-        val component = CodeHeroComponent(noteManager, scope, gameState, FPS).apply {
+        val component = CodeHeroComponent(noteManager, scope, this, FPS).apply {
             bounds = viewPort.viewRect
             isOpaque = false
         }.apply { start() }
@@ -131,26 +126,15 @@ class CodeHeroGame(
     }
 
     private fun startPaste(textToPaste: String) {
-        val lines = textToPaste.lines()
-        val textToAdd = lines.joinToString("") { "\n" }
-        val caretPos = editor.caretModel.offset
-        TextWriter.writeText(caretPos, textToAdd, editor, project)
-        val position = editor.offsetToXY(caretPos)
-        val maxCharsInLine = lines.maxOf { line -> line.length }
-        component.showPastePreview(
+        component.showLetterIndicators(
             textToPaste = textToPaste,
-            position = position.toVec2(),
-            width = 10 * maxCharsInLine,
-            height = editor.lineHeight * lines.size,
+            paneWidth = 250,
+            paneHeight = 250,
             fontName = editor.colorsScheme.editorFontName,
-            game = this
         )
-        textToPaste.forEach {
-            lettersToWrite.add(it)
-        }
     }
 
-    private fun writeChar() {
+    /*private fun writeChar() {
         val pos = editor.caretModel.offset
         val next = lettersToWrite.remove()
         var stringToInsert = "$next"
@@ -164,5 +148,5 @@ class CodeHeroGame(
             editor.caretModel.moveToOffset(pos + stringToInsert.length)
             component.updatePastePreview(stringToInsert)
         }*/
-    }
+    }*/
 }

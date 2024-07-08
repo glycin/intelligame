@@ -13,16 +13,19 @@ import kotlinx.coroutines.launch
 import java.awt.Font
 import java.awt.Graphics
 import java.awt.Graphics2D
+import java.util.*
 import javax.swing.ImageIcon
 import javax.swing.JComponent
 import javax.swing.JLabel
 import javax.swing.JTextPane
+import javax.swing.text.StyleConstants
+import javax.swing.text.StyledDocument
 import kotlin.math.roundToInt
 
 class CodeHeroComponent(
     private val noteManager: NoteManager,
     private val scope: CoroutineScope,
-    private val chState: CodeHeroState,
+    private val game: CodeHeroGame,
     fps: Long
 ) : JComponent() {
 
@@ -34,6 +37,9 @@ class CodeHeroComponent(
     private lateinit var scoreLabel: JLabel
     private lateinit var textLabel: JLabel
     private lateinit var previewPane: JTextPane
+    private lateinit var previewPaneDoc: StyledDocument
+
+    private val charsToShow = LinkedList<Char>()
     private var centerX = 0
     private var centerY = 0
 
@@ -50,24 +56,36 @@ class CodeHeroComponent(
         remove(rockerLabel)
         remove(scoreLabel)
         remove(textLabel)
+        remove(previewPane)
         effects.clear()
     }
 
     fun focus() {
         centerX = width / 2
         centerY = (height / 1.5).roundToInt()
+
         showRocker()
         showScoreLabel()
         showTextLabel()
     }
 
 
-    fun showSucces() {
-        effects.add(AnimatedEffect(
-            position = Vec2(centerX, centerY - (animationLoader.successSprites[0].getHeight(this)) - 25),
-            sprites = animationLoader.successSprites
-        ))
-        updateScoreLabel()
+    fun checkSuccess(charTyped: Char) {
+        if(charTyped.isWhitespace() || charsToShow.peek() == charTyped) {
+            if(charsToShow.isEmpty()) {
+                game.paste()
+                showSuccess()
+            }else {
+                charsToShow.remove()
+                while (charsToShow.isNotEmpty() && !charsToShow.peek().isLetterOrDigit()) {
+                    charsToShow.remove()
+                }
+                updateLetterIndicator()
+                showSuccess()
+            }
+        }else {
+            showEpicFail()
+        }
     }
 
     fun showEpicFail() {
@@ -79,22 +97,32 @@ class CodeHeroComponent(
     }
 
 
-    fun showPastePreview(textToPaste: String, position: Vec2, width: Int, height: Int, fontName: String, game: CodeHeroGame) {
-        previewPane = TextIndicatorComponent(position, width, height, fontName, textToPaste, game)
+    fun showLetterIndicators(textToPaste: String, paneWidth: Int, paneHeight: Int, fontName: String) {
+        textToPaste.filter { it.isLetterOrDigit() }.forEach { charsToShow.add(it.uppercaseChar()) }
+
+        previewPane = JTextPane().also { jtp ->
+            jtp.setBounds(centerX, height / 2, paneWidth, paneHeight)
+            jtp.isOpaque = false
+
+            previewPaneDoc = jtp.styledDocument
+            val firstStyle = jtp.addStyle("Main", null)
+            StyleConstants.setForeground(firstStyle, JBColor.CYAN.brighter().brighter().brighter().brighter())
+            StyleConstants.setBold(firstStyle, true)
+            StyleConstants.setFontFamily(firstStyle, fontName)
+            StyleConstants.setFontSize(firstStyle, 72)
+
+            val secondStyle = jtp.addStyle("Backing", null)
+            StyleConstants.setForeground(secondStyle, JBColor.white.brighter().brighter())
+            StyleConstants.setBold(secondStyle, false)
+            StyleConstants.setItalic(secondStyle, true)
+            StyleConstants.setFontFamily(secondStyle, fontName)
+            StyleConstants.setFontSize(secondStyle, 42)
+
+            previewPaneDoc.insertString(0, charsToShow.peek().toString(), firstStyle)
+            previewPaneDoc.insertString(1, "\t\t${charsToShow[1]}", secondStyle)
+        }
         add(previewPane)
         repaint()
-    }
-
-
-    fun updatePastePreview(inputString: String) {
-        val text = previewPane.text
-        previewPane.text = text.drop(inputString.length)
-        if(text.isEmpty()) {
-            remove(previewPane)
-        }else {
-            previewPane.text = text.toString()
-            previewPane.setBounds(previewPane.x, previewPane.y, previewPane.width, previewPane.height)
-        }
     }
 
     override fun paintComponent(g: Graphics?) {
@@ -123,7 +151,6 @@ class CodeHeroComponent(
     private fun drawNotes(g: Graphics2D) {
         noteManager.notes.values
             .forEach {
-                it.move()
                 it.draw(g)
             }
     }
@@ -131,8 +158,9 @@ class CodeHeroComponent(
     private fun showRocker() {
         val x = width - (width / 4)
         val y =  (height / 4) + 120
-        rockerLabel = JLabel(rockerGif)
-        rockerLabel.setBounds(x, y, rockerGif.iconWidth, rockerGif.iconHeight)
+        rockerLabel = JLabel(rockerGif).also { jl ->
+            jl.setBounds(x, y, rockerGif.iconWidth, rockerGif.iconHeight)
+        }
         add(rockerLabel)
         repaint()
     }
@@ -140,10 +168,11 @@ class CodeHeroComponent(
     private fun showScoreLabel() {
         val x = width - (width / 4)
         val y = height / 4
-        scoreLabel = JLabel("${chState.score} (x${chState.multiplier})")
-        scoreLabel.setBounds(x, y, 500, 50)
-        scoreLabel.font = Font(JBFont.SANS_SERIF, JBFont.BOLD, 48)
-        scoreLabel.foreground = JBColor.YELLOW.brighter()
+        scoreLabel = JLabel("${game.gameState.score} (x${game.gameState.multiplier})").also { jl ->
+            jl.setBounds(x, y, 500, 50)
+            jl.font = Font(JBFont.SANS_SERIF, JBFont.BOLD, 48)
+            jl.foreground = JBColor.YELLOW.brighter()
+        }
         add(scoreLabel)
         repaint()
     }
@@ -151,10 +180,11 @@ class CodeHeroComponent(
     private fun showTextLabel() {
         val x = width - (width / 4)
         val y = (height / 4) + 60
-        textLabel = JLabel(chState.getMotivationalText())
-        textLabel.setBounds(x, y, 500, 50)
-        textLabel.font = Font(JBFont.SANS_SERIF, JBFont.BOLD, 24)
-        textLabel.foreground = JBColor.CYAN.brighter()
+        textLabel = JLabel(game.gameState.getMotivationalText()).also { jl ->
+            jl.setBounds(x, y, 500, 50)
+            jl.font = Font(JBFont.SANS_SERIF, JBFont.BOLD, 24)
+            jl.foreground = JBColor.CYAN.brighter()
+        }
         add(textLabel)
         repaint()
     }
@@ -168,7 +198,27 @@ class CodeHeroComponent(
 
 
     private fun updateScoreLabel() {
-        scoreLabel.text = "${chState.score} (x${chState.multiplier})"
-        textLabel.text = chState.getMotivationalText()
+        scoreLabel.text = "${game.gameState.score} (x${game.gameState.multiplier})"
+        textLabel.text = game.gameState.getMotivationalText()
+    }
+
+    private fun updateLetterIndicator() {
+        if(charsToShow.isEmpty()) {
+            remove(previewPane)
+        }else {
+            previewPane.text = ""
+            previewPaneDoc.insertString(0, charsToShow.peek().toString(), previewPaneDoc.getStyle("Main"))
+            if(charsToShow.count() >= 2){
+                previewPaneDoc.insertString(1, "\t\t${charsToShow[1]}", previewPaneDoc.getStyle("Backing"))
+            }
+        }
+    }
+
+    private fun showSuccess(){
+        effects.add(AnimatedEffect(
+            position = Vec2(centerX, centerY - (animationLoader.successSprites[0].getHeight(this)) - 25),
+            sprites = animationLoader.successSprites
+        ))
+        updateScoreLabel()
     }
 }

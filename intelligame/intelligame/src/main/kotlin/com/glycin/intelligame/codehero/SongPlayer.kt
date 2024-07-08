@@ -18,7 +18,6 @@ class SongPlayer(
     private var song: Clip? = null
     private val hitWindow = 250L
 
-    @OptIn(ExperimentalStdlibApi::class)
     fun start() {
         spawnNotes()
     }
@@ -29,7 +28,6 @@ class SongPlayer(
         osuSong.shows.clear()
     }
 
-    @ExperimentalStdlibApi
     private fun spawnNotes() {
         scope.launch {
             playSong()
@@ -37,16 +35,16 @@ class SongPlayer(
             while(osuSong.shows.isNotEmpty() && osuSong.hits.isNotEmpty()) {
                 val nextShow = osuSong.shows.peek()
                 val nextHit = osuSong.hits.peek()
-
+                val hitWindowStart = nextHit.time - (hitWindow / 2)
+                val hitWindowEnd = nextHit.time + (hitWindow / 2)
                 val elapsed = System.currentTimeMillis() - startTime
+
                 if(elapsed >= nextShow.time) {
                     noteManager.addNote(nextShow.id, osuSong.colors.random())
                     osuSong.shows.remove()
                 }
 
-                val hitWindowStart = nextHit.time - (hitWindow / 2)
-                val hitWindowEnd = nextHit.time + (hitWindow / 2)
-                if(elapsed in hitWindowStart..<hitWindowEnd) {
+                if(elapsed >= hitWindowStart && elapsed <= hitWindowEnd) {
                     noteManager.activateNote(nextHit.id)
                 }
 

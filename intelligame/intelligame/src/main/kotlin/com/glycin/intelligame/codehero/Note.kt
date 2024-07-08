@@ -1,8 +1,12 @@
 package com.glycin.intelligame.codehero
 
 import com.glycin.intelligame.shared.Fec2
-import com.glycin.intelligame.util.toDeltaTime
+import com.glycin.intelligame.util.toLongDeltaTime
 import com.intellij.ui.JBColor
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.awt.Graphics2D
 import kotlin.math.roundToInt
 
@@ -14,22 +18,34 @@ class Note(
     val height: Int,
     private val color: JBColor,
     private val targetPos: Fec2,
+    scope: CoroutineScope,
     fps: Long,
 ){
     var active = false
     var hitOnTime = false
-    val deltaTime = fps.toDeltaTime()
-    private val speed = targetPos.x / (620 / deltaTime)
+    val deltaTime = fps.toLongDeltaTime()
     private var draw = true
 
-    fun move(){
-        positionLeft += Fec2.right * speed
-        positionRight += Fec2.left * speed
+    init {
+        val totalSteps = 1 * fps
+        val distancePerStep = (targetPos.x - positionLeft.x) / totalSteps
 
-        if((targetPos.x + 30) - positionLeft.x < 0){
-            draw = false
-        }else if(positionRight.x - (targetPos.x + 30) < 0){
-            draw = false
+        scope.launch(Dispatchers.IO) {
+            val frameDurationNanos = 1_000_000_000L / fps
+            var nextFrameTime = System.nanoTime()
+
+            repeat(totalSteps.toInt()) {
+                positionLeft += Fec2.right * distancePerStep
+                positionRight += Fec2.left * distancePerStep
+                nextFrameTime += frameDurationNanos
+                val sleepTime = nextFrameTime - System.nanoTime()
+                if (sleepTime > 0) {
+                    delay(sleepTime / 1_000_000L) // delay accepts time in milliseconds
+                } else {
+                    // Compensate for missed frames if the sleep time is negative
+                    nextFrameTime = System.nanoTime()
+                }
+            }
         }
     }
 
@@ -42,6 +58,7 @@ class Note(
         }else{
             g.color = color
         }*/
+        checkCollision()
 
         g.color = color
         g.fillRect(positionLeft.x.roundToInt(), positionLeft.y.roundToInt(), width, height)
@@ -52,5 +69,13 @@ class Note(
         positionLeft = Fec2(10000f, -10000f)
         positionRight = Fec2(10000f, -10000f)
         active = false
+    }
+
+    private fun checkCollision(){
+        if((targetPos.x + 30) - positionLeft.x < 0){
+            draw = false
+        }else if(positionRight.x - (targetPos.x + 30) < 0){
+            draw = false
+        }
     }
 }

@@ -43,4 +43,8 @@ class Fec2(
         val mag = magnitude().toFloat()
         return if (mag != 0.0F) this / mag else zero
     }
+
+    override fun toString(): String {
+        return "Fec2($x,$y)"
+    }
 }

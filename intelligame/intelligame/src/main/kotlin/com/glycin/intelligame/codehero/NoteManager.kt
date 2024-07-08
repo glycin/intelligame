@@ -2,6 +2,7 @@ package com.glycin.intelligame.codehero
 
 import com.glycin.intelligame.shared.Fec2
 import com.intellij.ui.JBColor
+import kotlinx.coroutines.CoroutineScope
 
 class NoteManager(
     val notes : MutableMap<Int, Note> = mutableMapOf(),
@@ -10,6 +11,7 @@ class NoteManager(
     private val targetPosition: Fec2,
     private val game: CodeHeroGame,
     private val fps: Long,
+    private val scope: CoroutineScope,
 ) {
 
     fun addNote(id: Int, color: JBColor) {
@@ -21,6 +23,7 @@ class NoteManager(
             height = 80,
             color = color,
             targetPos = targetPosition,
+            scope = scope,
             fps = fps,
         ))
     }
