@@ -47,15 +47,15 @@ class CodeHeroGame(
         val pasteOffset = editor.caretModel.offset
         scope.launch (Dispatchers.Main) {
             TextWriter.writeText(pasteOffset, IntroStrings.introStrings[0], editor, project)
-            delay(1000)
+            delay(3000)
             TextWriter.replaceText(pasteOffset, pasteOffset + IntroStrings.introStrings[0].length, IntroStrings.introStrings[1], editor, project)
-            delay(2000)
+            delay(4000)
             TextWriter.replaceText(pasteOffset, pasteOffset + IntroStrings.introStrings[1].length, IntroStrings.difficultyString(textToPaste.length), editor, project)
             delay(500)
             val isp = IntroSoundPlayer().also { it.playSong() }
-            delay(3000)
+            delay(5000)
             TextWriter.replaceText(pasteOffset, pasteOffset + IntroStrings.difficultyString(textToPaste.length).length, IntroStrings.introStrings[2], editor, project)
-            delay(1000)
+            delay(2000)
             TextWriter.replaceText(pasteOffset, pasteOffset + IntroStrings.introStrings[2].length, IntroStrings.introStrings[3], editor, project)
             delay(1000)
             TextWriter.replaceText(pasteOffset, pasteOffset + IntroStrings.introStrings[3].length, IntroStrings.introStrings[4], editor, project)
