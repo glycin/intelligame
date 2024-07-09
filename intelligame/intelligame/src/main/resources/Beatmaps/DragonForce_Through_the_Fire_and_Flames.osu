@@ -103,12 +103,12 @@ SliderTickRate:2
 
 
 [Colours]
-Combo1 : 128,64,0
-Combo2 : 254,184,52
-Combo3 : 128,64,64
-Combo4 : 201,201,201
-Combo5 : 116,116,116
-Combo6 : 124,126,152
+Combo1 : 69,25,33
+Combo2 : 100,40,96
+Combo3 : 18,43,50
+Combo4 : 100,96,92
+Combo5 : 88,21,37
+Combo6 : 0,89,100
 
 [HitObjects]
 256,192,19390,5,2,0:0:0:0:

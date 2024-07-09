@@ -30,7 +30,7 @@ class Note(
         val totalSteps = 1 * fps
         val distancePerStep = (targetPos.x - positionLeft.x) / totalSteps
 
-        scope.launch(Dispatchers.IO) {
+        scope.launch(Dispatchers.Default) {
             val frameDurationNanos = 1_000_000_000L / fps
             var nextFrameTime = System.nanoTime()
 
@@ -60,7 +60,7 @@ class Note(
         }*/
         checkCollision()
 
-        g.color = color
+        g.color = color.brighter().brighter()
         g.fillRect(positionLeft.x.roundToInt(), positionLeft.y.roundToInt(), width, height)
         g.fillRect(positionRight.x.roundToInt(), positionRight.y.roundToInt(), width, height)
     }

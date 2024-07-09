@@ -83,10 +83,10 @@ SliderTickRate:1
 
 
 [Colours]
-Combo1 : 255,128,0
-Combo2 : 255,0,0
-Combo3 : 128,0,0
-Combo4 : 128,64,0
+Combo1 : 69,25,33
+Combo2 : 100,40,96
+Combo3 : 18,43,50
+Combo4 : 100,96,92
 
 [HitObjects]
 256,8,1496,1,8,0:1:0:0:
