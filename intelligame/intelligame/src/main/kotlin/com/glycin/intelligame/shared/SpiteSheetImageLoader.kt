@@ -8,7 +8,6 @@ class SpiteSheetImageLoader(
     private val cellWidth: Int,
     private val cellHeight: Int,
     private val numSprites: Int,
-    private val frameDelay: Int
 ){
     private val spriteSheet: BufferedImage = ImageIO.read(this.javaClass.getResource(spriteSheetPath))
 
