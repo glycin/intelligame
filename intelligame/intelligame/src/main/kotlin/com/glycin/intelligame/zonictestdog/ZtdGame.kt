@@ -1,6 +1,7 @@
 package com.glycin.intelligame.zonictestdog
 
 import com.glycin.intelligame.shared.Fec2
+import com.glycin.intelligame.zonictestdog.level.Tile
 import com.glycin.intelligame.zonictestdog.testretrieval.TestRetriever
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
@@ -15,13 +16,18 @@ class ZtdGame(
     private val scope: CoroutineScope,
 ){
     lateinit var zonic: Zonic
+    var currentTiles = mutableListOf<Tile>()
+    var state = ZtdGameState.STARTED
     private lateinit var ztdInput: ZtdInput
+    private val mapCreator = MapCreator(editor)
 
     fun initGame(){
         val retriever = TestRetriever(project).getAllTestMethods()
+        currentTiles = mapCreator.create()
         attachComponent()
-        zonic = Zonic(Fec2(editor.contentComponent.width / 2f, editor.contentComponent.height / 2f), 50, 50, scope, FPS)
+        zonic = Zonic(Fec2(100f, 100f), 50, 50, scope, FPS)
         ztdInput = ZtdInput(zonic, project, this)
+        val collisionsManager = CollisionsManager(this, scope, FPS)
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(ztdInput)
     }
 

@@ -5,6 +5,7 @@ import com.glycin.intelligame.shared.Gravity
 import com.glycin.intelligame.shared.SpiteSheetImageLoader
 import com.glycin.intelligame.util.toDeltaTime
 import com.glycin.intelligame.util.toLongDeltaTime
+import com.intellij.ui.JBColor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -31,6 +32,9 @@ class Zonic(
     private val speed = 0.5f
 
     private var zonicState: ZonicState = ZonicState.IDLE
+    private var keyIsPressed = false
+    private var isRunningJump = false
+    private var facing: ZonicFacing = ZonicFacing.RIGHT
     private var currentSprite : BufferedImage
     private var velocity = Fec2.zero
     private var groundY = position.y
@@ -59,42 +63,81 @@ class Zonic(
     }
 
     fun draw(g: Graphics2D) {
-        g.drawImage(currentSprite, position.x.roundToInt(), position.y.roundToInt(), width, height, null)
+        if(facing == ZonicFacing.LEFT) {
+            g.drawImage(currentSprite, position.x.roundToInt() + width, position.y.roundToInt(), -width, height, null)
+        }else{
+            g.drawImage(currentSprite, position.x.roundToInt(), position.y.roundToInt(), width, height, null)
+        }
+
+        g.color = JBColor.GREEN.brighter()
+        g.fillOval(getBottomPos().x.roundToInt(), getBottomPos().y.roundToInt(), 5, 5)
+        g.fillOval(getTopPos().x.roundToInt(), getTopPos().y.roundToInt(), 5, 5)
+        g.fillOval(getLeftPos().x.roundToInt(), getLeftPos().y.roundToInt(), 5, 5)
+        g.fillOval(getRightPos().x.roundToInt(), getRightPos().y.roundToInt(), 5, 5)
     }
 
     fun jump() {
-        if(zonicState == ZonicState.JUMPING) { return }
+        if(zonicState == ZonicState.JUMPING || zonicState == ZonicState.FALLING) { return }
         zonicState = ZonicState.JUMPING
-        velocity += Fec2.up * jumpPower
+        isRunningJump = velocity.x != 0.0f
+        velocity = Fec2(velocity.x / 4, Fec2.up.y * jumpPower)
         groundY = position.y
+        keyIsPressed = true
     }
 
     fun moveRight() {
+        if(zonicState == ZonicState.JUMPING) { return }
         zonicState = ZonicState.RUNNING
+        facing = ZonicFacing.RIGHT
         velocity = Fec2.right * (speed * deltaTime)
+        keyIsPressed = true
     }
 
     fun moveLeft() {
+        if(zonicState == ZonicState.JUMPING) { return }
+        facing = ZonicFacing.LEFT
         zonicState = ZonicState.RUNNING
         velocity = Fec2.left * (speed * deltaTime)
+        keyIsPressed = true
     }
 
     fun crouch() {
+        if(zonicState == ZonicState.JUMPING || zonicState == ZonicState.FALLING) { return }
         zonicState = ZonicState.CROUCHING
         velocity = Fec2.zero
         currentSprite = crouchingSprites[2]!!
+        keyIsPressed = true
     }
 
     fun idle() {
+        keyIsPressed = false
         if(zonicState == ZonicState.JUMPING) { return }
         zonicState = ZonicState.IDLE
         velocity = Fec2.zero
         currentSprite = standingSprites[0]!!
     }
 
+    fun falling() {
+        if(zonicState == ZonicState.JUMPING || zonicState == ZonicState.FALLING) { return }
+        zonicState = ZonicState.FALLING
+        velocity = Gravity.asFec2
+        currentSprite = standingSprites[1]!!
+    }
+
+    fun land() {
+        if(zonicState == ZonicState.FALLING) {
+            zonicState = ZonicState.IDLE
+        }
+    }
+
     fun pain(){
 
     }
+
+    fun getBottomPos() = Fec2(position.x + (width / 2), position.y + height)
+    fun getTopPos() = Fec2(position.x + (width / 2), position.y)
+    fun getLeftPos() = Fec2(position.x, position.y + (height / 2))
+    fun getRightPos() = Fec2(position.x + width, position.y + (height / 2))
 
     private suspend fun zonicUpdate(delayTime: Long) {
         while(alive){
@@ -110,9 +153,17 @@ class Zonic(
 
                     if(position.y >= groundY){
                         position = Fec2(position.x, groundY)
-                        zonicState = ZonicState.IDLE
                         velocity = Fec2.zero
                         currentSprite = standingSprites[0]!!
+                        zonicState = ZonicState.IDLE
+                        if(isRunningJump){
+                            if(facing == ZonicFacing.LEFT && keyIsPressed){
+                                moveLeft()
+                            }else if (facing == ZonicFacing.RIGHT && keyIsPressed){
+                                moveRight()
+                            }
+                            isRunningJump = false
+                        }
                     }
                 }
                 ZonicState.RUNNING -> {
@@ -124,6 +175,10 @@ class Zonic(
                 }
                 ZonicState.HURT -> {}
                 ZonicState.CROUCHING -> {}
+                ZonicState.FALLING -> {
+                    velocity += Gravity.asFec2 * deltaTime
+                    position += velocity * deltaTime
+                }
             }
             delay(delayTime)
         }
@@ -148,5 +203,11 @@ class Zonic(
         JUMPING,
         CROUCHING,
         HURT,
+        FALLING,
+    }
+
+    private enum class ZonicFacing {
+        LEFT,
+        RIGHT
     }
 }

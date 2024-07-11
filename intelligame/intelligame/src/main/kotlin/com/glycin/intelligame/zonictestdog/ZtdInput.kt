@@ -16,7 +16,6 @@ class ZtdInput(
             when (e.keyCode) {
                 // Can't use this because of complications with the internal rendering loops
                 KeyEvent.VK_SPACE -> {
-                    println("jumping")
                     zonic.jump()
                 }
 
@@ -32,11 +31,6 @@ class ZtdInput(
                     zonic.crouch()
                 }
 
-
-                KeyEvent.VK_BACK_SPACE -> {
-
-                }
-
                 KeyEvent.VK_ESCAPE -> {
                     project.service<ZtdService>().cleanUp()
                     return true
@@ -47,7 +41,6 @@ class ZtdInput(
                 e.keyCode == KeyEvent.VK_A ||
                 e.keyCode == KeyEvent.VK_S ||
                 e.keyCode == KeyEvent.VK_D) {
-                println("stop moving")
                 zonic.idle()
             }
         }
