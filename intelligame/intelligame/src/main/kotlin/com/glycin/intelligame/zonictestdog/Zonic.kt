@@ -18,6 +18,7 @@ class Zonic(
     var position: Fec2,
     val width: Int,
     val height: Int,
+    private val colManager: CollisionsManager,
     scope: CoroutineScope,
     fps: Long,
 ) {
@@ -30,14 +31,13 @@ class Zonic(
     private val hurtSprites = arrayOfNulls<BufferedImage>(2)
     private val jumpPower = 2.0f
     private val speed = 0.5f
-
     private var zonicState: ZonicState = ZonicState.IDLE
     private var keyIsPressed = false
     private var isRunningJump = false
+    private var groundTargetY = -50000
     private var facing: ZonicFacing = ZonicFacing.RIGHT
     private var currentSprite : BufferedImage
     private var velocity = Fec2.zero
-    private var groundY = position.y
     private var currentAnimationIndex = 0
     private var skipFrameCount = 0
 
@@ -72,8 +72,10 @@ class Zonic(
         g.color = JBColor.GREEN.brighter()
         g.fillOval(getBottomPos().x.roundToInt(), getBottomPos().y.roundToInt(), 5, 5)
         g.fillOval(getTopPos().x.roundToInt(), getTopPos().y.roundToInt(), 5, 5)
-        g.fillOval(getLeftPos().x.roundToInt(), getLeftPos().y.roundToInt(), 5, 5)
-        g.fillOval(getRightPos().x.roundToInt(), getRightPos().y.roundToInt(), 5, 5)
+        g.fillOval(getLeftPositions()[0].x.roundToInt(), getLeftPositions()[0].y.roundToInt(), 5, 5)
+        g.fillOval(getLeftPositions()[1].x.roundToInt(), getLeftPositions()[1].y.roundToInt(), 5, 5)
+        g.fillOval(getRightPositions()[0].x.roundToInt(), getRightPositions()[0].y.roundToInt(), 5, 5)
+        g.fillOval(getRightPositions()[1].x.roundToInt(), getRightPositions()[1].y.roundToInt(), 5, 5)
     }
 
     fun jump() {
@@ -81,23 +83,28 @@ class Zonic(
         zonicState = ZonicState.JUMPING
         isRunningJump = velocity.x != 0.0f
         velocity = Fec2(velocity.x / 4, Fec2.up.y * jumpPower)
-        groundY = position.y
         keyIsPressed = true
     }
 
     fun moveRight() {
-        if(zonicState == ZonicState.JUMPING) { return }
-        zonicState = ZonicState.RUNNING
+        if(zonicState == ZonicState.FALLING || zonicState == ZonicState.JUMPING) {
+            velocity += Fec2(speed, 0.0f)
+        }else {
+            velocity = Fec2.right * ((if(colManager.canRun(getRightPositions())) speed else 0.0f) * deltaTime)
+            zonicState = ZonicState.RUNNING
+        }
         facing = ZonicFacing.RIGHT
-        velocity = Fec2.right * (speed * deltaTime)
         keyIsPressed = true
     }
 
     fun moveLeft() {
-        if(zonicState == ZonicState.JUMPING) { return }
+        if(zonicState == ZonicState.JUMPING || zonicState == ZonicState.FALLING) {
+            velocity += Fec2(-speed, 0.0f)
+        }else{
+            zonicState = ZonicState.RUNNING
+            velocity = Fec2.left * ((if(colManager.canRun(getLeftPositions())) speed else 0.0f) * deltaTime)
+        }
         facing = ZonicFacing.LEFT
-        zonicState = ZonicState.RUNNING
-        velocity = Fec2.left * (speed * deltaTime)
         keyIsPressed = true
     }
 
@@ -111,33 +118,15 @@ class Zonic(
 
     fun idle() {
         keyIsPressed = false
-        if(zonicState == ZonicState.JUMPING) { return }
+        if(zonicState == ZonicState.JUMPING || zonicState == ZonicState.FALLING) { return }
         zonicState = ZonicState.IDLE
         velocity = Fec2.zero
         currentSprite = standingSprites[0]!!
     }
 
-    fun falling() {
-        if(zonicState == ZonicState.JUMPING || zonicState == ZonicState.FALLING) { return }
-        zonicState = ZonicState.FALLING
-        velocity = Gravity.asFec2
-        currentSprite = standingSprites[1]!!
-    }
-
-    fun land() {
-        if(zonicState == ZonicState.FALLING) {
-            zonicState = ZonicState.IDLE
-        }
-    }
-
     fun pain(){
 
     }
-
-    fun getBottomPos() = Fec2(position.x + (width / 2), position.y + height)
-    fun getTopPos() = Fec2(position.x + (width / 2), position.y)
-    fun getLeftPos() = Fec2(position.x, position.y + (height / 2))
-    fun getRightPos() = Fec2(position.x + width, position.y + (height / 2))
 
     private suspend fun zonicUpdate(delayTime: Long) {
         while(alive){
@@ -151,24 +140,30 @@ class Zonic(
                         jumpingSprites[1]!!
                     }
 
-                    if(position.y >= groundY){
-                        position = Fec2(position.x, groundY)
-                        velocity = Fec2.zero
-                        currentSprite = standingSprites[0]!!
-                        zonicState = ZonicState.IDLE
-                        if(isRunningJump){
-                            if(facing == ZonicFacing.LEFT && keyIsPressed){
-                                moveLeft()
-                            }else if (facing == ZonicFacing.RIGHT && keyIsPressed){
-                                moveRight()
+                    if(velocity.y > 0.0f){
+                        val bottomPos = getBottomPos()
+                        if(groundTargetY == -50000){
+                            groundTargetY = colManager.getClosestGround(bottomPos)
+                        }
+                        if(bottomPos.y >= groundTargetY){
+                            land(groundTargetY)
+                            if(isRunningJump){
+                                if(facing == ZonicFacing.LEFT && keyIsPressed){
+                                    moveLeft()
+                                }else if (facing == ZonicFacing.RIGHT && keyIsPressed){
+                                    moveRight()
+                                }
+                                isRunningJump = false
                             }
-                            isRunningJump = false
                         }
                     }
                 }
                 ZonicState.RUNNING -> {
                     position += velocity
                     showAnimation(runningSprites, 6)
+                    if(colManager.shouldFall(getBottomPos())){
+                        fall()
+                    }
                 }
                 ZonicState.IDLE -> {
                     showAnimation(standingSprites, 10)
@@ -178,11 +173,50 @@ class Zonic(
                 ZonicState.FALLING -> {
                     velocity += Gravity.asFec2 * deltaTime
                     position += velocity * deltaTime
+                    if(velocity.y > 0.0f){
+                        val bottomPos = getBottomPos()
+                        if(groundTargetY == -50000){
+                            groundTargetY = colManager.getClosestGround(bottomPos)
+                        }
+                        if(bottomPos.y >= groundTargetY){
+                            land(groundTargetY)
+                        }
+                    }
                 }
             }
             delay(delayTime)
         }
     }
+
+    private fun fall() {
+        if(zonicState == ZonicState.JUMPING || zonicState == ZonicState.FALLING) { return }
+        zonicState = ZonicState.FALLING
+        velocity = Gravity.asFec2
+        currentSprite = jumpingSprites[1]!!
+    }
+
+    private fun land(tileY : Int) {
+        if(zonicState == ZonicState.FALLING || zonicState == ZonicState.JUMPING) {
+            position = Fec2(position.x, tileY - height.toFloat())
+            zonicState = ZonicState.IDLE
+            velocity = Fec2.zero
+            groundTargetY = -50000
+        }
+    }
+
+    private fun getBottomPos() = Fec2(position.x + (width / 2), position.y + height)
+
+    private fun getTopPos() = Fec2(position.x + (width / 2), position.y)
+
+    private fun getLeftPositions() = listOf(
+        Fec2(position.x, position.y + (height / 1.5f)),
+        Fec2(position.x, position.y + (height / 2.5f))
+    )
+
+    private fun getRightPositions() = listOf(
+        Fec2(position.x + width, position.y + (height / 1.5f)),
+        Fec2(position.x + width, position.y + (height / 2.5f))
+    )
 
     private fun showAnimation(sprites: Array<BufferedImage?>, frameDelay: Int) {
         skipFrameCount++

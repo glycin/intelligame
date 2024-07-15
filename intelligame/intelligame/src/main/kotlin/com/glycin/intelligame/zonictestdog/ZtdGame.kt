@@ -25,9 +25,9 @@ class ZtdGame(
         val retriever = TestRetriever(project).getAllTestMethods()
         currentTiles = mapCreator.create()
         attachComponent()
-        zonic = Zonic(Fec2(100f, 100f), 50, 50, scope, FPS)
+        val cm = CollisionsManager(this)
+        zonic = Zonic(Fec2(100f, 100f), 50, 50, cm, scope, FPS)
         ztdInput = ZtdInput(zonic, project, this)
-        val collisionsManager = CollisionsManager(this, scope, FPS)
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(ztdInput)
     }
 

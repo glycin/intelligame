@@ -1,35 +1,28 @@
 package com.glycin.intelligame.zonictestdog
 
-import com.glycin.intelligame.util.toLongDeltaTime
+import com.glycin.intelligame.shared.Fec2
 import com.glycin.intelligame.util.toPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 class CollisionsManager(
     private val ztdGame: ZtdGame,
-    scope: CoroutineScope,
-    fps: Long,
 ) {
-    private val deltaTime = fps.toLongDeltaTime()
-
-    init {
-        scope.launch(Dispatchers.Default) {
-            while(ztdGame.state != ZtdGameState.GAME_OVER){
-                checkWorldCollisions()
-                delay(deltaTime)
-            }
+    fun canRun(positionsToCheck: List<Fec2>) : Boolean {
+        return positionsToCheck.none { position ->
+            ztdGame.currentTiles.none { it.bounds.contains(position.toPoint()) }
         }
     }
 
-    private fun checkWorldCollisions() {
-        val zonicBottom = ztdGame.zonic.getBottomPos().toPoint()
-        if(ztdGame.currentTiles.none { it.bounds.contains(zonicBottom) }){
-            ztdGame.zonic.falling()
-        }else {
-            val collidingTile = ztdGame.currentTiles.first { it.bounds.contains(zonicBottom) }
-            ztdGame.zonic.land()
+    fun shouldFall(positionToCheck: Fec2) : Boolean {
+        val point = positionToCheck.toPoint()
+        return ztdGame.currentTiles.none { it.bounds.contains(point) }
+    }
+
+    fun getClosestGround(positionToCheck: Fec2): Int {
+        val point = positionToCheck.toPoint()
+        val xTiles = ztdGame.currentTiles.filter {
+            it.minX >= point.x && point.x <= it.maxX && it.minY > point.y
         }
+        if (xTiles.isEmpty()) return -10000 // TODO: Stop at bottom of the map
+        return xTiles.minBy { it.minY - point.y }.minY
     }
 }
