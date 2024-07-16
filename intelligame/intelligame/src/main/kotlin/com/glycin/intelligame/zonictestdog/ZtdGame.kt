@@ -26,7 +26,8 @@ class ZtdGame(
         currentTiles = mapCreator.create()
         attachComponent()
         val cm = CollisionsManager(this)
-        zonic = Zonic(Fec2(100f, 100f), 50, 50, cm, scope, FPS)
+        val po = PortalOpener(editor, project)
+        zonic = Zonic(Fec2(100f, 100f), 50, 50, cm, po, scope, FPS)
         ztdInput = ZtdInput(zonic, project, this)
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(ztdInput)
     }

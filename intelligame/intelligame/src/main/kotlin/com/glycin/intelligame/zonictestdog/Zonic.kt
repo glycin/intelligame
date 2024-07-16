@@ -19,6 +19,7 @@ class Zonic(
     val width: Int,
     val height: Int,
     private val colManager: CollisionsManager,
+    private val portalOpener: PortalOpener,
     scope: CoroutineScope,
     fps: Long,
 ) {
@@ -113,6 +114,10 @@ class Zonic(
         velocity = Fec2.zero
         currentSprite = crouchingSprites[2]!!
         keyIsPressed = true
+        val (isNearMethod, method) = portalOpener.isNearMethod(getBottomPos())
+        if(isNearMethod && method != null){
+            portalOpener.openPortals(method)
+        }
     }
 
     fun idle() {
