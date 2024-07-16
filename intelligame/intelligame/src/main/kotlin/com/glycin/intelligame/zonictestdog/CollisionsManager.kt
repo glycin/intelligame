@@ -7,7 +7,7 @@ class CollisionsManager(
     private val ztdGame: ZtdGame,
 ) {
     fun canRun(positionsToCheck: List<Fec2>) : Boolean {
-        return positionsToCheck.none { position ->
+        return positionsToCheck.all { position ->
             ztdGame.currentTiles.none { it.bounds.contains(position.toPoint()) }
         }
     }
@@ -17,12 +17,7 @@ class CollisionsManager(
         return ztdGame.currentTiles.none { it.bounds.contains(point) }
     }
 
-    fun getClosestGround(positionToCheck: Fec2): Int {
-        val point = positionToCheck.toPoint()
-        val xTiles = ztdGame.currentTiles.filter {
-            it.minX >= point.x && point.x <= it.maxX && it.minY > point.y
-        }
-        if (xTiles.isEmpty()) return -10000 // TODO: Stop at bottom of the map
-        return xTiles.minBy { it.minY - point.y }.minY
+    fun getClosestGround(positionToCheck: Fec2): Int? {
+        return ztdGame.currentTiles.firstOrNull { it.bounds.contains(positionToCheck.toPoint()) }?.minY
     }
 }

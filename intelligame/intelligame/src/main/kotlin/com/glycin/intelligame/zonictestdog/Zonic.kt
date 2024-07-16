@@ -34,7 +34,6 @@ class Zonic(
     private var zonicState: ZonicState = ZonicState.IDLE
     private var keyIsPressed = false
     private var isRunningJump = false
-    private var groundTargetY = -50000
     private var facing: ZonicFacing = ZonicFacing.RIGHT
     private var currentSprite : BufferedImage
     private var velocity = Fec2.zero
@@ -90,7 +89,7 @@ class Zonic(
         if(zonicState == ZonicState.FALLING || zonicState == ZonicState.JUMPING) {
             velocity += Fec2(speed, 0.0f)
         }else {
-            velocity = Fec2.right * ((if(colManager.canRun(getRightPositions())) speed else 0.0f) * deltaTime)
+            velocity = Fec2.right * ( speed * deltaTime)
             zonicState = ZonicState.RUNNING
         }
         facing = ZonicFacing.RIGHT
@@ -102,7 +101,7 @@ class Zonic(
             velocity += Fec2(-speed, 0.0f)
         }else{
             zonicState = ZonicState.RUNNING
-            velocity = Fec2.left * ((if(colManager.canRun(getLeftPositions())) speed else 0.0f) * deltaTime)
+            velocity = Fec2.left * (speed * deltaTime)
         }
         facing = ZonicFacing.LEFT
         keyIsPressed = true
@@ -142,11 +141,10 @@ class Zonic(
 
                     if(velocity.y > 0.0f){
                         val bottomPos = getBottomPos()
-                        if(groundTargetY == -50000){
-                            groundTargetY = colManager.getClosestGround(bottomPos)
-                        }
-                        if(bottomPos.y >= groundTargetY){
-                            land(groundTargetY)
+                        val landedY = colManager.getClosestGround(bottomPos)
+
+                        if(landedY != null){
+                            land(landedY)
                             if(isRunningJump){
                                 if(facing == ZonicFacing.LEFT && keyIsPressed){
                                     moveLeft()
@@ -159,7 +157,16 @@ class Zonic(
                     }
                 }
                 ZonicState.RUNNING -> {
-                    position += velocity
+                    if(facing == ZonicFacing.LEFT){
+                        if(colManager.canRun(getLeftPositions())){
+                            position += velocity
+                        }
+                    }else{
+                        if(colManager.canRun(getRightPositions())){
+                            position += velocity
+                        }
+                    }
+
                     showAnimation(runningSprites, 6)
                     if(colManager.shouldFall(getBottomPos())){
                         fall()
@@ -175,11 +182,10 @@ class Zonic(
                     position += velocity * deltaTime
                     if(velocity.y > 0.0f){
                         val bottomPos = getBottomPos()
-                        if(groundTargetY == -50000){
-                            groundTargetY = colManager.getClosestGround(bottomPos)
-                        }
-                        if(bottomPos.y >= groundTargetY){
-                            land(groundTargetY)
+                        val landedY = colManager.getClosestGround(bottomPos)
+
+                        if(landedY != null){
+                            land(landedY)
                         }
                     }
                 }
@@ -200,7 +206,6 @@ class Zonic(
             position = Fec2(position.x, tileY - height.toFloat())
             zonicState = ZonicState.IDLE
             velocity = Fec2.zero
-            groundTargetY = -50000
         }
     }
 
