@@ -33,6 +33,7 @@ class ZtdComponent(
         if(g is Graphics2D) {
             ztdGame.zonic.draw(g)
             drawTiles(g)
+            drawPortals(g)
         }
     }
 
@@ -41,5 +42,9 @@ class ZtdComponent(
             g.color = JBColor.WHITE.brighter().brighter().brighter()
             g.drawRect(it.position.x, it.position.y, it.width, it.height)
         }
+    }
+
+    private fun drawPortals(g: Graphics2D) {
+        ztdGame.portals.forEach { p -> p.drawPortal(g)}
     }
 }

@@ -7,10 +7,8 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.LogicalPosition
 import com.intellij.openapi.util.TextRange
 
-class MapCreator(
-    private val editor: Editor,
-) {
-    fun create(): MutableList<Tile> {
+class MapCreator() {
+    fun create(editor: Editor): MutableList<Tile> {
         return createLevel(editor)
     }
 

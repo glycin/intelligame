@@ -132,6 +132,8 @@ class Zonic(
 
     }
 
+    fun getMidPos() = Fec2(position.x + (width / 2), position.y + (height / 2))
+
     private suspend fun zonicUpdate(delayTime: Long) {
         while(alive){
             when(zonicState) {
