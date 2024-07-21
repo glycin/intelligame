@@ -3,7 +3,7 @@ package com.glycin.intelligame.shared
 import java.awt.image.BufferedImage
 import javax.imageio.ImageIO
 
-class SpiteSheetImageLoader(
+class SpriteSheetImageLoader(
     spriteSheetPath: String,
     private val cellWidth: Int,
     private val cellHeight: Int,

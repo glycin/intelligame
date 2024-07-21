@@ -2,7 +2,7 @@ package com.glycin.intelligame.zonictestdog
 
 import com.glycin.intelligame.shared.Fec2
 import com.glycin.intelligame.shared.Gravity
-import com.glycin.intelligame.shared.SpiteSheetImageLoader
+import com.glycin.intelligame.shared.SpriteSheetImageLoader
 import com.glycin.intelligame.util.toDeltaTime
 import com.glycin.intelligame.util.toLongDeltaTime
 import com.intellij.ui.JBColor
@@ -42,7 +42,7 @@ class Zonic(
     private var skipFrameCount = 0
 
     init {
-        val spriteLoader = SpiteSheetImageLoader(
+        val spriteLoader = SpriteSheetImageLoader(
             spriteSheetPath = "/Sprites/zonic/zonic.png",
             cellWidth = 33,
             cellHeight = 32,
@@ -69,6 +69,7 @@ class Zonic(
             g.drawImage(currentSprite, position.x.roundToInt(), position.y.roundToInt(), width, height, null)
         }
 
+        // Debug points
         g.color = JBColor.GREEN.brighter()
         g.fillOval(getBottomPos().x.roundToInt(), getBottomPos().y.roundToInt(), 5, 5)
         g.fillOval(getTopPos().x.roundToInt(), getTopPos().y.roundToInt(), 5, 5)
@@ -76,6 +77,7 @@ class Zonic(
         g.fillOval(getLeftPositions()[1].x.roundToInt(), getLeftPositions()[1].y.roundToInt(), 5, 5)
         g.fillOval(getRightPositions()[0].x.roundToInt(), getRightPositions()[0].y.roundToInt(), 5, 5)
         g.fillOval(getRightPositions()[1].x.roundToInt(), getRightPositions()[1].y.roundToInt(), 5, 5)
+        g.fillOval(getMidPos().x.roundToInt(), getMidPos().y.roundToInt(), 5, 5)
     }
 
     fun jump() {
@@ -116,7 +118,7 @@ class Zonic(
         keyIsPressed = true
         val (isNearMethod, method) = portalOpener.isNearMethod(getBottomPos())
         if(isNearMethod && method != null){
-            portalOpener.openPortals(method)
+            portalOpener.openPortals(method, getBottomPos())
         }
     }
 
@@ -162,22 +164,26 @@ class Zonic(
                             }
                         }
                     }
+
+                    portalCheck()
                 }
                 ZonicState.RUNNING -> {
+                    //TODO: Dont block zonic left and right collisions for now
                     if(facing == ZonicFacing.LEFT){
-                        if(colManager.canRun(getLeftPositions())){
+                        //if(colManager.canRun(getLeftPositions())){
                             position += velocity
-                        }
+                        //}
                     }else{
-                        if(colManager.canRun(getRightPositions())){
+                        //if(colManager.canRun(getRightPositions())){
                             position += velocity
-                        }
+                        //}
                     }
-
                     showAnimation(runningSprites, 6)
                     if(colManager.shouldFall(getBottomPos())){
                         fall()
                     }
+
+                    portalCheck()
                 }
                 ZonicState.IDLE -> {
                     showAnimation(standingSprites, 10)
@@ -195,6 +201,7 @@ class Zonic(
                             land(landedY)
                         }
                     }
+                    portalCheck()
                 }
             }
             delay(delayTime)
@@ -241,6 +248,13 @@ class Zonic(
             skipFrameCount = 0
         }
         currentSprite = sprites[currentAnimationIndex]!!
+    }
+
+    private fun portalCheck() {
+        val (inPortal, portal) = colManager.portalCheck()
+        if(inPortal){
+            portalOpener.travelToPortal(portal!!)
+        }
     }
 
     private enum class ZonicState {

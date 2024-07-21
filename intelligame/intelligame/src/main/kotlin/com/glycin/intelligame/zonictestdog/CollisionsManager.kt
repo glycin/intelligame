@@ -2,6 +2,7 @@ package com.glycin.intelligame.zonictestdog
 
 import com.glycin.intelligame.shared.Fec2
 import com.glycin.intelligame.util.toPoint
+import com.glycin.intelligame.zonictestdog.level.Portal
 import java.awt.Rectangle
 
 class CollisionsManager(
@@ -22,8 +23,11 @@ class CollisionsManager(
         return ztdGame.currentTiles.firstOrNull { it.bounds.contains(positionToCheck.toPoint()) }?.minY
     }
 
-    fun isZonicInPortal(portalBounds: Rectangle) : Boolean {
-        val zonicMidPos = ztdGame.zonic.getMidPos()
-        return portalBounds.contains(zonicMidPos.toPoint())
+    fun portalCheck() : Pair<Boolean, Portal?> {
+        if(ztdGame.portals.isNotEmpty()){
+            val p = ztdGame.portals.firstOrNull { it.bounds.contains(ztdGame.zonic.getMidPos().toPoint()) }
+            return (p != null) to p
+        }
+        return false to null
     }
 }

@@ -39,7 +39,7 @@ class ZtdGame(
         currentTiles.addAll(mapCreator.create(editor))
         attachComponent()
         val cm = CollisionsManager(this)
-        val po = PortalOpener(project, cm, this)
+        val po = PortalOpener(project, this)
         zonic = Zonic(Fec2(100f, 100f), 50, 50, cm, po, scope, FPS)
         ztdInput = ZtdInput(zonic, project, this)
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(ztdInput)
@@ -53,13 +53,27 @@ class ZtdGame(
         val em = FileEditorManager.getInstance(project)
         ApplicationManager.getApplication().invokeLater {
             em.openFile(portal.file.virtualFile, true).firstOrNull()?.let { fileEditor ->
-                PsiDocumentManager.getInstance(project).getDocument(portal.file)?.let {
-                    em.closeFile(editor.virtualFile)
-                    editor = (fileEditor as TextEditor).editor
-                    val offset = portal.textRange.startOffset + portal.element.textRange.startOffset
-                    editor.caretModel.moveToOffset(offset)
-                    editor.scrollingModel.scrollToCaret(ScrollType.CENTER)
-                    reInitLevel(editor.offsetToXY(offset), editor)
+                if(fileEditor is TextEditor) {
+                    val newEditor = fileEditor.editor
+                    PsiDocumentManager.getInstance(project).getDocument(portal.file)?.let {
+                        if(editor.virtualFile != newEditor.virtualFile) {
+                            val oldEditor = editor
+                            em.closeFile(oldEditor.virtualFile)
+                            ApplicationManager.getApplication().invokeLater {
+                                this.editor = newEditor
+                                val offset = portal.textRange.startOffset + portal.element.textRange.startOffset
+                                newEditor.caretModel.moveToOffset(offset)
+                                newEditor.scrollingModel.scrollToCaret(ScrollType.CENTER)
+                                reInitLevel(newEditor.offsetToXY(offset), newEditor)
+                            }
+                        } else {
+                            this.editor = newEditor
+                            val offset = portal.textRange.startOffset + portal.element.textRange.startOffset
+                            newEditor.caretModel.moveToOffset(offset)
+                            newEditor.scrollingModel.scrollToCaret(ScrollType.CENTER)
+                            reInitLevel(newEditor.offsetToXY(offset), newEditor)
+                        }
+                    }
                 }
             }
         }

@@ -45,6 +45,12 @@ class ZtdComponent(
     }
 
     private fun drawPortals(g: Graphics2D) {
-        ztdGame.portals.forEach { p -> p.drawPortal(g)}
+        ztdGame.portals.forEach { p ->
+            if(!p.addedLabel){
+                add(p.label)
+                p.addedLabel = true
+            }
+            p.drawPortal(g)
+        }
     }
 }
