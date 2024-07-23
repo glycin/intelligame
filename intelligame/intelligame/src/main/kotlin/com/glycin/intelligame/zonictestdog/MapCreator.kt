@@ -2,14 +2,23 @@ package com.glycin.intelligame.zonictestdog
 
 import com.glycin.intelligame.shared.Vec2
 import com.glycin.intelligame.util.toVec2
+import com.glycin.intelligame.zonictestdog.level.Coin
 import com.glycin.intelligame.zonictestdog.level.Tile
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.LogicalPosition
 import com.intellij.openapi.util.TextRange
+import com.intellij.psi.PsiMethod
 
-class MapCreator() {
-    fun create(editor: Editor): MutableList<Tile> {
-        return createLevel(editor)
+class MapCreator(
+    val testMap: MutableMap<String, List<PsiMethod>>,
+) {
+    private val chosenTiles = mutableSetOf<Tile>()
+
+    fun create(editor: Editor, fileName: String): Pair<MutableList<Tile>, List<Coin>> {
+        val tiles = createLevel(editor)
+        val coins = placeCoins(tiles, testMap.getOrDefault(fileName, emptyList()))
+        //val enemies = placeEnemies(tiles)
+        return tiles to coins
     }
 
     private fun createLevel(editor: Editor) : MutableList<Tile>  {
@@ -52,24 +61,24 @@ class MapCreator() {
             }
         }
 
-        // Top side of the map
-        /*obstacles.add(
-            Obstacle(
-                position = Vec2(0, scrollOffset),
-                width = editor.contentComponent.width,
-                height = 5
-            )
-        )
-
-        // Bottom side of the map
-        obstacles.add(
-            Obstacle(
-                position = Vec2(0, (editor.component.height + (scrollOffset - 5))),
-                width = editor.contentComponent.width,
-                height = 5
-            )
-        )*/
-
         return tiles
+    }
+
+
+    private fun placeCoins(tiles: MutableList<Tile>, testMethods: List<PsiMethod>): List<Coin> {
+        return testMethods.map {
+            Coin(
+                position = getRandomPosOnTile(tiles),
+                width = 25,
+                height = 50,
+                method = it
+            )
+        }
+    }
+
+    private fun getRandomPosOnTile(tiles: MutableList<Tile>): Vec2 {
+        val randomTile = tiles.subtract(chosenTiles).random()
+        chosenTiles.add(randomTile)
+        return Vec2(randomTile.position.x + (randomTile.width / 2), randomTile.position.y - (randomTile.height / 2))
     }
 }

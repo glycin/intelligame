@@ -28,17 +28,24 @@ class ZtdComponent(
         }
     }
 
+    fun removePortalLabels() {
+        ztdGame.portals.forEach { p ->
+            remove(p.label)
+        }
+    }
+
     override fun paintComponent(g: Graphics?) {
         super.paintComponent(g)
         if(g is Graphics2D) {
             ztdGame.zonic.draw(g)
             drawTiles(g)
             drawPortals(g)
+            drawCoins(g)
         }
     }
 
     private fun drawTiles(g: Graphics2D) {
-        ztdGame.currentTiles.forEach { it ->
+        ztdGame.currentTiles.forEach {
             g.color = JBColor.WHITE.brighter().brighter().brighter()
             g.drawRect(it.position.x, it.position.y, it.width, it.height)
         }
@@ -51,6 +58,12 @@ class ZtdComponent(
                 p.addedLabel = true
             }
             p.drawPortal(g)
+        }
+    }
+
+    private fun drawCoins(g: Graphics2D) {
+        ztdGame.currentCoins.forEach {
+            it.draw(g)
         }
     }
 }

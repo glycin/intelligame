@@ -1,6 +1,7 @@
 package com.glycin.intelligame.zonictestdog
 
 import com.glycin.intelligame.shared.Fec2
+import com.glycin.intelligame.zonictestdog.level.Coin
 import com.glycin.intelligame.zonictestdog.level.Portal
 import com.glycin.intelligame.zonictestdog.level.Tile
 import com.glycin.intelligame.zonictestdog.testretrieval.TestRetriever
@@ -11,8 +12,14 @@ import com.intellij.openapi.editor.ScrollType
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileEditor.TextEditor
+import com.intellij.openapi.fileTypes.FileTypeManager
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiDocumentManager
+import com.intellij.psi.PsiMethod
+import com.intellij.psi.search.FileTypeIndex
+import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.testFramework.utils.editor.getVirtualFile
 import kotlinx.coroutines.CoroutineScope
 import java.awt.KeyboardFocusManager
 import java.awt.Point
@@ -26,17 +33,32 @@ class ZtdGame(
 ){
     lateinit var zonic: Zonic
     var state = ZtdGameState.STARTED
-
     val portals = mutableListOf<Portal>()
     val currentTiles = mutableListOf<Tile>()
+    val currentCoins = mutableListOf<Coin>()
 
     private lateinit var ztdInput: ZtdInput
     private lateinit var component: ZtdComponent
-    private val mapCreator = MapCreator()
+    private lateinit var mapCreator: MapCreator
+    private val testMap = mutableMapOf<String, List<PsiMethod>>()
 
     fun initGame(){
-        val retriever = TestRetriever(project).getAllTestMethods()
-        currentTiles.addAll(mapCreator.create(editor))
+        val testMehods = TestRetriever(project).getAllTestMethods()
+        val javaFiles = getJavaFileCount()
+        val chunkedMethods = if(testMehods.size <= javaFiles.size)
+            testMehods.chunked(testMehods.size)
+        else
+            testMehods.chunked(testMehods.size / javaFiles.size)
+
+        javaFiles.forEachIndexed { index, file ->
+            testMap.putIfAbsent(file.name, chunkedMethods[index])
+        }
+
+        mapCreator = MapCreator(testMap)
+        val (tiles, coins) = mapCreator.create(editor, editor.virtualFile.name)
+        currentTiles.addAll(tiles)
+        currentCoins.addAll(coins)
+
         attachComponent()
         val cm = CollisionsManager(this)
         val po = PortalOpener(project, this)
@@ -58,20 +80,15 @@ class ZtdGame(
                     PsiDocumentManager.getInstance(project).getDocument(portal.file)?.let {
                         if(editor.virtualFile != newEditor.virtualFile) {
                             val oldEditor = editor
+                            oldEditor.contentComponent.remove(component)
                             em.closeFile(oldEditor.virtualFile)
                             ApplicationManager.getApplication().invokeLater {
                                 this.editor = newEditor
                                 val offset = portal.textRange.startOffset + portal.element.textRange.startOffset
                                 newEditor.caretModel.moveToOffset(offset)
                                 newEditor.scrollingModel.scrollToCaret(ScrollType.CENTER)
-                                reInitLevel(newEditor.offsetToXY(offset), newEditor)
+                                reInitLevel(newEditor.offsetToXY(offset), newEditor, portal.file.name)
                             }
-                        } else {
-                            this.editor = newEditor
-                            val offset = portal.textRange.startOffset + portal.element.textRange.startOffset
-                            newEditor.caretModel.moveToOffset(offset)
-                            newEditor.scrollingModel.scrollToCaret(ScrollType.CENTER)
-                            reInitLevel(newEditor.offsetToXY(offset), newEditor)
                         }
                     }
                 }
@@ -79,11 +96,14 @@ class ZtdGame(
         }
     }
 
-    private fun reInitLevel(point: Point, newEditor: Editor) {
+    private fun reInitLevel(point: Point, newEditor: Editor, fileName: String) {
         currentTiles.clear()
-        currentTiles.addAll(mapCreator.create(newEditor))
+        currentCoins.clear()
+        val (tiles, coins) = mapCreator.create(newEditor, fileName)
+        currentTiles.addAll(tiles)
+        currentCoins.addAll(coins)
+        component.removePortalLabels()
         portals.clear()
-        newEditor.contentComponent.remove(component)
         attachComponent()
         zonic.position = Fec2(point.x.toFloat(), point.y.toFloat() - zonic.height)
     }
@@ -99,5 +119,16 @@ class ZtdGame(
         contentComponent.revalidate()
         contentComponent.repaint()
         component.requestFocusInWindow()
+    }
+
+    private fun getJavaFileCount(): List<VirtualFile> {
+        val javaFileType = FileTypeManager.getInstance().getFileTypeByExtension("java")
+        val scope = GlobalSearchScope.projectScope(project).intersectWith(GlobalSearchScope.projectScope(project))
+        return FileTypeIndex.getFiles(javaFileType, scope).filterNot { file ->
+            file.path.contains("/test/") ||
+                    file.path.contains("\\test\\") ||
+                    file.path.contains("/Test/") ||
+                    file.path.contains("\\Test\\")
+        }
     }
 }

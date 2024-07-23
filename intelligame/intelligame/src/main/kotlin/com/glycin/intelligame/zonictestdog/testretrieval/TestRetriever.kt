@@ -21,14 +21,14 @@ class TestRetriever(
                         qn.startsWith("jdk.") || qn.startsWith("com.sun") ||
                         qn.startsWith("net.bytebuddy"))
             }.forEach { psiClass->
-            TestFrameworks.detectFramework(psiClass)?.let { framework ->
-                if(framework.isTestClass(psiClass)){
-                    psiClass.methods.forEach { method ->
-                        if(framework.isTestMethod(method)){
-                            methods.add(method)
+                TestFrameworks.detectFramework(psiClass)?.let { framework ->
+                    if(framework.isTestClass(psiClass)){
+                        psiClass.methods.forEach { method ->
+                            if(framework.isTestMethod(method)){
+                                methods.add(method)
+                            }
                         }
                     }
-                }
             }
         }
         return methods
