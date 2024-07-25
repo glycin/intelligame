@@ -8,6 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.html.InputType
+import java.awt.Font
 import java.awt.Graphics
 import java.awt.Graphics2D
 import javax.swing.JComponent
@@ -41,6 +42,7 @@ class ZtdComponent(
             drawTiles(g)
             drawPortals(g)
             drawCoins(g)
+            drawUi(g)
         }
     }
 
@@ -63,7 +65,18 @@ class ZtdComponent(
 
     private fun drawCoins(g: Graphics2D) {
         ztdGame.currentCoins.forEach {
-            it.draw(g)
+            if(!it.pickedUp) {
+                it.draw(g)
+            }
         }
+    }
+
+    private fun drawUi(g: Graphics2D) {
+        g.color = JBColor.YELLOW.brighter().brighter().brighter()
+        g.fillOval(width - (width / 3) - 20, 20, 15, 15)
+
+        g.color = JBColor.WHITE.brighter().brighter().brighter().brighter()
+        g.font = Font("Times New Roman", Font.BOLD, 24)
+        g.drawString("x${ztdGame.zonic.pickedUpCoins.size}", width - (width / 3), 35)
     }
 }

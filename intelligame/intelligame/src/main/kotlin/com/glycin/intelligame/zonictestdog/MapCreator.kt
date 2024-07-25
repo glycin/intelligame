@@ -10,11 +10,12 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiMethod
 
 class MapCreator(
-    val testMap: MutableMap<String, List<PsiMethod>>,
+    private val testMap: MutableMap<String, List<PsiMethod>>,
 ) {
     private val chosenTiles = mutableSetOf<Tile>()
 
     fun create(editor: Editor, fileName: String): Pair<MutableList<Tile>, List<Coin>> {
+        chosenTiles.clear()
         val tiles = createLevel(editor)
         val coins = placeCoins(tiles, testMap.getOrDefault(fileName, emptyList()))
         //val enemies = placeEnemies(tiles)
@@ -68,15 +69,15 @@ class MapCreator(
     private fun placeCoins(tiles: MutableList<Tile>, testMethods: List<PsiMethod>): List<Coin> {
         return testMethods.map {
             Coin(
-                position = getRandomPosOnTile(tiles),
-                width = 25,
-                height = 50,
+                position = getPosOnRandomTile(tiles),
+                width = 15,
+                height = 15,
                 method = it
             )
         }
     }
 
-    private fun getRandomPosOnTile(tiles: MutableList<Tile>): Vec2 {
+    private fun getPosOnRandomTile(tiles: MutableList<Tile>): Vec2 {
         val randomTile = tiles.subtract(chosenTiles).random()
         chosenTiles.add(randomTile)
         return Vec2(randomTile.position.x + (randomTile.width / 2), randomTile.position.y - (randomTile.height / 2))

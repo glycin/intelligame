@@ -5,12 +5,15 @@ import com.glycin.intelligame.shared.Gravity
 import com.glycin.intelligame.shared.SpriteSheetImageLoader
 import com.glycin.intelligame.util.toDeltaTime
 import com.glycin.intelligame.util.toLongDeltaTime
+import com.glycin.intelligame.util.toPoint
+import com.glycin.intelligame.zonictestdog.level.Coin
 import com.intellij.ui.JBColor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.awt.Graphics2D
+import java.awt.Point
 import java.awt.image.BufferedImage
 import kotlin.math.roundToInt
 
@@ -24,6 +27,7 @@ class Zonic(
     fps: Long,
 ) {
     var alive = true
+    val pickedUpCoins = mutableListOf<Coin>()
     private val deltaTime = fps.toDeltaTime()
     private val standingSprites = arrayOfNulls<BufferedImage>(4)
     private val runningSprites = arrayOfNulls<BufferedImage>(6)
@@ -138,6 +142,7 @@ class Zonic(
 
     private suspend fun zonicUpdate(delayTime: Long) {
         while(alive){
+            val zonicMidPos = getMidPos().toPoint()
             when(zonicState) {
                 ZonicState.JUMPING -> {
                     velocity += Gravity.asFec2 * deltaTime
@@ -165,7 +170,8 @@ class Zonic(
                         }
                     }
 
-                    portalCheck()
+                    portalCheck(zonicMidPos)
+                    coinCheck(zonicMidPos)
                 }
                 ZonicState.RUNNING -> {
                     //TODO: Dont block zonic left and right collisions for now
@@ -183,7 +189,8 @@ class Zonic(
                         fall()
                     }
 
-                    portalCheck()
+                    portalCheck(zonicMidPos)
+                    coinCheck(zonicMidPos)
                 }
                 ZonicState.IDLE -> {
                     showAnimation(standingSprites, 10)
@@ -201,7 +208,8 @@ class Zonic(
                             land(landedY)
                         }
                     }
-                    portalCheck()
+                    portalCheck(zonicMidPos)
+                    coinCheck(zonicMidPos)
                 }
             }
             delay(delayTime)
@@ -250,10 +258,18 @@ class Zonic(
         currentSprite = sprites[currentAnimationIndex]!!
     }
 
-    private fun portalCheck() {
-        val (inPortal, portal) = colManager.portalCheck()
-        if(inPortal){
-            portalOpener.travelToPortal(portal!!)
+    private fun portalCheck(point: Point) {
+        val portal = colManager.portalCheck(point)
+        if(portal != null){
+            portalOpener.travelToPortal(portal)
+        }
+    }
+
+    private fun coinCheck(point: Point) {
+        val coin = colManager.coinCheck(point)
+        if(coin != null) {
+            pickedUpCoins.add(coin)
+            coin.pickUp()
         }
     }
 
