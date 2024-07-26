@@ -42,6 +42,7 @@ class ZtdComponent(
             drawTiles(g)
             drawPortals(g)
             drawCoins(g)
+            drawEnemies(g)
             drawUi(g)
         }
     }
@@ -66,6 +67,14 @@ class ZtdComponent(
     private fun drawCoins(g: Graphics2D) {
         ztdGame.currentCoins.forEach {
             if(!it.pickedUp) {
+                it.draw(g)
+            }
+        }
+    }
+
+    private fun drawEnemies(g: Graphics2D) {
+        ztdGame.currentEnemies.forEach {
+            if(it.alive){
                 it.draw(g)
             }
         }

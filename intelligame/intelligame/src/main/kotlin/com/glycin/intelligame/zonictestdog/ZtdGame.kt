@@ -4,12 +4,11 @@ import com.glycin.intelligame.shared.Fec2
 import com.glycin.intelligame.zonictestdog.level.Coin
 import com.glycin.intelligame.zonictestdog.level.Portal
 import com.glycin.intelligame.zonictestdog.level.Tile
+import com.glycin.intelligame.zonictestdog.level.WalkingEnemy
 import com.glycin.intelligame.zonictestdog.testretrieval.TestRetriever
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.ScrollType
-import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileEditor.TextEditor
 import com.intellij.openapi.fileTypes.FileTypeManager
@@ -19,7 +18,6 @@ import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiMethod
 import com.intellij.psi.search.FileTypeIndex
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.testFramework.utils.editor.getVirtualFile
 import kotlinx.coroutines.CoroutineScope
 import java.awt.KeyboardFocusManager
 import java.awt.Point
@@ -36,10 +34,13 @@ class ZtdGame(
     val portals = mutableListOf<Portal>()
     val currentTiles = mutableListOf<Tile>()
     val currentCoins = mutableListOf<Coin>()
+    val currentEnemies = mutableListOf<WalkingEnemy>()
 
     private lateinit var ztdInput: ZtdInput
     private lateinit var component: ZtdComponent
     private lateinit var mapCreator: MapCreator
+    private lateinit var enemyManager: EnemyManager
+
     private val testMap = mutableMapOf<String, List<PsiMethod>>()
 
     fun initGame(){
@@ -54,14 +55,15 @@ class ZtdGame(
             testMap.putIfAbsent(file.name, chunkedMethods[index])
         }
 
-        mapCreator = MapCreator(testMap)
-        val (tiles, coins) = mapCreator.create(editor, editor.virtualFile.name)
+        mapCreator = MapCreator(testMap, testMehods.size)
+        val (tiles, coins, enemies) = mapCreator.create(editor, editor.virtualFile.name)
         currentTiles.addAll(tiles)
         currentCoins.addAll(coins)
-
+        currentEnemies.addAll(enemies)
         attachComponent()
         val cm = CollisionsManager(this)
         val po = PortalOpener(project, this)
+        enemyManager = EnemyManager(this, cm, scope, FPS)
         zonic = Zonic(Fec2(100f, 100f), 50, 50, cm, po, scope, FPS)
         ztdInput = ZtdInput(zonic, project, this)
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(ztdInput)
@@ -99,9 +101,11 @@ class ZtdGame(
     private fun reInitLevel(point: Point, newEditor: Editor, fileName: String) {
         currentTiles.clear()
         currentCoins.clear()
-        val (tiles, coins) = mapCreator.create(newEditor, fileName)
+        currentEnemies.clear()
+        val (tiles, coins, enemies) = mapCreator.create(newEditor, fileName)
         currentTiles.addAll(tiles)
         currentCoins.addAll(coins)
+        currentEnemies.addAll(enemies)
         component.removePortalLabels()
         portals.clear()
         attachComponent()
