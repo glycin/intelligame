@@ -3,10 +3,14 @@ package com.glycin.intelligame.zonictestdog
 import com.glycin.intelligame.shared.Fec2
 import com.glycin.intelligame.shared.Gravity
 import com.glycin.intelligame.shared.SpriteSheetImageLoader
+import com.glycin.intelligame.shared.Vec2
 import com.glycin.intelligame.util.toDeltaTime
 import com.glycin.intelligame.util.toLongDeltaTime
 import com.glycin.intelligame.util.toPoint
+import com.glycin.intelligame.util.toVec2
 import com.glycin.intelligame.zonictestdog.level.Coin
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.ui.JBColor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -15,7 +19,9 @@ import kotlinx.coroutines.launch
 import java.awt.Graphics2D
 import java.awt.Point
 import java.awt.image.BufferedImage
+import kotlin.math.cos
 import kotlin.math.roundToInt
+import kotlin.math.sin
 
 class Zonic(
     var position: Fec2,
@@ -24,6 +30,7 @@ class Zonic(
     private val maxY: Int,
     private val colManager: CollisionsManager,
     private val portalOpener: PortalOpener,
+    private val ztdGame: ZtdGame,
     scope: CoroutineScope,
     fps: Long,
 ) {
@@ -75,7 +82,7 @@ class Zonic(
         }
 
         // Debug points
-        g.color = JBColor.GREEN.brighter()
+        g.color = if(zonicState == ZonicState.HURT) JBColor.RED.brighter().brighter() else JBColor.GREEN.brighter()
         g.fillOval(getBottomPos().x.roundToInt(), getBottomPos().y.roundToInt(), 5, 5)
         g.fillOval(getTopPos().x.roundToInt(), getTopPos().y.roundToInt(), 5, 5)
         g.fillOval(getLeftPositions()[0].x.roundToInt(), getLeftPositions()[0].y.roundToInt(), 5, 5)
@@ -86,7 +93,7 @@ class Zonic(
     }
 
     fun jump() {
-        if(zonicState == ZonicState.JUMPING || zonicState == ZonicState.FALLING) { return }
+        if(zonicState == ZonicState.JUMPING || zonicState == ZonicState.FALLING || zonicState == ZonicState.HURT) { return }
         zonicState = ZonicState.JUMPING
         isRunningJump = velocity.x != 0.0f
         velocity = Fec2(velocity.x / 4, Fec2.up.y * jumpPower)
@@ -94,8 +101,9 @@ class Zonic(
     }
 
     fun moveRight() {
+        if(zonicState == ZonicState.HURT) return
         if(zonicState == ZonicState.FALLING || zonicState == ZonicState.JUMPING) {
-            velocity += Fec2(speed, 0.0f)
+            velocity += Fec2.right * (speed / 4 * deltaTime)
         }else {
             velocity = Fec2.right * ( speed * deltaTime)
             zonicState = ZonicState.RUNNING
@@ -105,8 +113,9 @@ class Zonic(
     }
 
     fun moveLeft() {
+        if(zonicState == ZonicState.HURT) return
         if(zonicState == ZonicState.JUMPING || zonicState == ZonicState.FALLING) {
-            velocity += Fec2(-speed, 0.0f)
+            velocity += Fec2.left * (speed / 4 * deltaTime)
         }else{
             zonicState = ZonicState.RUNNING
             velocity = Fec2.left * (speed * deltaTime)
@@ -116,7 +125,7 @@ class Zonic(
     }
 
     fun crouch() {
-        if(zonicState == ZonicState.JUMPING || zonicState == ZonicState.FALLING) { return }
+        if(zonicState == ZonicState.JUMPING || zonicState == ZonicState.FALLING || zonicState == ZonicState.HURT) { return }
         zonicState = ZonicState.CROUCHING
         velocity = Fec2.zero
         currentSprite = crouchingSprites[2]!!
@@ -129,17 +138,26 @@ class Zonic(
 
     fun idle() {
         keyIsPressed = false
-        if(zonicState == ZonicState.JUMPING || zonicState == ZonicState.FALLING) { return }
+        if(zonicState == ZonicState.JUMPING || zonicState == ZonicState.FALLING || zonicState == ZonicState.HURT) { return }
         zonicState = ZonicState.IDLE
         velocity = Fec2.zero
         currentSprite = standingSprites[0]!!
     }
 
-    fun pain(){
-
+    private fun pain(){
+        keyIsPressed = false
+        zonicState = ZonicState.HURT
+        velocity = Fec2(-velocity.x / 4, Fec2.up.y * (jumpPower / 2))
+        currentSprite = hurtSprites[0]!!
+        val coinPositions = calculateCoinPositions()
+        pickedUpCoins.forEachIndexed { index, coin ->
+            coin.loseCoin(position.toVec2(), coinPositions[index])
+        }
+        ztdGame.deleteTests(pickedUpCoins)
+        pickedUpCoins.clear()
     }
 
-    fun getMidPos() = Fec2(position.x + (width / 2), position.y + (height / 2))
+    private fun getMidPos() = Fec2(position.x + (width / 2), position.y + (height / 2))
 
     private suspend fun zonicUpdate(delayTime: Long) {
         while(alive){
@@ -178,6 +196,7 @@ class Zonic(
 
                     portalCheck(zonicMidPos)
                     coinCheck(zonicMidPos)
+                    enemyHurtCheck(if(velocity.y < 0) getTopPos().toPoint() else getBottomPos().toPoint())
                 }
                 ZonicState.RUNNING -> {
                     //TODO: Dont block zonic left and right collisions for now
@@ -197,14 +216,29 @@ class Zonic(
 
                     portalCheck(zonicMidPos)
                     coinCheck(zonicMidPos)
+                    enemyHurtCheck(if(facing == ZonicFacing.LEFT) getLeftPositions().last().toPoint() else getRightPositions().last().toPoint())
                 }
                 ZonicState.IDLE -> {
                     showAnimation(standingSprites, 10)
                 }
-                ZonicState.HURT -> {}
+                ZonicState.HURT -> {
+                    velocity += Gravity.asFec2 * deltaTime
+                    position += velocity * deltaTime
+                    showAnimation(hurtSprites, 6)
+
+                    if(velocity.y > 0.0f){
+                        val bottomPos = getBottomPos()
+                        val landedY = colManager.getClosestGround(bottomPos)
+
+                        if(landedY != null){
+                            land(landedY)
+                        }
+                    }
+                }
                 ZonicState.CROUCHING -> {}
                 ZonicState.FALLING -> {
                     velocity += Gravity.asFec2 * deltaTime
+                    velocity = Fec2(velocity.x.coerceAtMost(2f), velocity.y)
                     position += velocity * deltaTime
 
                     if(position.y >= maxY) {
@@ -221,6 +255,7 @@ class Zonic(
                     }
                     portalCheck(zonicMidPos)
                     coinCheck(zonicMidPos)
+                    enemyHurtCheck(zonicMidPos)
                 }
             }
             delay(delayTime)
@@ -235,7 +270,7 @@ class Zonic(
     }
 
     private fun land(tileY : Int) {
-        if(zonicState == ZonicState.FALLING || zonicState == ZonicState.JUMPING) {
+        if(zonicState == ZonicState.FALLING || zonicState == ZonicState.JUMPING || zonicState == ZonicState.HURT) {
             position = Fec2(position.x, tileY - height.toFloat())
             zonicState = ZonicState.IDLE
             velocity = Fec2.zero
@@ -282,6 +317,26 @@ class Zonic(
             pickedUpCoins.add(coin)
             coin.pickUp()
         }
+    }
+
+    private fun enemyHurtCheck(point: Point) {
+        val enemy = colManager.enemyCheck(point)
+        if(enemy != null && enemy.alive){
+            pain()
+        }
+    }
+
+    private fun calculateCoinPositions(): List<Vec2> {
+        val angleIncrement = 2 * Math.PI / pickedUpCoins.size
+        val midPos = getMidPos()
+        val positions = mutableListOf<Vec2>()
+        for(i in 0 until pickedUpCoins.size){
+            val angle = i * angleIncrement
+            val x = midPos.x.roundToInt() + (50 * cos(angle)).toInt()
+            val y = midPos.y.roundToInt() + (50 * sin(angle)).toInt()
+            positions.add(Vec2(x, y))
+        }
+        return positions
     }
 
     private enum class ZonicState {

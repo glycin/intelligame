@@ -8,9 +8,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.html.InputType
+import java.awt.AlphaComposite
 import java.awt.Font
 import java.awt.Graphics
 import java.awt.Graphics2D
+import java.awt.image.BufferedImage
+import javax.imageio.ImageIO
 import javax.swing.JComponent
 
 class ZtdComponent(
@@ -19,6 +22,8 @@ class ZtdComponent(
     fps: Long
 ): JComponent() {
     private val deltaTime = fps.toLongDeltaTime()
+    private val tileImage: BufferedImage = ImageIO.read(this.javaClass.getResource("/Sprites/platform.png"))
+
 
     fun start() {
         scope.launch (Dispatchers.EDT) {
@@ -48,10 +53,12 @@ class ZtdComponent(
     }
 
     private fun drawTiles(g: Graphics2D) {
+        g.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.25f)
         ztdGame.currentTiles.forEach {
             g.color = JBColor.WHITE.brighter().brighter().brighter()
-            g.drawRect(it.position.x, it.position.y, it.width, it.height)
+            g.drawImage(tileImage, it.position.x, it.position.y, it.width, it.height, null)
         }
+        g.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f)
     }
 
     private fun drawPortals(g: Graphics2D) {
@@ -68,8 +75,13 @@ class ZtdComponent(
         ztdGame.currentCoins.forEach {
             if(!it.pickedUp) {
                 it.draw(g)
+            } else if(it.dropped) {
+                it.drawDrop(g)
             }
         }
+
+        val tbr = ztdGame.currentCoins.filter { it.toBeRemoved }
+        ztdGame.currentCoins.removeAll(tbr)
     }
 
     private fun drawEnemies(g: Graphics2D) {

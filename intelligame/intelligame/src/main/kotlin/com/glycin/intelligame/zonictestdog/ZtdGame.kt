@@ -7,6 +7,7 @@ import com.glycin.intelligame.zonictestdog.level.Tile
 import com.glycin.intelligame.zonictestdog.level.WalkingEnemy
 import com.glycin.intelligame.zonictestdog.testretrieval.TestRetriever
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.ScrollType
 import com.intellij.openapi.fileEditor.FileEditorManager
@@ -64,13 +65,22 @@ class ZtdGame(
         val cm = CollisionsManager(this)
         val po = PortalOpener(project, this)
         enemyManager = EnemyManager(this, cm, scope, FPS)
-        zonic = Zonic(Fec2(100f, 100f), 50, 50, editor.contentComponent.height, cm, po, scope, FPS)
+        zonic = Zonic(Fec2(100f, 100f), 50, 50, editor.contentComponent.height, cm, po, this, scope, FPS)
         ztdInput = ZtdInput(zonic, project, this)
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(ztdInput)
     }
 
     fun stopGame(){
 
+    }
+
+    fun deleteTests(pickedUpCoins: MutableList<Coin>) {
+        val coins = pickedUpCoins.intersect(currentCoins.toSet())
+        ApplicationManager.getApplication().invokeLater {
+            WriteCommandAction.runWriteCommandAction(project) {
+                coins.forEach { coin -> coin.method.delete() }
+            }
+        }
     }
 
     fun travelTo(portal: Portal){
@@ -84,6 +94,7 @@ class ZtdGame(
                             val oldEditor = editor
                             em.closeFile(oldEditor.virtualFile)
                             oldEditor.contentComponent.remove(component)
+                            oldEditor.scrollingModel.scrollVertically(0)
                             ApplicationManager.getApplication().invokeLater {
                                 this.editor = newEditor
                                 val offset = portal.textRange.startOffset + portal.element.textRange.startOffset

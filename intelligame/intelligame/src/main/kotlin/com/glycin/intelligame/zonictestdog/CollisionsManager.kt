@@ -4,6 +4,7 @@ import com.glycin.intelligame.shared.Fec2
 import com.glycin.intelligame.util.toPoint
 import com.glycin.intelligame.zonictestdog.level.Coin
 import com.glycin.intelligame.zonictestdog.level.Portal
+import com.glycin.intelligame.zonictestdog.level.WalkingEnemy
 import java.awt.Point
 import java.awt.Rectangle
 
@@ -35,6 +36,13 @@ class CollisionsManager(
     fun coinCheck(zonicPoint: Point): Coin? {
         if(ztdGame.currentCoins.isNotEmpty()) {
             return ztdGame.currentCoins.firstOrNull { it.bounds.contains(zonicPoint) }
+        }
+        return null
+    }
+
+    fun enemyCheck(zonicPoint: Point): WalkingEnemy? {
+        if(ztdGame.currentEnemies.isNotEmpty()) {
+            return ztdGame.currentEnemies.firstOrNull { it.getBounds().contains(zonicPoint) }
         }
         return null
     }

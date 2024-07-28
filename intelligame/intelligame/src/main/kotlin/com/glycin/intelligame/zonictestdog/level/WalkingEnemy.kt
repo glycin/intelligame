@@ -5,6 +5,7 @@ import com.glycin.intelligame.zonictestdog.CollisionsManager
 import com.intellij.ui.JBColor
 import org.jetbrains.intellij.build.SPACE_REPO_HOST
 import java.awt.Graphics2D
+import java.awt.Rectangle
 import java.awt.image.BufferedImage
 import kotlin.math.roundToInt
 
@@ -67,6 +68,8 @@ SPACE_REPO_HOST
             g.fillOval(getBottomPos().x.roundToInt(), getBottomPos().y.roundToInt(), 5, 5)
         }
     }
+
+    fun getBounds() = Rectangle(position.x.roundToInt(), position.y.roundToInt(), width, height)
 
     private fun getBottomPos() = Fec2(position.x + (width / 2), position.y + height)
 
