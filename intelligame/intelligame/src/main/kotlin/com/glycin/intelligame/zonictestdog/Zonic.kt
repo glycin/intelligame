@@ -21,6 +21,7 @@ class Zonic(
     var position: Fec2,
     val width: Int,
     val height: Int,
+    private val maxY: Int,
     private val colManager: CollisionsManager,
     private val portalOpener: PortalOpener,
     scope: CoroutineScope,
@@ -147,6 +148,11 @@ class Zonic(
                 ZonicState.JUMPING -> {
                     velocity += Gravity.asFec2 * deltaTime
                     position += velocity * deltaTime
+
+                    if(position.y >= maxY) {
+                        position = Fec2(100f, -100f)
+                    }
+
                     currentSprite = if(velocity.y < 0){
                         jumpingSprites[0]!!
                     }else {
@@ -200,6 +206,11 @@ class Zonic(
                 ZonicState.FALLING -> {
                     velocity += Gravity.asFec2 * deltaTime
                     position += velocity * deltaTime
+
+                    if(position.y >= maxY) {
+                        position = Fec2(100f, -100f)
+                    }
+
                     if(velocity.y > 0.0f){
                         val bottomPos = getBottomPos()
                         val landedY = colManager.getClosestGround(bottomPos)
@@ -267,7 +278,7 @@ class Zonic(
 
     private fun coinCheck(point: Point) {
         val coin = colManager.coinCheck(point)
-        if(coin != null) {
+        if(coin != null && !coin.pickedUp) {
             pickedUpCoins.add(coin)
             coin.pickUp()
         }

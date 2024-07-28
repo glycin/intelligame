@@ -31,6 +31,8 @@ class PortalOpener(
                 }
             }
         } ?: return false to null
+
+        return false to null //For some reason the code wont compile unless i add this
     }
 
     fun openPortals(method: PsiMethod, playerPos: Fec2) {

@@ -1,6 +1,7 @@
 package com.glycin.intelligame.zonictestdog
 
 import com.glycin.intelligame.shared.Fec2
+import com.glycin.intelligame.shared.SpriteSheetImageLoader
 import com.glycin.intelligame.shared.Vec2
 import com.glycin.intelligame.util.toVec2
 import com.glycin.intelligame.zonictestdog.level.Coin
@@ -10,6 +11,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.LogicalPosition
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiMethod
+import java.awt.image.BufferedImage
 import kotlin.random.Random
 
 class MapCreator(
@@ -18,6 +20,9 @@ class MapCreator(
 ) {
     private val coinChosenTiles = mutableSetOf<Tile>()
     private val enemyChosenTiles = mutableSetOf<Tile>()
+
+    private val coinSprites = mutableListOf<BufferedImage>()
+    private val enemySprites = mutableListOf<BufferedImage>()
 
     fun create(editor: Editor, fileName: String): Triple<MutableList<Tile>, List<Coin>, List<WalkingEnemy>> {
         coinChosenTiles.clear()
@@ -72,29 +77,36 @@ class MapCreator(
 
 
     private fun placeCoins(tiles: MutableList<Tile>, testMethods: List<PsiMethod>): List<Coin> {
-        val coinWidth = 15
-        val coinHeight = 15
+        val coinWidth = 32
+        val coinHeight = 32
+        if(coinSprites.isEmpty()) {
+            coinSprites.addAll(SpriteSheetImageLoader("/Sprites/sheets/coin.png", 32, 32, 9).loadSprites())
+        }
 
         return testMethods.map {
             val midPosAboveTile = getPosOnRandomTile(tiles, coinChosenTiles)
             val pos = Vec2(
                 x = midPosAboveTile.x - (coinWidth / 2),
-                y = midPosAboveTile.y - coinHeight - 10
+                y = midPosAboveTile.y - coinHeight
             )
 
             Coin(
                 position = pos,
-                width = 15,
-                height = 15,
-                method = it
+                width = coinWidth,
+                height = coinHeight,
+                method = it,
+                sprites = coinSprites,
             )
         }
     }
 
     private fun placeEnemies(tiles: MutableList<Tile>): List<WalkingEnemy> {
         val enemies = mutableListOf<WalkingEnemy>()
-        val enemyWidth = 16
-        val enemyHeight = 16
+        val enemyWidth = 41
+        val enemyHeight = 30
+        if(enemySprites.isEmpty()) {
+            enemySprites.addAll(SpriteSheetImageLoader("/Sprites/sheets/mushroom.png", 41, 30, 10).loadSprites())
+        }
 
         for(i in 0 until getEnemyCount()){
             val midPosAboveTile = getPosOnRandomTile(tiles, enemyChosenTiles)
@@ -105,8 +117,9 @@ class MapCreator(
             enemies.add(
                 WalkingEnemy(
                     position = pos,
-                    width = 25,
-                    height = 25,
+                    width = enemyWidth,
+                    height = enemyHeight,
+                    sprites = enemySprites,
                 )
             )
         }

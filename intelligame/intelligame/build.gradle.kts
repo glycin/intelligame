@@ -1,7 +1,7 @@
 plugins {
   id("java")
-  id("org.jetbrains.kotlin.jvm") version "1.9.22"
-  id("org.jetbrains.intellij") version "1.17.2"
+  id("org.jetbrains.kotlin.jvm") version "2.0.0"
+  id("org.jetbrains.intellij") version "1.17.4"
 }
 
 group = "com.glycin"
