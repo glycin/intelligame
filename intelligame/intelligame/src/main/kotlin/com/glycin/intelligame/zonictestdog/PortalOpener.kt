@@ -24,15 +24,13 @@ class PortalOpener(
     fun isNearMethod(position: Fec2): Pair<Boolean, PsiMethod?> {
         val logicalPos = ztdGame.editor.xyToLogicalPosition(position.toPoint())
         val offset = ztdGame.editor.logicalPositionToOffset(logicalPos)
-        PsiDocumentManager.getInstance(project).getPsiFile(ztdGame.editor.document)?.let { psiFile ->
+        return PsiDocumentManager.getInstance(project).getPsiFile(ztdGame.editor.document)?.let { psiFile ->
             psiFile.findElementAt(offset)?.let { element ->
                 PsiTreeUtil.getParentOfType(element, PsiMethod::class.java)?.let { method ->
-                    return (method.name == element.text) to method
+                    (method.name == element.text) to method
                 }
             }
-        } ?: return false to null
-
-        return false to null //For some reason the code wont compile unless i add this
+        } ?: (false to null)
     }
 
     fun openPortals(method: PsiMethod, playerPos: Fec2) {

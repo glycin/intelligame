@@ -3,10 +3,7 @@ package com.glycin.intelligame.zonictestdog
 import com.glycin.intelligame.util.toLongDeltaTime
 import com.intellij.openapi.application.EDT
 import com.intellij.ui.JBColor
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import kotlinx.html.InputType
 import java.awt.AlphaComposite
 import java.awt.Font
@@ -23,15 +20,21 @@ class ZtdComponent(
 ): JComponent() {
     private val deltaTime = fps.toLongDeltaTime()
     private val tileImage: BufferedImage = ImageIO.read(this.javaClass.getResource("/Sprites/platform.png"))
-
+    private lateinit var coroutine : Job
+    private var repaint = true
 
     fun start() {
-        scope.launch (Dispatchers.EDT) {
-            while(true) {
+        coroutine = scope.launch (Dispatchers.EDT) {
+            while(repaint) {
                 repaint()
                 delay(deltaTime)
             }
         }
+    }
+
+    fun stop() {
+        repaint = false
+        coroutine.cancel()
     }
 
     fun removePortalLabels() {
@@ -46,7 +49,7 @@ class ZtdComponent(
             ztdGame.zonic.draw(g)
             drawTiles(g)
             drawPortals(g)
-            drawCoins(g)
+        drawCoins(g)
             drawEnemies(g)
             drawUi(g)
         }

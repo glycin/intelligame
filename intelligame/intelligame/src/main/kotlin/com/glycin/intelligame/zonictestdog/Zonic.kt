@@ -305,8 +305,11 @@ class Zonic(
     }
 
     private fun portalCheck(point: Point) {
+        if(zonicState == ZonicState.IDLE) { return }
+
         val portal = colManager.portalCheck(point)
         if(portal != null){
+            zonicState = ZonicState.IDLE
             portalOpener.travelToPortal(portal)
         }
     }
@@ -332,8 +335,8 @@ class Zonic(
         val positions = mutableListOf<Vec2>()
         for(i in 0 until pickedUpCoins.size){
             val angle = i * angleIncrement
-            val x = midPos.x.roundToInt() + (50 * cos(angle)).toInt()
-            val y = midPos.y.roundToInt() + (50 * sin(angle)).toInt()
+            val x = midPos.x.roundToInt() + (150 * cos(angle)).toInt()
+            val y = midPos.y.roundToInt() + (150 * sin(angle)).toInt()
             positions.add(Vec2(x, y))
         }
         return positions

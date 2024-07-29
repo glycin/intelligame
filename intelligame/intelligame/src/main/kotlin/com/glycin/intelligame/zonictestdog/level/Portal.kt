@@ -12,7 +12,7 @@ import javax.swing.JLabel
 import kotlin.random.Random
 
 class Portal(
-    val position: Vec2,
+    var position: Vec2,
     val height: Int,
     val width: Int,
     val file: PsiFile,
@@ -20,7 +20,7 @@ class Portal(
     val textRange: TextRange,
     private val sprites: Array<BufferedImage>,
 ) {
-    val bounds: Rectangle = Rectangle(position.x, position.y, width, height)
+    var bounds: Rectangle = Rectangle(position.x, position.y, width, height)
     val color = Random.nextInt(4)
     var label: JLabel = JLabel()
     var addedLabel = false
@@ -47,5 +47,10 @@ class Portal(
             currentIndex = 0
             frameHoldCount = 0
         }
+    }
+
+    fun close() {
+        position = Vec2(-15000, 15000)
+        bounds = Rectangle(position.x, position.y, 0, 0)
     }
 }

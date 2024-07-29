@@ -26,7 +26,7 @@ class Coin(
     private var dropTargetPosition = Vec2.zero
     private var dimAlpha = false
     private var curDropFrame = 0
-    private val totalDropFrames = 360
+    private val totalDropFrames = 240
 
     fun draw(g: Graphics2D) {
         val sprite = sprites[currentIndex]

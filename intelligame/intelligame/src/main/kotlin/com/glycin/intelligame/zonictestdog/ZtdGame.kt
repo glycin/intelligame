@@ -85,6 +85,7 @@ class ZtdGame(
 
     fun travelTo(portal: Portal){
         val em = FileEditorManager.getInstance(project)
+        component.stop()
         ApplicationManager.getApplication().invokeLater {
             em.openFile(portal.file.virtualFile, true).firstOrNull()?.let { fileEditor ->
                 if(fileEditor is TextEditor) {
@@ -100,6 +101,7 @@ class ZtdGame(
                                 val offset = portal.textRange.startOffset + portal.element.textRange.startOffset
                                 newEditor.caretModel.moveToOffset(offset)
                                 newEditor.scrollingModel.scrollToCaret(ScrollType.CENTER)
+                                portals.forEach { it.close() }
                                 reInitLevel(newEditor.offsetToXY(offset), newEditor, portal.file.name)
                             }
                         }
