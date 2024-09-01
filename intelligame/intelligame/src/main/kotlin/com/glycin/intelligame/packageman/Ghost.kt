@@ -43,25 +43,28 @@ class Ghost(
         moveLabel()
 
         g.color = color
-        g.fillRoundRect(position.x, position.y, width, height - 5, 5, 5)
+        g.fillRoundRect(position.x.roundToInt(), position.y.roundToInt(), width, height - 5, 5, 5)
 
-        val xPoints = arrayOf(position.x, position.x + 2, position.x + 5, position.x + 7, position.x + width).toIntArray()
+        val x = position.x.roundToInt()
+        val y = position.y.roundToInt()
+
+        val xPoints = arrayOf(x, x + 2, x + 5, x + 7, x + width).toIntArray()
         val yPoints = arrayOf(
-            position.y + height - 5,
-            position.y + height,
-            position.y + height - 5,
-            position.y + height,
-            position.y + height - 5,
+            y + height - 5,
+            y + height,
+            y + height - 5,
+            y + height,
+            y + height - 5,
         ).toIntArray()
 
         g.fillPolygon(xPoints, yPoints, xPoints.size)
         g.color = JBColor.WHITE.brighter().brighter().brighter().brighter()
-        g.fillOval(position.x + eyeXOffset, position.y + eyeYOffset, eyeWidth, eyeHeight);
-        g.fillOval(position.x + width - eyeXOffset - eyeWidth, position.y + eyeYOffset, eyeWidth, eyeHeight);
+        g.fillOval(x + eyeXOffset, y + eyeYOffset, eyeWidth, eyeHeight);
+        g.fillOval(x + width - eyeXOffset - eyeWidth, y + eyeYOffset, eyeWidth, eyeHeight);
     }
 
     fun kill() {
-        position = Vec2(-1000, -1000)
+        position = Vec2(-1000f, -1000f)
         moving = false
     }
 
@@ -120,13 +123,13 @@ class Ghost(
         pane.background = color
         pane.font = Font(Font.SERIF, Font.PLAIN, 12)
         pane.foreground = JBColor.black.darker().darker().darker().darker()
-        pane.setBounds(position.x - (width * 10), position.y + height, width * 20, height * 4)
+        pane.setBounds(position.x.roundToInt() - (width * 10), position.y.roundToInt() + height, width * 20, height * 4)
         pane.text = sb.toString()
         return pane
     }
 
     private fun moveLabel() {
-        textPane.setBounds(position.x - (width * 10), position.y + height, width * 20, height * 4)
+        textPane.setBounds(position.x.roundToInt() - (width * 10), position.y.roundToInt() + height, width * 20, height * 4)
     }
 
     private fun setMoving() {

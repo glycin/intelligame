@@ -3,6 +3,7 @@ package com.glycin.intelligame.codehero
 import com.glycin.intelligame.shared.Vec2
 import java.awt.Graphics2D
 import java.awt.Image
+import kotlin.math.roundToInt
 
 class AnimatedEffect(
     private val position: Vec2,
@@ -17,7 +18,7 @@ class AnimatedEffect(
     private var currentIndex = 0
     fun draw(g: Graphics2D) {
         val sprite = sprites[currentIndex]
-        g.drawImage(sprite, position.x - (spriteWidth / 2), position.y - (spriteHeight / 2), spriteWidth * scaleMultiplier, spriteHeight * scaleMultiplier, null)
+        g.drawImage(sprite, position.x.roundToInt() - (spriteWidth / 2), position.y.roundToInt() - (spriteHeight / 2), spriteWidth * scaleMultiplier, spriteHeight * scaleMultiplier, null)
         frameHoldCount++
 
         if(frameHoldCount % 4 == 0) {

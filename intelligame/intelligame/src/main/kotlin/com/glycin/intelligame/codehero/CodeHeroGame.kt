@@ -1,7 +1,7 @@
 package com.glycin.intelligame.codehero
 
 import com.glycin.intelligame.codehero.osu.OsuParser
-import com.glycin.intelligame.shared.Fec2
+import com.glycin.intelligame.shared.Vec2
 import com.glycin.intelligame.shared.TextWriter
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.actionSystem.EditorActionManager
@@ -85,9 +85,9 @@ class CodeHeroGame(
 
         val song = OsuParser().parse(beatmap)
         noteManager = NoteManager(
-            spawnPositionLeft = Fec2(0f, ((viewPort.height / 1.5).roundToInt()) + 10f),
-            spawnPositionRight = Fec2(viewPort.width.toFloat(), ((viewPort.height / 1.5).roundToInt()) + 10f),
-            targetPosition = Fec2(viewPort.width.toFloat() / 2, ((viewPort.height / 1.5).roundToInt()).toFloat()),
+            spawnPositionLeft = Vec2(0f, ((viewPort.height / 1.5).roundToInt()) + 10f),
+            spawnPositionRight = Vec2(viewPort.width.toFloat(), ((viewPort.height / 1.5).roundToInt()) + 10f),
+            targetPosition = Vec2(viewPort.width.toFloat() / 2, ((viewPort.height / 1.5).roundToInt()).toFloat()),
             game = this,
             fps = FPS,
             scope = scope

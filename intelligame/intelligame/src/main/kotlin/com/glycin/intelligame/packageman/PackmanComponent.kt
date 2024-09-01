@@ -13,6 +13,7 @@ import kotlinx.coroutines.launch
 import java.awt.Graphics
 import java.awt.Graphics2D
 import javax.swing.JComponent
+import kotlin.math.roundToInt
 
 class PackmanComponent(
     private val state: PackmanState,
@@ -51,7 +52,7 @@ class PackmanComponent(
         state.mazeCells.forEach { cell ->
             if(cell.isWall) {
                 g.color = JBColor.WHITE.brighter().brighter()
-                g.drawRect(cell.position.x, cell.position.y, cell.width, cell.height)
+                g.drawRect(cell.position.x.roundToInt(), cell.position.y.roundToInt(), cell.width, cell.height)
             }else {
                 //g.fillRect(cell.position.x, cell.position.y, cell.width, cell.height)
             }

@@ -1,14 +1,14 @@
 package com.glycin.intelligame.codehero
 
-import com.glycin.intelligame.shared.Fec2
+import com.glycin.intelligame.shared.Vec2
 import com.intellij.ui.JBColor
 import kotlinx.coroutines.CoroutineScope
 
 class NoteManager(
     val notes : MutableMap<Int, Note> = mutableMapOf(),
-    private val spawnPositionLeft: Fec2,
-    private val spawnPositionRight: Fec2,
-    private val targetPosition: Fec2,
+    private val spawnPositionLeft: Vec2,
+    private val spawnPositionRight: Vec2,
+    private val targetPosition: Vec2,
     private val game: CodeHeroGame,
     private val fps: Long,
     private val scope: CoroutineScope,

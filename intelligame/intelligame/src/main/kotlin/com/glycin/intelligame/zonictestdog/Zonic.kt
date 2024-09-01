@@ -1,16 +1,13 @@
 package com.glycin.intelligame.zonictestdog
 
-import com.glycin.intelligame.shared.Fec2
+import com.glycin.intelligame.shared.Vec2
 import com.glycin.intelligame.shared.Gravity
 import com.glycin.intelligame.shared.SpriteSheetImageLoader
-import com.glycin.intelligame.shared.Vec2
 import com.glycin.intelligame.util.toDeltaTime
 import com.glycin.intelligame.util.toLongDeltaTime
 import com.glycin.intelligame.util.toPoint
 import com.glycin.intelligame.util.toVec2
 import com.glycin.intelligame.zonictestdog.level.Coin
-import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.ui.JBColor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -24,7 +21,7 @@ import kotlin.math.roundToInt
 import kotlin.math.sin
 
 class Zonic(
-    var position: Fec2,
+    var position: Vec2,
     val width: Int,
     val height: Int,
     private val maxY: Int,
@@ -49,7 +46,7 @@ class Zonic(
     private var isRunningJump = false
     private var facing: ZonicFacing = ZonicFacing.RIGHT
     private var currentSprite : BufferedImage
-    private var velocity = Fec2.zero
+    private var velocity = Vec2.zero
     private var currentAnimationIndex = 0
     private var skipFrameCount = 0
 
@@ -96,16 +93,16 @@ class Zonic(
         if(zonicState == ZonicState.JUMPING || zonicState == ZonicState.FALLING || zonicState == ZonicState.HURT) { return }
         zonicState = ZonicState.JUMPING
         isRunningJump = velocity.x != 0.0f
-        velocity = Fec2(velocity.x / 4, Fec2.up.y * jumpPower)
+        velocity = Vec2(velocity.x / 4, Vec2.up.y * jumpPower)
         keyIsPressed = true
     }
 
     fun moveRight() {
         if(zonicState == ZonicState.HURT) return
         if(zonicState == ZonicState.FALLING || zonicState == ZonicState.JUMPING) {
-            velocity += Fec2.right * (speed / 4 * deltaTime)
+            velocity += Vec2.right * (speed / 4 * deltaTime)
         }else {
-            velocity = Fec2.right * ( speed * deltaTime)
+            velocity = Vec2.right * ( speed * deltaTime)
             zonicState = ZonicState.RUNNING
         }
         facing = ZonicFacing.RIGHT
@@ -115,10 +112,10 @@ class Zonic(
     fun moveLeft() {
         if(zonicState == ZonicState.HURT) return
         if(zonicState == ZonicState.JUMPING || zonicState == ZonicState.FALLING) {
-            velocity += Fec2.left * (speed / 4 * deltaTime)
+            velocity += Vec2.left * (speed / 4 * deltaTime)
         }else{
             zonicState = ZonicState.RUNNING
-            velocity = Fec2.left * (speed * deltaTime)
+            velocity = Vec2.left * (speed * deltaTime)
         }
         facing = ZonicFacing.LEFT
         keyIsPressed = true
@@ -127,7 +124,7 @@ class Zonic(
     fun crouch() {
         if(zonicState == ZonicState.JUMPING || zonicState == ZonicState.FALLING || zonicState == ZonicState.HURT) { return }
         zonicState = ZonicState.CROUCHING
-        velocity = Fec2.zero
+        velocity = Vec2.zero
         currentSprite = crouchingSprites[2]!!
         keyIsPressed = true
         val (isNearMethod, method) = portalOpener.isNearMethod(getBottomPos())
@@ -140,35 +137,35 @@ class Zonic(
         keyIsPressed = false
         if(zonicState == ZonicState.JUMPING || zonicState == ZonicState.FALLING || zonicState == ZonicState.HURT) { return }
         zonicState = ZonicState.IDLE
-        velocity = Fec2.zero
+        velocity = Vec2.zero
         currentSprite = standingSprites[0]!!
     }
 
     private fun pain(){
         keyIsPressed = false
         zonicState = ZonicState.HURT
-        velocity = Fec2(-velocity.x / 4, Fec2.up.y * (jumpPower / 2))
+        velocity = Vec2(-velocity.x / 4, Vec2.up.y * (jumpPower / 2))
         currentSprite = hurtSprites[0]!!
         val coinPositions = calculateCoinPositions()
         pickedUpCoins.forEachIndexed { index, coin ->
-            coin.loseCoin(position.toVec2(), coinPositions[index])
+            coin.loseCoin(position, coinPositions[index])
         }
         ztdGame.deleteTests(pickedUpCoins)
         pickedUpCoins.clear()
     }
 
-    private fun getMidPos() = Fec2(position.x + (width / 2), position.y + (height / 2))
+    private fun getMidPos() = Vec2(position.x + (width / 2), position.y + (height / 2))
 
     private suspend fun zonicUpdate(delayTime: Long) {
         while(alive){
             val zonicMidPos = getMidPos().toPoint()
             when(zonicState) {
                 ZonicState.JUMPING -> {
-                    velocity += Gravity.asFec2 * deltaTime
+                    velocity += Gravity.vec2 * deltaTime
                     position += velocity * deltaTime
 
                     if(position.y >= maxY) {
-                        position = Fec2(100f, -100f)
+                        position = Vec2(100f, -100f)
                     }
 
                     currentSprite = if(velocity.y < 0){
@@ -222,7 +219,7 @@ class Zonic(
                     showAnimation(standingSprites, 10)
                 }
                 ZonicState.HURT -> {
-                    velocity += Gravity.asFec2 * deltaTime
+                    velocity += Gravity.vec2 * deltaTime
                     position += velocity * deltaTime
                     showAnimation(hurtSprites, 6)
 
@@ -237,12 +234,12 @@ class Zonic(
                 }
                 ZonicState.CROUCHING -> {}
                 ZonicState.FALLING -> {
-                    velocity += Gravity.asFec2 * deltaTime
-                    velocity = Fec2(velocity.x.coerceAtMost(2f), velocity.y)
+                    velocity += Gravity.vec2 * deltaTime
+                    velocity = Vec2(velocity.x.coerceAtMost(2f), velocity.y)
                     position += velocity * deltaTime
 
                     if(position.y >= maxY) {
-                        position = Fec2(100f, -100f)
+                        position = Vec2(100f, -100f)
                     }
 
                     if(velocity.y > 0.0f){
@@ -265,30 +262,30 @@ class Zonic(
     private fun fall() {
         if(zonicState == ZonicState.JUMPING || zonicState == ZonicState.FALLING) { return }
         zonicState = ZonicState.FALLING
-        velocity = Gravity.asFec2
+        velocity = Gravity.vec2
         currentSprite = jumpingSprites[1]!!
     }
 
     private fun land(tileY : Int) {
         if(zonicState == ZonicState.FALLING || zonicState == ZonicState.JUMPING || zonicState == ZonicState.HURT) {
-            position = Fec2(position.x, tileY - height.toFloat())
+            position = Vec2(position.x, tileY - height.toFloat())
             zonicState = ZonicState.IDLE
-            velocity = Fec2.zero
+            velocity = Vec2.zero
         }
     }
 
-    private fun getBottomPos() = Fec2(position.x + (width / 2), position.y + height)
+    private fun getBottomPos() = Vec2(position.x + (width / 2), position.y + height)
 
-    private fun getTopPos() = Fec2(position.x + (width / 2), position.y)
+    private fun getTopPos() = Vec2(position.x + (width / 2), position.y)
 
     private fun getLeftPositions() = listOf(
-        Fec2(position.x, position.y + (height / 1.5f)),
-        Fec2(position.x, position.y + (height / 2.5f))
+        Vec2(position.x, position.y + (height / 1.5f)),
+        Vec2(position.x, position.y + (height / 2.5f))
     )
 
     private fun getRightPositions() = listOf(
-        Fec2(position.x + width, position.y + (height / 1.5f)),
-        Fec2(position.x + width, position.y + (height / 2.5f))
+        Vec2(position.x + width, position.y + (height / 1.5f)),
+        Vec2(position.x + width, position.y + (height / 2.5f))
     )
 
     private fun showAnimation(sprites: Array<BufferedImage?>, frameDelay: Int) {
@@ -335,8 +332,8 @@ class Zonic(
         val positions = mutableListOf<Vec2>()
         for(i in 0 until pickedUpCoins.size){
             val angle = i * angleIncrement
-            val x = midPos.x.roundToInt() + (150 * cos(angle)).toInt()
-            val y = midPos.y.roundToInt() + (150 * sin(angle)).toInt()
+            val x = midPos.x + (150 * cos(angle)).toInt()
+            val y = midPos.y + (150 * sin(angle)).toInt()
             positions.add(Vec2(x, y))
         }
         return positions

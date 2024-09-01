@@ -9,7 +9,6 @@ import com.glycin.intelligame.util.toDeltaTime
 import com.glycin.intelligame.util.toVec2
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.LogicalPosition
-import com.intellij.openapi.editor.ScrollType
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.modules
 import com.intellij.openapi.roots.ModuleRootManager
@@ -23,6 +22,7 @@ import kotlinx.coroutines.*
 import java.awt.Color
 import java.awt.KeyboardFocusManager
 import java.awt.Point
+import kotlin.math.roundToInt
 
 private const val FPS = 120L
 
@@ -121,7 +121,7 @@ class PackmanGame(
 
                     val charWidth = if (nextCharOffset < lineEndOffset) {
                         val nextCharPos = editor.offsetToXY(nextCharOffset)
-                        (nextCharPos.x - charPos.x)
+                        (nextCharPos.x - charPos.x.roundToInt())
                     } else {
                         graphics.fontMetrics.charWidth(c) * 2 //The charWidth() width is always 2 small so we just make it bigger ¯\_(ツ)_/¯
                     }

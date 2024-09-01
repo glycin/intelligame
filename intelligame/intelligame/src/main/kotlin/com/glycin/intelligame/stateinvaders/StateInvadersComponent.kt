@@ -16,6 +16,7 @@ import java.awt.Graphics
 import java.awt.Graphics2D
 import javax.swing.JComponent
 import javax.swing.JLabel
+import kotlin.math.roundToInt
 
 class StateInvadersComponent(
     private val spaceShip: SpaceShip,
@@ -60,38 +61,42 @@ class StateInvadersComponent(
 
         game.sm.staliens.forEach {
             g.color = JBColor.RED
-            g.drawRect(it.position.x, it.position.y, it.width, it.height)
+            g.drawRect(it.position.x.roundToInt(), it.position.y.roundToInt(), it.width, it.height)
 
+            val stMinX = it.minX().roundToInt()
+            val stMinY = it.minY().roundToInt()
+            val stMaxX = it.maxX().roundToInt()
+            val stMaxY = it.maxY().roundToInt()
             if(aliensHorizontal) {
-                g.fillRect(it.minX() - 10, it.maxY(), 10, 5)
-                g.fillRect(it.minX() - 10, it.minY(), 10, 5)
-                g.fillRect(it.maxX(), it.maxY(), 10, 5)
-                g.fillRect(it.maxX(), it.minY(), 10, 5)
+                g.fillRect(stMinX - 10, stMaxY, 10, 5)
+                g.fillRect(stMinX - 10, stMinY, 10, 5)
+                g.fillRect(stMaxX, stMaxY, 10, 5)
+                g.fillRect(stMaxX, stMinY, 10, 5)
             } else {
-                g.fillRect(it.minX(), it.maxY(), 5, 10)
-                g.fillRect(it.minX(), it.minY() - 10, 5, 10)
-                g.fillRect(it.maxX(), it.maxY(), 5, 10)
-                g.fillRect(it.maxX(), it.minY() - 10, 5, 10)
+                g.fillRect(stMinX, stMaxY, 5, 10)
+                g.fillRect(stMinX, stMinY - 10, 5, 10)
+                g.fillRect(stMaxX, stMaxY, 5, 10)
+                g.fillRect(stMaxX, stMinY - 10, 5, 10)
             }
 
             g.color = JBColor.MAGENTA
             val leftEyePos = Vec2((it.position.x + it.width / 2) - 30, it.position.y - 15)
             val rightEyePos = Vec2((it.position.x + it.width / 2) + 30, it.position.y - 15)
-            g.fillOval(leftEyePos.x, leftEyePos.y, 15, 15)
-            g.fillOval(rightEyePos.x, rightEyePos.y, 15, 15)
+            g.fillOval(leftEyePos.x.roundToInt(), leftEyePos.y.roundToInt(), 15, 15)
+            g.fillOval(rightEyePos.x.roundToInt(), rightEyePos.y.roundToInt(), 15, 15)
         }
     }
 
     private fun drawSpaceShip(g: Graphics2D) {
         val x = spaceShip.position.x + spaceShip.width / 2
         val y = spaceShip.position.y + spaceShip.height / 2
-        g.drawImage(spaceShip.spaceShipImage, x, y, this)
+        g.drawImage(spaceShip.spaceShipImage, x.roundToInt(), y.roundToInt(), this)
     }
 
     private fun drawBullets(g: Graphics2D) {
         game.bm.getAllActiveBullets().forEach {
             g.color = if(it.isHostile) JBColor.pink else JBColor.yellow
-            g.fillRect(it.position.x, it.position.y, it.width, it.height)
+            g.fillRect(it.position.x.roundToInt(), it.position.y.roundToInt(), it.width, it.height)
         }
     }
 
@@ -102,7 +107,7 @@ class StateInvadersComponent(
         game.sm.staliens.forEach { alien ->
             val objLabel = JLabel(alien.text)
             objLabel.font = Font(fontPreferences.fontFamily, 0, fontPreferences.getSize(fontPreferences.fontFamily))
-            objLabel.setBounds(alien.position.x, alien.position.y, alien.width, alien.height)
+            objLabel.setBounds(alien.position.x.roundToInt(), alien.position.y.roundToInt(), alien.width, alien.height)
             add(objLabel)
             alien.label = objLabel
         }

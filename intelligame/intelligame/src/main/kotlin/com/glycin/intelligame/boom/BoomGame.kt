@@ -9,6 +9,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.util.ui.GraphicsUtil
 import kotlinx.coroutines.CoroutineScope
+import kotlin.math.roundToInt
 
 private const val FPS = 120L
 
@@ -68,7 +69,7 @@ class BoomGame(
 
                         val charWidth = if (nextCharOffset < lineEndOffset) {
                             val nextCharPos = editor.offsetToXY(nextCharOffset)
-                            (nextCharPos.x - charPos.x)
+                            (nextCharPos.x - charPos.x.roundToInt())
                         } else {
                             graphics.fontMetrics.charWidth(c) * 2 //The charWidth() width is always 2 small so we just make it bigger ¯\_(ツ)_/¯
                         }

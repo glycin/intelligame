@@ -32,14 +32,14 @@ class Bullet(
             if(game.cm.collidingPlayer(collisionPoint()) != null) {
                 game.bm.removeBullet(this)
                 game.gameOver()
-                position = Vec2(-100, -1000)
+                position = Vec2(-100f, -1000f)
             }
         }else{
             val collided = game.cm.collidingStaliens(collisionPoint())
             if(collided != null) {
                 game.bm.removeBullet(this)
                 game.destroyStalien(collided)
-                position = Vec2(-100, -1000)
+                position = Vec2(-100f, -1000f)
             }
         }
     }

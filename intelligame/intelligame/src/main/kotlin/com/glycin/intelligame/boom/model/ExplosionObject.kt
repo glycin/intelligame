@@ -44,7 +44,7 @@ class ExplosionObject(
         //position += velocity
 
         position = Vec2(position.x + deltaX, position.y + deltaY)
-        label?.setBounds(position.x, position.y, width, height)
+        label?.setBounds(position.x.roundToInt(), position.y.roundToInt(), width, height)
     }
 
     fun show() {

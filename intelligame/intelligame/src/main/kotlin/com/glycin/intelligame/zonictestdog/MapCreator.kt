@@ -1,8 +1,7 @@
 package com.glycin.intelligame.zonictestdog
 
-import com.glycin.intelligame.shared.Fec2
-import com.glycin.intelligame.shared.SpriteSheetImageLoader
 import com.glycin.intelligame.shared.Vec2
+import com.glycin.intelligame.shared.SpriteSheetImageLoader
 import com.glycin.intelligame.util.toVec2
 import com.glycin.intelligame.zonictestdog.level.Coin
 import com.glycin.intelligame.zonictestdog.level.Tile
@@ -12,6 +11,7 @@ import com.intellij.openapi.editor.LogicalPosition
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiMethod
 import java.awt.image.BufferedImage
+import kotlin.math.roundToInt
 import kotlin.random.Random
 
 class MapCreator(
@@ -58,7 +58,7 @@ class MapCreator(
 
             val startPos = editor.logicalPositionToXY(startLogicalPosition).toVec2(scrollOffset)
             val endPos = editor.offsetToXY(lineEndOffset).toVec2(scrollOffset)
-            val width = endPos.x - startPos.x
+            val width = (endPos.x - startPos.x).roundToInt()
             val tileWidth = 32
             val tileCount = width / tileWidth
             for(i in 0 until tileCount + 1) { // We prefer to have a slighter wider platform than shorter
@@ -110,7 +110,7 @@ class MapCreator(
 
         for(i in 0 until getEnemyCount()){
             val midPosAboveTile = getPosOnRandomTile(tiles, enemyChosenTiles)
-            val pos = Fec2(
+            val pos = Vec2(
                 x = midPosAboveTile.x - (enemyWidth / 2.0f),
                 y = midPosAboveTile.y - enemyHeight.toFloat()
             )

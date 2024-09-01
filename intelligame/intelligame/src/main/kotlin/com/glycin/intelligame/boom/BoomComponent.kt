@@ -17,10 +17,7 @@ import java.awt.event.MouseEvent
 import javax.swing.ImageIcon
 import javax.swing.JComponent
 import javax.swing.JLabel
-import kotlin.math.atan2
-import kotlin.math.cos
-import kotlin.math.min
-import kotlin.math.sin
+import kotlin.math.*
 
 class BoomComponent(
     private val boomObjects: List<ExplosionObject>,
@@ -44,7 +41,7 @@ class BoomComponent(
                 super.mouseClicked(e)
                 boomObjects.forEach { it.show() }
                 explosionWriter.clear()
-                explode(Vec2(e.x, e.y))
+                explode(Vec2(e.x.toFloat(), e.y.toFloat()))
             }
         })
 
@@ -68,14 +65,14 @@ class BoomComponent(
     private fun drawObjects(g: Graphics2D) {
         boomObjects.forEach { boom ->
             g.color = Gray._117
-            g.drawRect(boom.position.x, boom.position.y, boom.width, boom.height)
+            g.drawRect(boom.position.x.roundToInt(), boom.position.y.roundToInt(), boom.width, boom.height)
         }
     }
 
     private fun drawExplosion(position:Vec2): JLabel{
         val pos = Vec2(position.x - explosionGif.iconWidth / 2, position.y - explosionGif.iconHeight / 2)
         val expLabel = JLabel(explosionGif)
-        expLabel.setBounds(pos.x, pos.y, explosionGif.iconWidth, explosionGif.iconHeight)
+        expLabel.setBounds(pos.x.roundToInt(), pos.y.roundToInt(), explosionGif.iconWidth, explosionGif.iconHeight)
         add(expLabel)
         repaint()
         return expLabel
@@ -89,7 +86,7 @@ class BoomComponent(
         boomObjects.forEach { boom ->
             val objLabel = JLabel(boom.char)
             objLabel.font = Font(fontPreferences.fontFamily, 0, fontPreferences.getSize(fontPreferences.fontFamily))
-            objLabel.setBounds(boom.position.x, boom.position.y, boom.width, boom.height)
+            objLabel.setBounds(boom.position.x.roundToInt(), boom.position.y.roundToInt(), boom.width, boom.height)
             objLabel.isVisible = false
             add(objLabel)
             boom.label = objLabel
@@ -146,8 +143,8 @@ class BoomComponent(
                 val moveX = (moveDistance * cos(angle)).toInt()
                 val moveY = (moveDistance * sin(angle)).toInt()
 
-                a.position -= Vec2(moveX, moveY)
-                b.position += Vec2(moveX, moveY)
+                a.position -= Vec2(moveX.toFloat(), moveY.toFloat())
+                b.position += Vec2(moveX.toFloat(), moveY.toFloat())
                 a.velocity *= -1
                 b.velocity *= -1
             }

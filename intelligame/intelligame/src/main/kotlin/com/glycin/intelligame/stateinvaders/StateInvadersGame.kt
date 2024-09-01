@@ -119,8 +119,8 @@ class StateInvadersGame(
 
         player = SpaceShip(
             position = Vec2(
-                x = openEditor.component.width / 2,
-                y = openEditor.component.height - 100
+                x = openEditor.component.width / 2f,
+                y = openEditor.component.height - 100f
             ),
             width = 64,
             height = 64,
@@ -136,15 +136,15 @@ class StateInvadersGame(
     }
 
     private fun List<Stalien>.positionAliens(editor: Editor): List<Stalien> {
-        val maxWidth = (editor.contentComponent.width * 0.5).roundToInt()
+        val maxWidth = (editor.component.width * 0.5).roundToInt()
         val widthSpacing = 70
         val heightSpacing = (editor.lineHeight * 2.5).roundToInt()
-        var curWidth = 0
-        var curHeight = editor.contentComponent.height / 2
+        var curWidth = 0f
+        var curHeight = editor.component.height / 2
         forEach { alien ->
-            alien.position = Vec2(curWidth, curHeight)
+            alien.position = Vec2(curWidth, curHeight.toFloat())
             if (curWidth + alien.width + widthSpacing > maxWidth) {
-                curWidth = 0
+                curWidth = 0f
                 curHeight -= heightSpacing
             } else {
                 curWidth += (alien.width + widthSpacing)

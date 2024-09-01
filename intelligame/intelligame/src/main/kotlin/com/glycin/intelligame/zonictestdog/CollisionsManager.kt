@@ -1,28 +1,27 @@
 package com.glycin.intelligame.zonictestdog
 
-import com.glycin.intelligame.shared.Fec2
+import com.glycin.intelligame.shared.Vec2
 import com.glycin.intelligame.util.toPoint
 import com.glycin.intelligame.zonictestdog.level.Coin
 import com.glycin.intelligame.zonictestdog.level.Portal
 import com.glycin.intelligame.zonictestdog.level.WalkingEnemy
 import java.awt.Point
-import java.awt.Rectangle
 
 class CollisionsManager(
     private val ztdGame: ZtdGame,
 ) {
-    fun canRun(positionsToCheck: List<Fec2>) : Boolean {
+    fun canRun(positionsToCheck: List<Vec2>) : Boolean {
         return positionsToCheck.all { position ->
             ztdGame.currentTiles.none { it.bounds.contains(position.toPoint()) }
         }
     }
 
-    fun shouldFall(positionToCheck: Fec2) : Boolean {
+    fun shouldFall(positionToCheck: Vec2) : Boolean {
         val point = positionToCheck.toPoint()
         return ztdGame.currentTiles.none { it.bounds.contains(point) }
     }
 
-    fun getClosestGround(positionToCheck: Fec2): Int? {
+    fun getClosestGround(positionToCheck: Vec2): Int? {
         return ztdGame.currentTiles.firstOrNull { it.bounds.contains(positionToCheck.toPoint()) }?.minY
     }
 

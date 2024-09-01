@@ -1,6 +1,6 @@
 package com.glycin.intelligame.codehero
 
-import com.glycin.intelligame.shared.Fec2
+import com.glycin.intelligame.shared.Vec2
 import com.glycin.intelligame.util.toLongDeltaTime
 import com.intellij.ui.JBColor
 import kotlinx.coroutines.CoroutineScope
@@ -12,12 +12,12 @@ import kotlin.math.roundToInt
 
 class Note(
     val id: Int,
-    var positionLeft: Fec2,
-    var positionRight: Fec2,
+    var positionLeft: Vec2,
+    var positionRight: Vec2,
     val width: Int,
     val height: Int,
     private val color: JBColor,
-    private val targetPos: Fec2,
+    private val targetPos: Vec2,
     scope: CoroutineScope,
     fps: Long,
 ){
@@ -35,8 +35,8 @@ class Note(
             var nextFrameTime = System.nanoTime()
 
             repeat(totalSteps.toInt()) {
-                positionLeft += Fec2.right * distancePerStep
-                positionRight += Fec2.left * distancePerStep
+                positionLeft += Vec2.right * distancePerStep
+                positionRight += Vec2.left * distancePerStep
                 nextFrameTime += frameDurationNanos
                 val sleepTime = nextFrameTime - System.nanoTime()
                 if (sleepTime > 0) {
@@ -66,8 +66,8 @@ class Note(
     }
 
     fun destroy(){
-        positionLeft = Fec2(10000f, -10000f)
-        positionRight = Fec2(10000f, -10000f)
+        positionLeft = Vec2(10000f, -10000f)
+        positionRight = Vec2(10000f, -10000f)
         active = false
     }
 

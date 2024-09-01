@@ -12,6 +12,7 @@ import java.awt.Graphics2D
 import java.awt.image.BufferedImage
 import javax.imageio.ImageIO
 import javax.swing.JComponent
+import kotlin.math.roundToInt
 
 class ZtdComponent(
     private val ztdGame: ZtdGame,
@@ -59,7 +60,7 @@ class ZtdComponent(
         g.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.25f)
         ztdGame.currentTiles.forEach {
             g.color = JBColor.WHITE.brighter().brighter().brighter()
-            g.drawImage(tileImage, it.position.x, it.position.y, it.width, it.height, null)
+            g.drawImage(tileImage, it.position.x.roundToInt(), it.position.y.roundToInt(), it.width, it.height, null)
         }
         g.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f)
     }

@@ -15,7 +15,7 @@ class Ball(
 ) {
     private val immunityFrames = 10
     private var lifetime = 0
-    private var direction = Vec2(1, 1)
+    private var direction = Vec2(1f, 1f)
     private var initialSafePosition = Vec2.zero
 
     private fun midPoint() = Vec2(position.x + (radius / 2), position.y + (radius / 2))
@@ -47,11 +47,11 @@ class Ball(
         val rand = Random()
         val num = rand.nextInt(4)
         direction = when(num) {
-            0 -> Vec2(1, 1)
-            1 -> Vec2(-1, 1)
-            2 -> Vec2(1, -1)
-            3 -> Vec2(-1, -1)
-            else -> Vec2(1, 1)
+            0 -> Vec2(1f, 1f)
+            1 -> Vec2(-1f, 1f)
+            2 -> Vec2(1f, -1f)
+            3 -> Vec2(-1f, -1f)
+            else -> Vec2(1f, 1f)
         }
     }
 }

@@ -14,6 +14,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.ui.JBColor
 import kotlinx.coroutines.CoroutineScope
 import java.awt.KeyboardFocusManager
+import kotlin.math.roundToInt
 
 private const val FPS = 120L
 
@@ -110,7 +111,7 @@ class PongGame(
             obstacles.add(
                 Obstacle(
                     position = startPos,
-                    width = width,
+                    width = width.roundToInt(),
                     height = lineHeight,
                 )
             )
@@ -119,7 +120,7 @@ class PongGame(
         // Top side of the map
         obstacles.add(
             Obstacle(
-                position = Vec2(0, scrollOffset), //TODO: For some reason here the offset resets to 0 or something
+                position = Vec2(0f, scrollOffset.toFloat()), //TODO: For some reason here the offset resets to 0 or something
                 width = editor.contentComponent.width,
                 height = 5
             )
@@ -128,7 +129,7 @@ class PongGame(
         // Bottom side of the map
         obstacles.add(
             Obstacle(
-                position = Vec2(0, (editor.component.height + (scrollOffset - 5))),
+                position = Vec2(0f, (editor.component.height + (scrollOffset - 5f))),
                 width = editor.contentComponent.width,
                 height = 5
             )
@@ -171,7 +172,7 @@ class PongGame(
 
         // Right side of the map
         val g2 = Goal(
-            position = Vec2(editor.contentComponent.width - 50, 0),
+            position = Vec2(editor.contentComponent.width - 50f, 0f),
             height = editor.contentComponent.height,
             goalIndex = 1,
             color = JBColor.GREEN,

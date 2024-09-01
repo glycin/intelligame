@@ -1,6 +1,6 @@
 package com.glycin.intelligame.zonictestdog
 
-import com.glycin.intelligame.shared.Fec2
+import com.glycin.intelligame.shared.Vec2
 import com.glycin.intelligame.zonictestdog.level.Coin
 import com.glycin.intelligame.zonictestdog.level.Portal
 import com.glycin.intelligame.zonictestdog.level.Tile
@@ -65,7 +65,7 @@ class ZtdGame(
         val cm = CollisionsManager(this)
         val po = PortalOpener(project, this)
         enemyManager = EnemyManager(this, cm, scope, FPS)
-        zonic = Zonic(Fec2(100f, 100f), 50, 50, editor.contentComponent.height, cm, po, this, scope, FPS)
+        zonic = Zonic(Vec2(100f, 100f), 50, 50, editor.contentComponent.height, cm, po, this, scope, FPS)
         ztdInput = ZtdInput(zonic, project, this)
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(ztdInput)
     }
@@ -122,7 +122,7 @@ class ZtdGame(
         component.removePortalLabels()
         portals.clear()
         attachComponent()
-        zonic.position = Fec2(point.x.toFloat(), point.y.toFloat() - zonic.height)
+        zonic.position = Vec2(point.x.toFloat(), point.y.toFloat() - zonic.height)
     }
 
     private fun attachComponent() {

@@ -1,6 +1,6 @@
 package com.glycin.intelligame.zonictestdog.level
 
-import com.glycin.intelligame.shared.Fec2
+import com.glycin.intelligame.shared.Vec2
 import com.glycin.intelligame.zonictestdog.CollisionsManager
 import com.intellij.ui.JBColor
 import org.jetbrains.intellij.build.SPACE_REPO_HOST
@@ -10,7 +10,7 @@ import java.awt.image.BufferedImage
 import kotlin.math.roundToInt
 
 class WalkingEnemy(
-    var position: Fec2,
+    var position: Vec2,
     val width: Int,
     val height: Int,
     val sprites: List<BufferedImage>,
@@ -25,14 +25,14 @@ class WalkingEnemy(
     fun update(deltaTime: Long, colManager: CollisionsManager){
         when(state){
             EnemyState.WALKING_RIGHT -> {
-                position += Fec2.right * (deltaTime * speed)
+                position += Vec2.right * (deltaTime * speed)
                 if(colManager.shouldFall(getBottomPos())){
                     state = EnemyState.WALKING_LEFT
                 }
             }
 
             EnemyState.WALKING_LEFT -> {
-                position += Fec2.left * (deltaTime * speed)
+                position += Vec2.left * (deltaTime * speed)
                 if(colManager.shouldFall(getBottomPos())){
                     state = EnemyState.WALKING_RIGHT
                 }
@@ -71,7 +71,7 @@ SPACE_REPO_HOST
 
     fun getBounds() = Rectangle(position.x.roundToInt(), position.y.roundToInt(), width, height)
 
-    private fun getBottomPos() = Fec2(position.x + (width / 2), position.y + height)
+    private fun getBottomPos() = Vec2(position.x + (width / 2), position.y + height)
 
     private enum class EnemyState{
         WALKING_LEFT,

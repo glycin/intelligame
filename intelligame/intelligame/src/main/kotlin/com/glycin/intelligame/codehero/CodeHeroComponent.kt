@@ -94,7 +94,7 @@ class CodeHeroComponent(
 
     fun showEpicFail() {
         effects.add(AnimatedEffect(
-            position = Vec2(centerX, centerY),
+            position = Vec2(centerX.toFloat(), centerY.toFloat()),
             sprites = animationLoader.failSprites,
             frameHoldCount = 2,
         ))
@@ -225,7 +225,7 @@ class CodeHeroComponent(
 
     private fun showSuccess(){
         effects.add(AnimatedEffect(
-            position = Vec2(centerX, centerY - (animationLoader.successSprites[0].getHeight(this)) - 25),
+            position = Vec2(centerX.toFloat(), centerY - (animationLoader.successSprites[0].getHeight(this)) - 25f),
             sprites = animationLoader.successSprites,
             frameHoldCount = 2,
         ))

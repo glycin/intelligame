@@ -1,8 +1,7 @@
 package com.glycin.intelligame.zonictestdog
 
-import com.glycin.intelligame.shared.Fec2
-import com.glycin.intelligame.shared.SpriteSheetImageLoader
 import com.glycin.intelligame.shared.Vec2
+import com.glycin.intelligame.shared.SpriteSheetImageLoader
 import com.glycin.intelligame.util.toPoint
 import com.glycin.intelligame.zonictestdog.level.Portal
 import com.intellij.openapi.project.Project
@@ -21,7 +20,7 @@ class PortalOpener(
     private val maxPortals = 10
     private val portalSheet = SpriteSheetImageLoader("/Sprites/sheets/portals.png", 32, 48, 16).loadSprites()
 
-    fun isNearMethod(position: Fec2): Pair<Boolean, PsiMethod?> {
+    fun isNearMethod(position: Vec2): Pair<Boolean, PsiMethod?> {
         val logicalPos = ztdGame.editor.xyToLogicalPosition(position.toPoint())
         val offset = ztdGame.editor.logicalPositionToOffset(logicalPos)
         return PsiDocumentManager.getInstance(project).getPsiFile(ztdGame.editor.document)?.let { psiFile ->
@@ -33,7 +32,7 @@ class PortalOpener(
         } ?: (false to null)
     }
 
-    fun openPortals(method: PsiMethod, playerPos: Fec2) {
+    fun openPortals(method: PsiMethod, playerPos: Vec2) {
         val refs = ReferencesSearch.search(method).findAll()
 
         refs.forEachIndexed { index, ref ->
@@ -45,7 +44,7 @@ class PortalOpener(
                 val y = (playerPos.y - 400) + (150 * (index % 5))
                 ztdGame.portals.add(
                     Portal(
-                        position = Vec2(x.roundToInt(), y.roundToInt()),
+                        position = Vec2(x, y),
                         height = 96,
                         width = 64,
                         file = containingFile,

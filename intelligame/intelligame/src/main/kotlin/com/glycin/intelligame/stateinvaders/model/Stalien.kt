@@ -26,7 +26,7 @@ class Stalien(
 
     fun move(direction: Vec2, deltaTime: Float) {
         position += direction * (deltaTime * speed).roundToInt()
-        label?.setBounds(position.x, position.y, width, height)
+        label?.setBounds(position.x.roundToInt(), position.y.roundToInt(), width, height)
     }
 
     fun shoot() {
@@ -41,6 +41,6 @@ class Stalien(
         label?.isVisible = false
         label = null
         game.cm.staliens.remove(this)
-        position = Vec2(-1000, -1000)
+        position = Vec2(-1000f, -1000f)
     }
 }

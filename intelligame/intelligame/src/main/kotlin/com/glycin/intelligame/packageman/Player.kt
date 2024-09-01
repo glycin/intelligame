@@ -36,9 +36,9 @@ class Player(
         }
 
         if(mouthOpen) {
-            g.fillArc(position.x, position.y, radius, radius, arcStartAngle, 270)
+            g.fillArc(position.x.roundToInt(), position.y.roundToInt(), radius, radius, arcStartAngle, 270)
         }else{
-            g.fillOval(position.x, position.y, radius, radius)
+            g.fillOval(position.x.roundToInt(), position.y.roundToInt(), radius, radius)
         }
 
         curFrames++
@@ -89,7 +89,7 @@ class Player(
 
     fun kill() {
         moving = false
-        position = Vec2(-20000, -20000)
+        position = Vec2(-20000f, -20000f)
     }
 
     private fun setMoving() {

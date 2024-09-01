@@ -9,6 +9,7 @@ import java.awt.Graphics2D
 import java.awt.Rectangle
 import java.awt.image.BufferedImage
 import javax.swing.JLabel
+import kotlin.math.roundToInt
 import kotlin.random.Random
 
 class Portal(
@@ -20,7 +21,7 @@ class Portal(
     val textRange: TextRange,
     private val sprites: Array<BufferedImage>,
 ) {
-    var bounds: Rectangle = Rectangle(position.x, position.y, width, height)
+    var bounds: Rectangle = Rectangle(position.x.roundToInt(), position.y.roundToInt(), width, height)
     val color = Random.nextInt(4)
     var label: JLabel = JLabel()
     var addedLabel = false
@@ -31,12 +32,12 @@ class Portal(
     init {
         label.foreground = JBColor.WHITE.brighter().brighter().brighter()
         label.text = file.name
-        label.setBounds(position.x, position.y, width, height)
+        label.setBounds(position.x.roundToInt(), position.y.roundToInt(), width, height)
     }
 
     fun drawPortal(g: Graphics2D) {
         val sprite = sprites[currentIndex]
-        g.drawImage(sprite, position.x - (width / 2), position.y - (height / 2), width, height, null)
+        g.drawImage(sprite, position.x.roundToInt() - (width / 2), position.y.roundToInt() - (height / 2), width, height, null)
         frameHoldCount++
 
         if(frameHoldCount % 4 == 0) {
@@ -50,7 +51,7 @@ class Portal(
     }
 
     fun close() {
-        position = Vec2(-15000, 15000)
-        bounds = Rectangle(position.x, position.y, 0, 0)
+        position = Vec2(-15000f, 15000f)
+        bounds = Rectangle(position.x.roundToInt(), position.y.roundToInt(), 0, 0)
     }
 }

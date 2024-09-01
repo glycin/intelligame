@@ -29,7 +29,7 @@ class BulletManager(
     }
 
     fun removeBullet(bullet: Bullet) {
-        bullet.position = Vec2(-500, -500)
+        bullet.position = Vec2(-500f, -500f)
         bulletsToRemove.add(bullet)
     }
 }

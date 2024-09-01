@@ -15,7 +15,7 @@ class Coin(
     val method: PsiMethod,
     private val sprites: List<BufferedImage>,
 ){
-    var bounds = Rectangle(position.x, position.y, width, height)
+    var bounds = Rectangle(position.x.roundToInt(), position.y.roundToInt(), width, height)
     var pickedUp = false
     var dropped = false
     var toBeRemoved = false
@@ -30,7 +30,7 @@ class Coin(
 
     fun draw(g: Graphics2D) {
         val sprite = sprites[currentIndex]
-        g.drawImage(sprite, position.x, position.y, width, height, null)
+        g.drawImage(sprite, position.x.roundToInt(), position.y.roundToInt(), width, height, null)
         frameHoldCount++
 
         if(frameHoldCount % 12 == 0) {
@@ -62,15 +62,15 @@ class Coin(
             dropped = false
             pickedUp = false
             toBeRemoved = true
-            position = Vec2(-50000, -50000)
-            bounds = Rectangle(position.x, position.y, width, height)
+            position = Vec2(-50000f, -50000f)
+            bounds = Rectangle(position.x.roundToInt(), position.y.roundToInt(), width, height)
         }
     }
 
     fun pickUp() {
         pickedUp = true
-        position = Vec2(-50000, -50000)
-        bounds = Rectangle(position.x, position.y, width, height)
+        position = Vec2(-50000f, -50000f)
+        bounds = Rectangle(position.x.roundToInt(), position.y.roundToInt(), width, height)
     }
 
     fun loseCoin(dropPosition: Vec2, targetPosition: Vec2) {
