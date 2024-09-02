@@ -1,5 +1,6 @@
 package com.glycin.intelligame.shared
 
+import kotlin.math.abs
 import kotlin.math.sqrt
 
 class Vec2(
@@ -15,8 +16,8 @@ class Vec2(
         val right = Vec2(1f, 0f)
 
         fun distance(a: Vec2, b: Vec2): Float {
-            val dx = (b.x - a.x).toFloat()
-            val dy = (b.y - a.y).toFloat()
+            val dx = (b.x - a.x)
+            val dy = (b.y - a.y)
             return sqrt(dx * dx + dy * dy)
         }
 
@@ -46,5 +47,13 @@ class Vec2(
 
     override fun toString(): String {
         return "Vec2($x,$y)"
+    }
+
+    override fun equals(other: Any?): Boolean {
+        return if(other is Vec2) {
+            abs(this.x - other.x) <= 0.0005f && abs(this.y - other.y) <= 0.0005f
+        } else {
+            false
+        }
     }
 }

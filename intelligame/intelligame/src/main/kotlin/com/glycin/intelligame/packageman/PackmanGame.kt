@@ -7,13 +7,10 @@ import com.glycin.intelligame.shared.TextWriter
 import com.glycin.intelligame.shared.Vec2
 import com.glycin.intelligame.util.toDeltaTime
 import com.glycin.intelligame.util.toVec2
+import com.intellij.openapi.application.EDT
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.LogicalPosition
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.project.modules
-import com.intellij.openapi.roots.ModuleRootManager
-import com.intellij.openapi.roots.OrderEnumerator
-import com.intellij.openapi.roots.impl.OrderEntryUtil
 import com.intellij.openapi.roots.libraries.LibraryTablesRegistrar
 import com.intellij.openapi.util.TextRange
 import com.intellij.ui.JBColor
@@ -44,11 +41,17 @@ class PackmanGame(
 
     fun initGame(){
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(mainMenuInput)
-        TextWriter.replaceText(0, editor.document.textLength, PackmanTexts.banner, editor, project)
-        depStrings = collectDependencies()
-        mazeString = generateMaze(depStrings.joinToString(""))
-        gitHistoryDependencies = GitHistoryFinder(project, scope).getDependencyCommits(depStrings)
+        TextWriter.replaceText(0, editor.document.textLength, PackmanTexts.bannerLoading, editor, project)
+        val maxX = editor.xyToLogicalPosition(Point(editor.contentComponent.width, 0)).column
+        val maxY = editor.xyToLogicalPosition(Point(0, editor.contentComponent.height)).line
+
         soundManager.playMainMenuSound()
+        scope.launch(Dispatchers.Default) {
+            depStrings = collectDependencies()
+            mazeString = generateMaze(depStrings.joinToString(""), maxX, maxY)
+            gitHistoryDependencies = GitHistoryFinder(project, scope).getDependencyCommits(depStrings)
+            TextWriter.replaceText(0, editor.document.textLength, PackmanTexts.bannerDone, editor, project)
+        }
     }
 
     fun mainMenuTyped(c: Char) {
@@ -142,9 +145,8 @@ class PackmanGame(
         } ?: emptyList()
     }
 
-    private fun generateMaze(dependencies: String): String {
-        val maxX = editor.xyToLogicalPosition(Point(editor.contentComponent.width, 0)).column
-        val maxY = editor.xyToLogicalPosition(Point(0, editor.contentComponent.height)).line
+    private fun generateMaze(dependencies: String, maxX: Int, maxY: Int): String {
+
         val maze = MazeGenerator(maxX, maxY).getMaze()
 
         val sb = StringBuilder()
@@ -171,40 +173,18 @@ class PackmanGame(
         val libStrings = mutableListOf<String>()
         println("collecting dependencies")
 
-        project.modules.forEach { module ->
-            OrderEntryUtil.getModuleLibraries(ModuleRootManager.getInstance(module)).forEach { lib ->
-                /*lib.getUrls(OrderRootType.CLASSES).forEach {
-                    println("Module search $it")
-                    libStrings.add(it)
-                }*/
-
-                libStrings.add(lib.name ?: "mystery.library")
-            }
-        }
-
         LibraryTablesRegistrar.getInstance().getLibraryTable(project).libraries.forEach { lib ->
             /*lib.getUrls(OrderRootType.CLASSES).forEach {
                 println("Project search $it")
                 libStrings.add(it)
             }*/
-
-            libStrings.add(lib.name ?: "mystery.library")
+            libStrings.add(lib.name?.replace("Gradle: ", "") ?: "mystery.library")
         }
 
-        LibraryTablesRegistrar.getInstance().libraryTable.libraries.forEach { lib ->
-            /*lib.getUrls(OrderRootType.CLASSES).forEach {
-                println("Application search $it")
-                libStrings.add(it)
-            }*/
-
-            libStrings.add(lib.name ?: "mystery.library")
-        }
-
-
-        OrderEnumerator.orderEntries(project).recursively().classesRoots.forEach { root ->
+        // This gets pretty much everything on the classpath
+        /*OrderEnumerator.orderEntries(project).recursively().classesRoots.forEach { root ->
             libStrings.add(root.name)
-        }
-
+        }*/
 
         println("collected dependencies")
         return libStrings
@@ -225,7 +205,7 @@ class PackmanGame(
 
     private fun createGhosts(cells: List<MazeCell>, gitHistoryDependencies: List<GitHistoryDependency>, mazeMovementManager: MazeMovementManager): MutableList<Ghost> {
         val ghosts = mutableListOf<Ghost>()
-        val walls = cells.filter { !it.isWall && it.x > 5 && it.y > 5 }
+        val walls = cells.filter { !it.isWall && it.x in 5..100 && it.y in 5..50 }
         gitHistoryDependencies.forEach { dependency ->
             val cell = walls.random()
             ghosts.add(
