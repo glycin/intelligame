@@ -48,6 +48,7 @@ class ZtdComponent(
         super.paintComponent(g)
         if(g is Graphics2D) {
             ztdGame.zonic.draw(g)
+            ztdGame.velocitnik.draw(g)
             drawTiles(g)
             drawPortals(g)
         drawCoins(g)

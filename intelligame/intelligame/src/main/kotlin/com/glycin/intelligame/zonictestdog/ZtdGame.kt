@@ -31,6 +31,7 @@ class ZtdGame(
     private val scope: CoroutineScope,
 ){
     lateinit var zonic: Zonic
+    lateinit var velocitnik: Velocitnik
     var state = ZtdGameState.STARTED
     val portals = mutableListOf<Portal>()
     val currentTiles = mutableListOf<Tile>()
@@ -66,6 +67,7 @@ class ZtdGame(
         val po = PortalOpener(project, this)
         enemyManager = EnemyManager(this, cm, scope, FPS)
         zonic = Zonic(Vec2(100f, 100f), 50, 50, editor.contentComponent.height, cm, po, this, scope, FPS)
+        velocitnik = Velocitnik(Vec2(450f, 250f), 400, 400, FPS)
         ztdInput = ZtdInput(zonic, project, this)
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(ztdInput)
     }
