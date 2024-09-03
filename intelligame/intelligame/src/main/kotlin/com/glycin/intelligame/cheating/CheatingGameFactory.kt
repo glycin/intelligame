@@ -1,6 +1,5 @@
 package com.glycin.intelligame.cheating
 
-import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
@@ -8,8 +7,6 @@ import com.intellij.ui.content.ContentFactory
 import com.intellij.ui.jcef.JBCefApp
 import com.intellij.ui.jcef.JBCefBrowser
 import java.awt.BorderLayout
-import java.awt.Dimension
-import javax.swing.JFrame
 import javax.swing.JPanel
 
 class CheatingGameFactory: ToolWindowFactory {

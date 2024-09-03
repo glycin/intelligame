@@ -1,5 +1,6 @@
 package com.glycin.intelligame.packageman.git
 
+import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vcs.ProjectLevelVcsManager
 import com.intellij.openapi.vcs.history.VcsFileRevision
@@ -36,24 +37,27 @@ class GitHistoryFinder(
                 dependencyString = it
             ))
         }
-
-        depStrings.filter { !it.startsWith("java") && !it.startsWith("jdk") }.forEach { dep ->
-            sortedRevs.forEach { rev ->
-                rev.loadContent()?.let {
-                    val content = String(it, StandardCharsets.UTF_8)
-                    if(content.contains(dep)) {
-                        dependencies.putIfAbsent(dep, GitHistoryDependency(
+        ProgressManager.getInstance().runProcessWithProgressSynchronously({
+            depStrings.filter { !it.startsWith("java") && !it.startsWith("jdk") }.forEachIndexed { index, dep ->
+                ProgressManager.getInstance().progressIndicator.text = "Processing $dep"
+                ProgressManager.getInstance().progressIndicator.fraction = index / depStrings.size.toDouble()
+                sortedRevs.forEach { rev ->
+                    rev.loadContent()?.let {
+                        val content = String(it, StandardCharsets.UTF_8)
+                        if(content.contains(dep)) {
+                            dependencies.putIfAbsent(dep, GitHistoryDependency(
                                 author = rev.author ?: "Mystery Author",
                                 commitHash = rev.revisionNumber.asString(),
                                 commitMessage = rev.commitMessage ?: "No Message",
                                 commitDate = rev.revisionDate,
                                 dependencyString = dep,
                             )
-                        )
+                            )
+                        }
                     }
                 }
             }
-        }
+        }, "Collecting Git History", true, project)
 
         //dependencies.forEach { dep -> println(dep) }
         return dependencies.values.toList()
