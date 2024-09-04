@@ -6,7 +6,6 @@ import com.glycin.intelligame.shared.SpriteSheetImageLoader
 import com.glycin.intelligame.util.toDeltaTime
 import com.glycin.intelligame.util.toLongDeltaTime
 import com.glycin.intelligame.util.toPoint
-import com.glycin.intelligame.util.toVec2
 import com.glycin.intelligame.zonictestdog.level.Coin
 import com.intellij.ui.JBColor
 import kotlinx.coroutines.CoroutineScope
@@ -52,7 +51,7 @@ class Zonic(
 
     init {
         val spriteLoader = SpriteSheetImageLoader(
-            spriteSheetPath = "/Sprites/zonic/zonic.png",
+            spriteSheetPath = "/Sprites/sheets/zonic.png",
             cellWidth = 33,
             cellHeight = 32,
             numSprites = 36,
