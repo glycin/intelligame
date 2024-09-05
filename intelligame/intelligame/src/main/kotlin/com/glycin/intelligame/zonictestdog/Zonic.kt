@@ -99,7 +99,7 @@ class Zonic(
     fun moveRight() {
         if(zonicState == ZonicState.HURT) return
         if(zonicState == ZonicState.FALLING || zonicState == ZonicState.JUMPING) {
-            velocity += Vec2.right * (speed / 4 * deltaTime)
+            velocity += Vec2.right * (speed / 8 * deltaTime)
         }else {
             velocity = Vec2.right * ( speed * deltaTime)
             zonicState = ZonicState.RUNNING
@@ -111,7 +111,7 @@ class Zonic(
     fun moveLeft() {
         if(zonicState == ZonicState.HURT) return
         if(zonicState == ZonicState.JUMPING || zonicState == ZonicState.FALLING) {
-            velocity += Vec2.left * (speed / 4 * deltaTime)
+            velocity += Vec2.left * (speed / 8 * deltaTime)
         }else{
             zonicState = ZonicState.RUNNING
             velocity = Vec2.left * (speed * deltaTime)
@@ -140,7 +140,7 @@ class Zonic(
         currentSprite = standingSprites[0]!!
     }
 
-    private fun pain(){
+    fun pain(){
         keyIsPressed = false
         zonicState = ZonicState.HURT
         velocity = Vec2(-velocity.x / 4, Vec2.up.y * (jumpPower / 2))
@@ -153,7 +153,7 @@ class Zonic(
         pickedUpCoins.clear()
     }
 
-    private fun getMidPos() = Vec2(position.x + (width / 2), position.y + (height / 2))
+    fun getMidPos() = Vec2(position.x + (width / 2), position.y + (height / 2))
 
     private suspend fun zonicUpdate(delayTime: Long) {
         while(alive){
@@ -161,6 +161,7 @@ class Zonic(
             when(zonicState) {
                 ZonicState.JUMPING -> {
                     velocity += Gravity.vec2 * deltaTime
+                    velocity = Vec2(velocity.x.coerceAtMost(1.5f), velocity.y.coerceAtMost(2f))
                     position += velocity * deltaTime
 
                     if(position.y >= maxY) {
@@ -234,7 +235,7 @@ class Zonic(
                 ZonicState.CROUCHING -> {}
                 ZonicState.FALLING -> {
                     velocity += Gravity.vec2 * deltaTime
-                    velocity = Vec2(velocity.x.coerceAtMost(2f), velocity.y)
+                    velocity = Vec2(velocity.x.coerceAtMost(1.5f), velocity.y.coerceAtMost(2f))
                     position += velocity * deltaTime
 
                     if(position.y >= maxY) {

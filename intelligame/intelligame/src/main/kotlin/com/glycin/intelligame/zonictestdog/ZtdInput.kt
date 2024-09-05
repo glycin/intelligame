@@ -31,6 +31,14 @@ class ZtdInput(
                     zonic.crouch()
                 }
 
+                KeyEvent.VK_R -> {
+                    game.resetZonic()
+                }
+
+                KeyEvent.VK_B -> {
+                    game.skipToBoss()
+                }
+
                 KeyEvent.VK_ESCAPE -> {
                     project.service<ZtdService>().cleanUp()
                     return true

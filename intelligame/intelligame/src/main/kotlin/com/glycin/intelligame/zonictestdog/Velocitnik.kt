@@ -68,9 +68,9 @@ class Velocitnik(
         if(!onCooldown) {
             val r = Random.nextInt(100)
             state = if(r <= 50){
-                VelocitnikState.LASER
-            }else {
                 VelocitnikState.ARM
+            }else {
+                VelocitnikState.LASER
             }
             if(currentAnimationIndex != 0) {
                 currentAnimationIndex = 0
@@ -89,26 +89,29 @@ class Velocitnik(
                 }
 
                 position += velocity
-                doAnimation(idleSprites, 10)
+                doAnimation(idleSprites)
             }
             VelocitnikState.ARM -> {
-                doAnimationOnce(handAttackSprites, 20) {
+                doAnimationOnce(handAttackSprites) {
                     arm = VelocitnikArm(
                         position = position,
                         width = width,
                         height = height,
-                        targetPos = zonic.position,
                         deltaTime = deltaTime,
+                        zonic = zonic,
                     )
                     doArmAttack()
                 }
             }
             VelocitnikState.LASER -> {
-                doAnimationOnce(laserAttackSprites, 20) {
+                doAnimationOnce(laserAttackSprites) {
+                    val x = (position.x + (width / 4)) - 520
+                    val y = position.y + (height / 4)
                     laser = VelocitnikLaser(
-                        position = position,
+                        position = Vec2(x, y),
                         width = 700,
-                        height = 100
+                        height = 100,
+                        zonic = zonic,
                     )
                     doLaser()
                 }
@@ -117,9 +120,9 @@ class Velocitnik(
         }
     }
 
-    private fun doAnimation(sprites: Array<BufferedImage?>, frameDelay: Int) {
+    private fun doAnimation(sprites: Array<BufferedImage?>) {
         skipFrameCount++
-        if(skipFrameCount % frameDelay == 0) {
+        if(skipFrameCount % 10 == 0) {
             currentAnimationIndex++
         }
 
@@ -130,7 +133,7 @@ class Velocitnik(
         currentSprite = sprites[currentAnimationIndex]!!
     }
 
-    private fun doAnimationOnce(sprites: Array<BufferedImage?>, frameDelay: Int, callback: () -> Unit) {
+    private fun doAnimationOnce(sprites: Array<BufferedImage?>, callback: () -> Unit) {
         if(currentAnimationIndex >= sprites.size - 2) {
             if(!usingAttack) {
                 callback.invoke()
@@ -138,7 +141,7 @@ class Velocitnik(
             }
         }else {
             skipFrameCount++
-            if(skipFrameCount % frameDelay == 0) {
+            if(skipFrameCount % 20 == 0) {
                 currentAnimationIndex++
             }
             currentSprite = sprites[currentAnimationIndex]!!
@@ -155,7 +158,7 @@ class Velocitnik(
 
     private fun doArmAttack() {
         scope.launch(Dispatchers.Default) {
-            delay(5000L)
+            delay(3500L)
             state = VelocitnikState.FLOATING
             usingAttack = false
             arm = null
@@ -164,7 +167,7 @@ class Velocitnik(
 
     private fun doLaser() {
         scope.launch(Dispatchers.Default) {
-            delay(2500L)
+            delay(2200L)
             state = VelocitnikState.FLOATING
             usingAttack = false
             laser = null

@@ -16,6 +16,7 @@ import com.intellij.openapi.fileTypes.FileTypeManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiDocumentManager
+import com.intellij.psi.PsiManager
 import com.intellij.psi.PsiMethod
 import com.intellij.psi.search.FileTypeIndex
 import com.intellij.psi.search.GlobalSearchScope
@@ -31,7 +32,7 @@ class ZtdGame(
     private val scope: CoroutineScope,
 ){
     lateinit var zonic: Zonic
-    lateinit var velocitnik: Velocitnik
+    var velocitnik: Velocitnik? = null
     var state = ZtdGameState.STARTED
     val portals = mutableListOf<Portal>()
     val currentTiles = mutableListOf<Tile>()
@@ -42,19 +43,23 @@ class ZtdGame(
     private lateinit var component: ZtdComponent
     private lateinit var mapCreator: MapCreator
     private lateinit var enemyManager: EnemyManager
+    private lateinit var bossFile: Pair<String, VirtualFile>
 
     private val testMap = mutableMapOf<String, List<PsiMethod>>()
 
     fun initGame(){
         val testMehods = TestRetriever(project).getAllTestMethods()
         val javaFiles = getJavaFileCount()
-        val chunkedMethods = if(testMehods.size <= javaFiles.size)
-            testMehods.chunked(testMehods.size)
-        else
-            testMehods.chunked(testMehods.size / javaFiles.size)
 
-        javaFiles.forEachIndexed { index, file ->
-            testMap.putIfAbsent(file.name, chunkedMethods[index])
+        if(testMehods.size <= javaFiles.size){
+            testMehods.forEachIndexed{ index, method ->
+                testMap.putIfAbsent(javaFiles[index].name, listOf(method))
+            }
+        } else {
+            val chunks = testMehods.chunked(testMehods.size / javaFiles.size)
+            javaFiles.forEachIndexed { index, file ->
+                testMap.putIfAbsent(file.name, chunks[index])
+            }
         }
 
         mapCreator = MapCreator(testMap, testMehods.size)
@@ -67,13 +72,68 @@ class ZtdGame(
         val po = PortalOpener(project, this)
         enemyManager = EnemyManager(this, cm, scope, FPS)
         zonic = Zonic(Vec2(100f, 100f), 50, 50, editor.contentComponent.height, cm, po, this, scope, FPS)
-        velocitnik = Velocitnik(Vec2(450f, 250f), 400, 400, zonic, scope, FPS)
+        placeBoss(javaFiles)
+        println("placed boss in $bossFile")
         ztdInput = ZtdInput(zonic, project, this)
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(ztdInput)
     }
 
-    fun stopGame(){
+    private fun placeBoss(javaFiles: List<VirtualFile>) {
+        FileEditorManager.getInstance(project).openFiles
+            .firstOrNull()
+            ?.let { file ->
+                bossFile = javaFiles
+                    .map { it.name to it }
+                    .filter { it.first != file.name }
+                    .random()
+            }
+    }
 
+    fun stopGame(){
+        component.removePortalLabels()
+        editor.contentComponent.remove(component)
+        editor.contentComponent.revalidate()
+        editor.contentComponent.repaint()
+        state = ZtdGameState.GAME_OVER
+        currentTiles.clear()
+        currentCoins.clear()
+        currentEnemies.clear()
+        portals.clear()
+        KeyboardFocusManager.getCurrentKeyboardFocusManager().removeKeyEventDispatcher(ztdInput)
+    }
+
+    fun resetZonic() {
+        zonic.position = Vec2(100f, 100f)
+    }
+
+    fun skipToBoss() {
+        val em = FileEditorManager.getInstance(project)
+        val pFile = PsiManager.getInstance(project).findFile(bossFile.second)
+        component.stop()
+        ApplicationManager.getApplication().invokeLater {
+            em.openFile(bossFile.second, true).firstOrNull()?.let { fileEditor ->
+                if(fileEditor is TextEditor) {
+                    val newEditor = fileEditor.editor
+                    pFile?.let { psiFile ->
+                        PsiDocumentManager.getInstance(project).getDocument(psiFile)?.let {
+                            if (editor.virtualFile != newEditor.virtualFile) {
+                                val oldEditor = editor
+                                em.closeFile(oldEditor.virtualFile)
+                                oldEditor.contentComponent.remove(component)
+                                oldEditor.scrollingModel.scrollVertically(0)
+                                ApplicationManager.getApplication().invokeLater {
+                                    this.editor = newEditor
+                                    newEditor.caretModel.moveToOffset(0)
+                                    newEditor.scrollingModel.scrollToCaret(ScrollType.CENTER)
+                                    portals.forEach { it.close() }
+                                    reInitLevel(newEditor.offsetToXY(0), newEditor, bossFile.first)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     fun deleteTests(pickedUpCoins: MutableList<Coin>) {
@@ -124,6 +184,9 @@ class ZtdGame(
         component.removePortalLabels()
         portals.clear()
         attachComponent()
+        if(fileName == bossFile.first){
+            velocitnik = Velocitnik(Vec2(450f, 250f), 400, 400, zonic, scope, FPS)
+        }
         zonic.position = Vec2(point.x.toFloat(), point.y.toFloat() - zonic.height)
     }
 
@@ -142,7 +205,7 @@ class ZtdGame(
 
     private fun getJavaFileCount(): List<VirtualFile> {
         val javaFileType = FileTypeManager.getInstance().getFileTypeByExtension("java")
-        val scope = GlobalSearchScope.projectScope(project).intersectWith(GlobalSearchScope.projectScope(project))
+        val scope = GlobalSearchScope.projectScope(project)
         return FileTypeIndex.getFiles(javaFileType, scope).filterNot { file ->
             file.path.contains("/test/") ||
                     file.path.contains("\\test\\") ||

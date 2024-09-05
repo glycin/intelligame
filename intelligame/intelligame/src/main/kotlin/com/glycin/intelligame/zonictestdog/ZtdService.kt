@@ -21,6 +21,6 @@ class ZtdService(
     fun cleanUp() {
         game?.stopGame()
         game = null
-        println("ZONIC THE TESTDOG STARTED!")
+        println("ZONIC THE TESTDOG STOPPED!")
     }
 }
