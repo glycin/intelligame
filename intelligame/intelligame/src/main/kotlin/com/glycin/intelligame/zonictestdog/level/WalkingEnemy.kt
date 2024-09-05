@@ -54,7 +54,7 @@ class WalkingEnemy(
             }
 
             frameHoldCount++
-SPACE_REPO_HOST
+
             if(frameHoldCount % 8 == 0) {
                 currentIndex++
             }
@@ -64,8 +64,8 @@ SPACE_REPO_HOST
                 frameHoldCount = 0
             }
 
-            g.color = JBColor.GREEN.brighter()
-            g.fillOval(getBottomPos().x.roundToInt(), getBottomPos().y.roundToInt(), 5, 5)
+            //g.color = JBColor.GREEN.brighter()
+            //g.fillOval(getBottomPos().x.roundToInt(), getBottomPos().y.roundToInt(), 5, 5)
         }
     }
 

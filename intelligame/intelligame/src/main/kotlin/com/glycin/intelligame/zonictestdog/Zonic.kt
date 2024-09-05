@@ -78,14 +78,14 @@ class Zonic(
         }
 
         // Debug points
-        g.color = if(zonicState == ZonicState.HURT) JBColor.RED.brighter().brighter() else JBColor.GREEN.brighter()
+        /*g.color = if(zonicState == ZonicState.HURT) JBColor.RED.brighter().brighter() else JBColor.GREEN.brighter()
         g.fillOval(getBottomPos().x.roundToInt(), getBottomPos().y.roundToInt(), 5, 5)
         g.fillOval(getTopPos().x.roundToInt(), getTopPos().y.roundToInt(), 5, 5)
         g.fillOval(getLeftPositions()[0].x.roundToInt(), getLeftPositions()[0].y.roundToInt(), 5, 5)
         g.fillOval(getLeftPositions()[1].x.roundToInt(), getLeftPositions()[1].y.roundToInt(), 5, 5)
         g.fillOval(getRightPositions()[0].x.roundToInt(), getRightPositions()[0].y.roundToInt(), 5, 5)
         g.fillOval(getRightPositions()[1].x.roundToInt(), getRightPositions()[1].y.roundToInt(), 5, 5)
-        g.fillOval(getMidPos().x.roundToInt(), getMidPos().y.roundToInt(), 5, 5)
+        g.fillOval(getMidPos().x.roundToInt(), getMidPos().y.roundToInt(), 5, 5)*/
     }
 
     fun jump() {
