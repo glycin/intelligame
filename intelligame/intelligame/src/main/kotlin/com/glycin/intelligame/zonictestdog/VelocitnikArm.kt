@@ -2,7 +2,6 @@ package com.glycin.intelligame.zonictestdog
 
 import com.glycin.intelligame.shared.Vec2
 import com.glycin.intelligame.util.toPoint
-import java.awt.Color
 import java.awt.Graphics2D
 import java.awt.Rectangle
 import java.awt.image.BufferedImage

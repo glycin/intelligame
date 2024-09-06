@@ -51,7 +51,7 @@ class ZtdComponent(
             ztdGame.velocitnik?.draw(g)
             drawTiles(g)
             drawPortals(g)
-        drawCoins(g)
+            drawCoins(g)
             drawEnemies(g)
             drawUi(g)
         }
