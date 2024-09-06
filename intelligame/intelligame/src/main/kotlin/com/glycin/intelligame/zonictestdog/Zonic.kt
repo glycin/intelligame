@@ -255,6 +255,7 @@ class Zonic(
                     enemyHurtCheck(zonicMidPos)
                 }
             }
+            bossCheck(zonicMidPos)
             delay(delayTime)
         }
     }
@@ -308,6 +309,18 @@ class Zonic(
         if(portal != null){
             zonicState = ZonicState.IDLE
             portalOpener.travelToPortal(portal)
+        }
+    }
+
+    private fun bossCheck(point: Point) {
+        ztdGame.velocitnik?.let { v ->
+            if(v.active) {
+                if(v.getKillRect().contains(point)){
+                    v.kill()
+                    zonicState = ZonicState.IDLE
+                    jump()
+                }
+            }
         }
     }
 

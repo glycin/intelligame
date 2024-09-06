@@ -7,17 +7,19 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.awt.Color
 import java.awt.Graphics2D
+import java.awt.Rectangle
 import java.awt.image.BufferedImage
 import kotlin.math.roundToInt
 import kotlin.random.Random
 
 class Velocitnik(
     var position: Vec2,
-    val width: Int,
-    val height: Int,
-    val zonic: Zonic,
-    val scope: CoroutineScope,
+    private val width: Int,
+    private val height: Int,
+    private val zonic: Zonic,
+    private val scope: CoroutineScope,
     fps: Long,
 ) {
 
@@ -27,18 +29,20 @@ class Velocitnik(
     private val idleSprites = arrayOfNulls<BufferedImage>(10)
     private val laserAttackSprites = arrayOfNulls<BufferedImage>(8)
     private val handAttackSprites = arrayOfNulls<BufferedImage>(10)
+    private val deathSprites = arrayOfNulls<BufferedImage>(14)
     private var currentAnimationIndex = 0
     private var skipFrameCount = 0
     private var currentSprite : BufferedImage
     private var state = VelocitnikState.FLOATING
     private var velocity = Vec2.down * (speed * deltaTime)
 
-    private val attackCooldownSeconds = 15
+    private val attackCooldownSeconds = 5
     private var onCooldown = true
 
     private var laser: VelocitnikLaser? = null
     private var arm: VelocitnikArm? = null
     private var usingAttack = false
+    private var dying = false
 
     init {
         val spriteLoader = SpriteSheetImageLoader(
@@ -52,20 +56,27 @@ class Velocitnik(
         (60 until 70).forEachIndexed { index, i -> idleSprites[index] = sprites[i] }
         (50 until 58).forEachIndexed { index, i -> laserAttackSprites[index] = sprites[i]  }
         (20 until 30).forEachIndexed { index, i -> handAttackSprites[index] = sprites[i] }
+        (70 until 84).forEachIndexed { index, i -> deathSprites[index] = sprites[i]  }
         currentSprite = idleSprites[0]!!
         startCooldown()
     }
     fun draw(g: Graphics2D) {
         if(!active) return
-
         g.drawImage(currentSprite, position.x.roundToInt() + width, position.y.roundToInt(), -width, height, null)
         laser?.draw(g)
         arm?.draw(g)
         update()
     }
 
+    fun kill() {
+        dying = true
+        state = VelocitnikState.DEAD
+    }
+
+    fun getKillRect() = Rectangle(position.x.roundToInt() + 180, position.y.roundToInt() + 100, 40, 50)
+
     private fun update() {
-        if(!onCooldown) {
+        if(!onCooldown && !dying) {
             val r = Random.nextInt(100)
             state = if(r <= 50){
                 VelocitnikState.ARM
@@ -116,7 +127,11 @@ class Velocitnik(
                     doLaser()
                 }
             }
-            VelocitnikState.DEAD -> {}
+            VelocitnikState.DEAD -> {
+                doAnimationOnce(deathSprites) {
+                    death()
+                }
+            }
         }
     }
 
@@ -158,7 +173,7 @@ class Velocitnik(
 
     private fun doArmAttack() {
         scope.launch(Dispatchers.Default) {
-            delay(3500L)
+            delay(3000L)
             state = VelocitnikState.FLOATING
             usingAttack = false
             arm = null
@@ -171,6 +186,13 @@ class Velocitnik(
             state = VelocitnikState.FLOATING
             usingAttack = false
             laser = null
+        }
+    }
+
+    private fun death() {
+        scope.launch(Dispatchers.Default) {
+            delay(5000L)
+            active = false
         }
     }
 }
