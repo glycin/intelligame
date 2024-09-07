@@ -106,6 +106,8 @@ class CodeHeroGame(
         KeyboardFocusManager.getCurrentKeyboardFocusManager().removeKeyEventDispatcher(input)
         component.destroy()
         editor.contentComponent.remove(component)
+        editor.contentComponent.repaint()
+        editor.contentComponent.revalidate()
         songPlayer.stop()
         noteManager.cleanup()
         EditorActionManager.getInstance().setActionHandler("EditorPaste", pasteHandler.originalHandler)
@@ -165,20 +167,4 @@ class CodeHeroGame(
             fontName = editor.colorsScheme.editorFontName,
         )
     }
-
-    /*private fun writeChar() {
-        val pos = editor.caretModel.offset
-        val next = lettersToWrite.remove()
-        var stringToInsert = "$next"
-
-        while (lettersToWrite.isNotEmpty() && !lettersToWrite.peek().isLetterOrDigit()) {
-            stringToInsert += lettersToWrite.remove()
-        }
-
-        /*// TODO: I cant write the characters because this forces the whole editor to repaint, messing up with my timings
-        TextWriter.writeTextAndThen(pos, stringToInsert, editor, project) {
-            editor.caretModel.moveToOffset(pos + stringToInsert.length)
-            component.updatePastePreview(stringToInsert)
-        }*/
-    }*/
 }
