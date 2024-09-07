@@ -57,13 +57,13 @@ class ZtdGame(
     private val mainMenuInput: ZonicMainMenuInput = ZonicMainMenuInput(this)
 
     fun initGame(){
-        //KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(mainMenuInput)
-        //startFileContent = editor.document.text
-        //TextWriter.replaceText(0, editor.document.textLength, ZtdTexts.zonicBanner, editor, project)
-        startGame() // TODO: Fix enemies not walking
+        KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(mainMenuInput)
+        startFileContent = editor.document.text
+        TextWriter.replaceText(0, editor.document.textLength, ZtdTexts.zonicBanner, editor, project)
     }
 
-    fun startGame() {
+    private fun startGame() {
+        state = ZtdGameState.STARTED
         val testMehods = TestRetriever(project).getAllTestMethods()
         val javaFiles = getJavaFileCount()
 
