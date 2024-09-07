@@ -9,23 +9,36 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.util.ui.GraphicsUtil
 import kotlinx.coroutines.CoroutineScope
+import java.awt.KeyboardFocusManager
 import kotlin.math.roundToInt
 
 private const val FPS = 120L
 
-//TODO: Add cleanup
-@Service(Service.Level.PROJECT)
 class BoomGame(
     private val project: Project,
     private val scope: CoroutineScope
 ) {
 
     private val explObjects = mutableListOf<ExplosionObject>()
+    private lateinit var openEditor : Editor
+    private lateinit var boomComponent : BoomComponent
+    private lateinit var input: BoomInput
 
     fun kaboom(editor: Editor){
-        println("BOOM!!!")
+        openEditor = editor
         explObjects.addAll(createLevel(editor))
-        attachGameToEditor(editor, project, explObjects).apply { start() }
+        boomComponent = attachGameToEditor(editor, project, explObjects).apply { start() }
+        input = BoomInput(project)
+        KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(input)
+    }
+
+    fun stop() {
+        KeyboardFocusManager.getCurrentKeyboardFocusManager().removeKeyEventDispatcher(input)
+        explObjects.clear()
+        boomComponent.stop()
+        openEditor.contentComponent.remove(boomComponent)
+        openEditor.contentComponent.repaint()
+        openEditor.contentComponent.revalidate()
     }
 
     private fun attachGameToEditor(

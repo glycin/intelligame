@@ -9,7 +9,6 @@ import com.intellij.codeInsight.completion.AllClassesGetter
 import com.intellij.codeInsight.completion.PlainPrefixMatcher
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.WriteCommandAction
-import com.intellij.openapi.components.Service
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.*
@@ -24,7 +23,6 @@ import kotlin.math.roundToInt
 
 private const val FPS = 120L
 
-@Service(Service.Level.PROJECT)
 class StateInvadersGame(
     private val project: Project,
     private val scope: CoroutineScope
@@ -237,7 +235,7 @@ class StateInvadersGame(
         sb.insert(0, GameTexts.banner)
         TextWriter.replaceText(0, openEditor.document.textLength, sb.toString(), openEditor, openProject)
 
-        input = StateInvadersInput(this, FPS)
+        input = StateInvadersInput(this, project, FPS)
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(input)
     }
 }

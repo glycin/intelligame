@@ -5,7 +5,6 @@ import com.glycin.intelligame.shared.Vec2
 import com.glycin.intelligame.util.toVec2
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.WriteCommandAction
-import com.intellij.openapi.components.Service
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.LogicalPosition
@@ -18,8 +17,6 @@ import kotlin.math.roundToInt
 
 private const val FPS = 120L
 
-//TODO: Add cleanup
-@Service(Service.Level.PROJECT)
 class PongGame(
     private val project: Project,
     private val scope: CoroutineScope
@@ -32,20 +29,24 @@ class PongGame(
     private var textLine: Int = 0
     private lateinit var openDocument: Document
     private lateinit var openProject: Project
+    private lateinit var openEditor: Editor
+    private lateinit var pongComponent: PongComponent
+    private lateinit var input: PongInput
 
     fun initGame(editor: Editor) {
         println("PONG STARTED!")
         if(state == GameState.STARTED) { return }
         openProject = project
-
+        openEditor = editor
         val obstacles = createLevel(editor)
         val maxWidth = obstacles.filter { it.width != editor.contentComponent.width }.maxOf { it.width }
         val (p1, p2) = spawnPlayers(editor, maxWidth)
         val (g1, g2) = createGoals(editor)
         val ball = spawnBall(editor, PongCollider(listOf(p1, p2), listOf(g1, g2), obstacles))
-        KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(PongInput(p1, p2, editor.caretModel, FPS))
+        input = PongInput(p1, p2, editor.caretModel, project, FPS)
+        KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(input)
 
-        attachGameToEditor(editor, obstacles, ball, p1, p2, g1, g2)
+        pongComponent = attachGameToEditor(editor, obstacles, ball, p1, p2, g1, g2)
             .apply { start() }
 
         writeScore(editor)
@@ -63,6 +64,19 @@ class PongGame(
                     """.trimIndent())
             }
         }
+    }
+
+    fun stop() {
+        println("Pong stopped")
+        pongComponent.stop()
+        KeyboardFocusManager.getCurrentKeyboardFocusManager().removeKeyEventDispatcher(input)
+        openEditor.contentComponent.remove(pongComponent)
+        openEditor.contentComponent.repaint()
+        openEditor.contentComponent.revalidate()
+        state = GameState.IDLE
+        score1 = 0
+        score2 = 0
+        textLine = 0
     }
 
     private fun attachGameToEditor(

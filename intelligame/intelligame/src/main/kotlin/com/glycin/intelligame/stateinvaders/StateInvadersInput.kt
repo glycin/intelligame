@@ -2,11 +2,14 @@ package com.glycin.intelligame.stateinvaders
 
 import com.glycin.intelligame.stateinvaders.model.GameState
 import com.glycin.intelligame.util.toDeltaTime
+import com.intellij.openapi.components.service
+import com.intellij.openapi.project.Project
 import java.awt.KeyEventDispatcher
 import java.awt.event.KeyEvent
 
 class StateInvadersInput(
     private val game: StateInvadersGame,
+    private val project: Project,
     fps: Long,
 ): KeyEventDispatcher {
 
@@ -28,7 +31,7 @@ class StateInvadersInput(
                     }
 
                     KeyEvent.VK_ESCAPE -> {
-                        game.cleanUp()
+                        project.service<StateInvadersService>().stop()
                     }
                 }
             }else if (game.state == GameState.MAIN_MENU) {

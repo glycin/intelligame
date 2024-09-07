@@ -28,16 +28,21 @@ class PongComponent(
 ): JComponent() {
 
     private val deltaTime = 1000L / fps
+    private var active = true
 
     fun start() {
         isFocusable = true
 
         scope.launch (Dispatchers.EDT) {
-            while(true) {
+            while(active) {
                 repaint()
                 delay(deltaTime)
             }
         }
+    }
+
+    fun stop() {
+        active = false
     }
 
     override fun paintComponent(g: Graphics) {

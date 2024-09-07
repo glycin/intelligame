@@ -1,7 +1,9 @@
 package com.glycin.intelligame.pong
 
 import com.glycin.intelligame.pong.model.PlayerBrick
+import com.intellij.openapi.components.service
 import com.intellij.openapi.editor.CaretModel
+import com.intellij.openapi.project.Project
 import java.awt.KeyEventDispatcher
 import java.awt.event.KeyEvent
 
@@ -9,6 +11,7 @@ class PongInput(
     private val p1: PlayerBrick,
     private val p2: PlayerBrick,
     private val caretModel: CaretModel,
+    private val project: Project,
     fps: Long,
 ): KeyEventDispatcher {
 
@@ -34,6 +37,10 @@ class PongInput(
                 KeyEvent.VK_DOWN -> {
                     p2.moveDown(deltaTime)
                     caretModel.moveToOffset(originalCaretOffset)
+                }
+
+                KeyEvent.VK_ESCAPE -> {
+                    project.service<PongService>().stop()
                 }
             }
         }

@@ -33,6 +33,8 @@ class BoomComponent(
     private val explosionForce = 5
     private val explosionRadius = 200
 
+    private var active = true
+
     fun start() {
         isFocusable = true
 
@@ -48,11 +50,15 @@ class BoomComponent(
         createLabels()
 
         scope.launch (Dispatchers.EDT) {
-            while(true) {
+            while(active) {
                 repaint()
                 delay(deltaTime)
             }
         }
+    }
+
+    fun stop() {
+        active = false
     }
 
     override fun paintComponent(g: Graphics) {
