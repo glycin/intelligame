@@ -50,6 +50,10 @@
       <language>JAVA</language>
       <className>com.glycin.intelligame.zonictestdog.ZtdStarter</className>
     </intentionAction>
+    <intentionAction>
+      <language>JAVA</language>
+      <className>com.glycin.intelligame.grandFinale.FinaleStarter</className>
+    </intentionAction>
     <toolWindow id="CheatingGameWindow"
                 anchor="right"
                 factoryClass="com.glycin.intelligame.cheating.CheatingGameFactory"

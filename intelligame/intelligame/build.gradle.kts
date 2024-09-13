@@ -22,6 +22,10 @@ intellij {
   ))
 }
 
+dependencies {
+  implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
+}
+
 tasks {
   // Set the JVM compatibility versions
   withType<JavaCompile> {
