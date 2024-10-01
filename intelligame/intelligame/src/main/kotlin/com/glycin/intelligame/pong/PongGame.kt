@@ -160,6 +160,8 @@ class PongGame(
             position = position,
             collider = collider,
             service = this,
+            scope = scope,
+            fps = FPS,
         )
     }
 

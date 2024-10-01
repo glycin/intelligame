@@ -58,7 +58,6 @@ class PongComponent(
     private fun drawBall(g: Graphics2D) {
         g.color = JBColor.RED
         g.fillOval(ball.position.x.roundToInt(), ball.position.y.roundToInt(), ball.radius, ball.radius)
-        ball.move(deltaTime.toFloat())
     }
 
     private fun drawObstacles(g: Graphics2D) {

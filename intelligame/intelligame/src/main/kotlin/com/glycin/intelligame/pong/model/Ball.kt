@@ -3,6 +3,11 @@ package com.glycin.intelligame.pong.model
 import com.glycin.intelligame.pong.PongCollider
 import com.glycin.intelligame.pong.PongGame
 import com.glycin.intelligame.shared.Vec2
+import com.glycin.intelligame.util.toLongDeltaTime
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.util.Random
 import kotlin.math.roundToInt
 
@@ -12,7 +17,10 @@ class Ball(
     val collider: PongCollider,
     val service: PongGame,
     private val speed: Float = 0.25f,
+    fps: Long,
+    scope: CoroutineScope,
 ) {
+    private val deltaTime = fps.toLongDeltaTime()
     private val immunityFrames = 10
     private var lifetime = 0
     private var direction = Vec2(1f, 1f)
@@ -20,7 +28,22 @@ class Ball(
 
     private fun midPoint() = Vec2(position.x + (radius / 2), position.y + (radius / 2))
 
-    fun move(deltaTime: Float){
+    private var active = true
+
+    init{
+        scope.launch(Dispatchers.Default) {
+            while(active) {
+                move(deltaTime.toFloat())
+                delay(deltaTime)
+            }
+        }
+    }
+
+    fun stop() {
+        active = false
+    }
+
+    private fun move(deltaTime: Float){
         if(lifetime <= immunityFrames) {
             lifetime++
         }else {
