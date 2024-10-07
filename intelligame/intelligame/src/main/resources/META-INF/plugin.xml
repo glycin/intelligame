@@ -57,7 +57,7 @@
     <toolWindow id="CheatingGameWindow"
                 anchor="right"
                 factoryClass="com.glycin.intelligame.cheating.CheatingGameFactory"
-                icon="errorDialog.svg"
+                icon="AllIcons.Actions.QuickfixBulb"
                 canCloseContents="true"/>
   </extensions>
 
