@@ -65,6 +65,8 @@ class PackmanGame(
     fun stopGame() {
         component.destroy()
         gameState = GameState.STOPPED
+        soundManager.stopMovingSound()
+        soundManager.mute = true
         KeyboardFocusManager.getCurrentKeyboardFocusManager().removeKeyEventDispatcher(gameInput)
         editor.contentComponent.remove(component)
         editor.contentComponent.revalidate()
