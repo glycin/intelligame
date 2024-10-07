@@ -32,6 +32,7 @@ class PongGame(
     private lateinit var openEditor: Editor
     private lateinit var pongComponent: PongComponent
     private lateinit var input: PongInput
+    private lateinit var ball: Ball
 
     fun initGame(editor: Editor) {
         println("PONG STARTED!")
@@ -42,7 +43,7 @@ class PongGame(
         val maxWidth = obstacles.filter { it.width != editor.contentComponent.width }.maxOf { it.width }
         val (p1, p2) = spawnPlayers(editor, maxWidth)
         val (g1, g2) = createGoals(editor)
-        val ball = spawnBall(editor, PongCollider(listOf(p1, p2), listOf(g1, g2), obstacles))
+        ball = spawnBall(editor, PongCollider(listOf(p1, p2), listOf(g1, g2), obstacles))
         input = PongInput(p1, p2, editor.caretModel, project, FPS)
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(input)
 
@@ -60,7 +61,7 @@ class PongGame(
         ApplicationManager.getApplication().invokeLater {
             WriteCommandAction.runWriteCommandAction(openProject) {
                 openDocument.replaceString(openDocument.getLineStartOffset(textLine), openDocument.getLineEndOffset(textLine), """
-                        // **************************************** Player One: $score1 - $score2 :Player Two **************************************** // 
+                        // **************************************** Player One: $score2 - $score1 :Player Two **************************************** // 
                     """.trimIndent())
             }
         }
@@ -68,6 +69,7 @@ class PongGame(
 
     fun stop() {
         println("Pong stopped")
+        ball.stop()
         pongComponent.stop()
         KeyboardFocusManager.getCurrentKeyboardFocusManager().removeKeyEventDispatcher(input)
         openEditor.contentComponent.remove(pongComponent)
