@@ -56,6 +56,7 @@ class PongGame(
     }
 
     fun updateScore(index: Int) {
+        if(state == GameState.IDLE) return
         openDocument.getLineStartOffset(textLine)
         if(index == 0) score1++ else score2++
         ApplicationManager.getApplication().invokeLater {
