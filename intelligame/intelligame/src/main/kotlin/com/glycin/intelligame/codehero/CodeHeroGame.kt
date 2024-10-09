@@ -45,17 +45,18 @@ class CodeHeroGame(
         if(gameState.state != CodeHeroStateEnum.STARTED) {
             println("Game is already playing!")
         }
+        val textLength = textToPaste.count { c -> c.isLetterOrDigit() }
         val pasteOffset = editor.caretModel.offset
         scope.launch (Dispatchers.Main) {
             TextWriter.writeText(pasteOffset, IntroStrings.introStrings[0], editor, project)
             delay(3000)
             TextWriter.replaceText(pasteOffset, pasteOffset + IntroStrings.introStrings[0].length, IntroStrings.introStrings[1], editor, project)
             delay(4000)
-            TextWriter.replaceText(pasteOffset, pasteOffset + IntroStrings.introStrings[1].length, IntroStrings.difficultyString(textToPaste.length), editor, project)
+            TextWriter.replaceText(pasteOffset, pasteOffset + IntroStrings.introStrings[1].length, IntroStrings.difficultyString(textLength), editor, project)
             delay(500)
             val isp = IntroSoundPlayer().also { it.playSong() }
             delay(5000)
-            TextWriter.replaceText(pasteOffset, pasteOffset + IntroStrings.difficultyString(textToPaste.length).length, IntroStrings.introStrings[2], editor, project)
+            TextWriter.replaceText(pasteOffset, pasteOffset + IntroStrings.difficultyString(textLength).length, IntroStrings.introStrings[2], editor, project)
             delay(2000)
             TextWriter.replaceText(pasteOffset, pasteOffset + IntroStrings.introStrings[2].length, IntroStrings.introStrings[3], editor, project)
             delay(1000)
@@ -66,16 +67,15 @@ class CodeHeroGame(
             TextWriter.replaceText(pasteOffset, pasteOffset + IntroStrings.introStrings[5].length, IntroStrings.introStrings[6], editor, project)
             isp.stop()
             TextWriter.deleteText(pasteOffset, pasteOffset + IntroStrings.introStrings[6].length, editor, project)
-            initGame(textToPaste)
+            initGame(textToPaste, textLength)
         }
     }
 
-    fun initGame(textToPaste: String) {
+    fun initGame(textToPaste: String, textLength: Int) {
         if(gameState.state != CodeHeroStateEnum.STARTED) {
             println("Game is already playing!")
         }
         this.textToPaste = textToPaste
-        val textLength = textToPaste.count { c -> c.isLetterOrDigit() }
         val beatmap = if(textLength <= 30){
             "MasterSwordRemix_An_Acquittal.osu"
         }else if (textLength < 230){
