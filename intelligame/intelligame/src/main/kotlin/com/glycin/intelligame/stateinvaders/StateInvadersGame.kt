@@ -19,6 +19,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.awt.KeyboardFocusManager
+import kotlin.math.ceil
 import kotlin.math.roundToInt
 
 private const val FPS = 120L
@@ -213,7 +214,7 @@ class StateInvadersGame(
         val docText = openEditor.document.text
         val flattened = docText.replace("\n", "").replace("\t", "").replace(" ", "")
         val maxCharsPerLine = 150
-        val lines = flattened.length / maxCharsPerLine
+        val lines = (flattened.length / maxCharsPerLine.toDouble()).roundToInt()
 
         val sb = StringBuilder(flattened)
         for(i in 0 until lines) {
