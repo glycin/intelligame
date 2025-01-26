@@ -20,9 +20,9 @@ class ExplosionWriter(
         val maxColumn = logicalPositions.keys.maxOf { it.column }
         val sb = StringBuilder()
 
-        for (x in 0 until maxColumn) {
-            for (y in 0 until maxLine) {
-                val foundPos = logicalPositions[LogicalPosition(x, y)]
+        for (line in 0 until maxLine) {
+            for (column in 0 until maxColumn) {
+                val foundPos = logicalPositions[LogicalPosition(line, column)]
                 sb.append(foundPos?.char ?: " ")
             }
             sb.append("\n")
