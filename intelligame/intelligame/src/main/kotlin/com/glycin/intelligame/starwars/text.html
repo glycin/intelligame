@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Star Wars Scrolling Text</title>
+    <style>
+        body {
+            width: 100%;
+            height: 100%;
+            background: #000;
+            overflow: hidden;
+        }
+
+        .fade {
+            position: relative;
+            width: 100%;
+            min-height: 60vh;
+            top: -25px;
+            background-image: linear-gradient(0deg, transparent, black 75%);
+            z-index: 1;
+        }
+
+        .star-wars {
+            display: flex;
+            justify-content: center;
+            position: relative;
+            height: 800px;
+            color: #feda4a;
+            font-family: 'Pathway Gothic One', sans-serif;
+            font-size: 500%;
+            font-weight: 600;
+            letter-spacing: 6px;
+            line-height: 150%;
+            perspective: 400px;
+            text-align: justify;
+        }
+
+        .crawl {
+            position: relative;
+            top: 9999px;
+            transform-origin: 50% 100%;
+            animation: crawl 60s linear;
+        }
+
+        .crawl > .title {
+            font-size: 90%;
+            text-align: center;
+        }
+
+        .crawl > .title h1 {
+            margin: 0 0 100px;
+            text-transform: uppercase;
+        }
+
+        @keyframes crawl {
+            0% {
+                top: 0;
+                transform: rotateX(20deg)  translateZ(0);
+            }
+            100% {
+                top: -6000px;
+                transform: rotateX(25deg) translateZ(-2500px);
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="starfield"></div>
+<div class="fade"></div>
+<section class="star-wars">
+
+    <div class="crawl">
+        <div class="title">
+            <p>Episode X</p>
+            <h1>Joy in Spring</h1>
+        </div>
+
+        <p>It is a period of digital transformation. Rebel developers, striking from hidden IDEs, have won their first victory against the legacy code Empire.</p>
+        <br>
+        <p>During the battle, rebel spies managed to steal secret plans to the Empire's ultimate weapon, WATERFALL SCRUM, a hideous methodology with enough power to destroy all developer motivation.</p>
+        <br>
+        <p>Pursued by the Empire's sinister agents of technical debt, Princess NLJUG races home aboard her starship, custodian of the stolen plans that can save developers and restore freedom to all codebases...</p>
+        <br>
+        <p>...</p>
+        <br>
+        <p>.....</p>
+        <br>
+        <p>This is actually quite fun...</p>
+        <br>
+        <p>How would code look like scrolling like this?</p>
+        <br>
+        <pre>
+        @Service(Service.Level.APP)
+        class MetalService(
+            private val scope: CoroutineScope
+        ): Disposable {
+
+            private var metalDocumentListener : MetalDocumentListener? = null
+
+            fun rockOn() {
+                MetalPlayer.init(scope)
+                metalDocumentListener = MetalDocumentListener().also {
+                    EditorFactory.getInstance().eventMulticaster.addDocumentListener(it, this)
+                }
+            }
+
+            override fun dispose() {
+                rockOff()
+            }
+
+            private fun rockOff() {
+                // We never turn the metal off
+            }
+        }
+        </pre>
+        <br>
+        <p>Okay never mind...</p>
+        <br>
+    </div>
+</section>
+</body>
+</html>

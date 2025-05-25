@@ -1,4 +1,4 @@
-package com.glycin.intelligame.cheating
+package com.glycin.intelligame.starwars
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindow
@@ -6,17 +6,17 @@ import com.intellij.openapi.wm.ToolWindowFactory
 import com.intellij.ui.content.ContentFactory
 import com.intellij.ui.jcef.JBCefApp
 import com.intellij.ui.jcef.JBCefBrowser
-import java.awt.BorderLayout
-import javax.swing.JPanel
+import java.awt.*
+import javax.swing.*
 
-class CheatingGameFactory: ToolWindowFactory {
+class StarWarsScrollFactory: ToolWindowFactory {
 
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
         if (!JBCefApp.isSupported()) {
             throw IllegalStateException("JCEF is not supported on this platform.")
         }
 
-        val browser = JBCefBrowser("https://web.archive.org/web/20230804133455/https://springone.io/history-of-spring")
+        val browser = JBCefBrowser("file:///C:/Projects/intelligame/intelligame/intelligame/src/main/kotlin/com/glycin/intelligame/starwars/text.html")
 
         val panel = JPanel().apply {
             layout = BorderLayout()

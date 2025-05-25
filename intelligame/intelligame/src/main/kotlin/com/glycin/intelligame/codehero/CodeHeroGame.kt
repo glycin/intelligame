@@ -10,7 +10,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import mochadoom.Engine
 import java.awt.KeyboardFocusManager
 import javax.swing.JScrollPane
 import javax.swing.SwingUtilities

@@ -59,6 +59,13 @@
                 factoryClass="com.glycin.intelligame.cheating.CheatingGameFactory"
                 icon="AllIcons.Actions.QuickfixBulb"
                 canCloseContents="true"/>
+
+    <toolWindow id="StarWarsWindow"
+                anchor="right"
+                factoryClass="com.glycin.intelligame.starwars.StarWarsScrollFactory"
+                icon="AllIcons.Actions.SynchronizeScrolling"
+                canCloseContents="true"/>
+
   </extensions>
 
 </idea-plugin>
