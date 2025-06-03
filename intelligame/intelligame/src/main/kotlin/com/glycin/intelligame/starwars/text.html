@@ -40,7 +40,11 @@
             position: relative;
             top: 9999px;
             transform-origin: 50% 100%;
-            animation: crawl 60s linear;
+            animation: crawl 30s linear infinite;
+            max-width: 1600px; /* Added: Constrains the width */
+            width: 100%;      /* Added: Ensures responsiveness */
+            padding: 0 10px;  /* Added: Adds some side padding */
+            box-sizing: border-box; /* Added: Includes padding in width */
         }
 
         .crawl > .title {
@@ -56,11 +60,11 @@
         @keyframes crawl {
             0% {
                 top: 0;
-                transform: rotateX(20deg)  translateZ(0);
+                transform: rotateX(25deg)  translateZ(0);
             }
             100% {
-                top: -6000px;
-                transform: rotateX(25deg) translateZ(-2500px);
+                top: -12000px;
+                transform: rotateX(25deg) translateZ(-5000px);
             }
         }
     </style>
@@ -78,7 +82,7 @@
 
         <p>It is a period of digital transformation. Rebel developers, striking from hidden IDEs, have won their first victory against the legacy code Empire.</p>
         <br>
-        <p>During the battle, rebel spies managed to steal secret plans to the Empire's ultimate weapon, WATERFALL SCRUM, a hideous methodology with enough power to destroy all developer motivation.</p>
+        <p>During the battle, rebel spies managed to steal secret plans to the Empire's ultimate weapon, SCALED AGILE FRAMEWORK, a hideous methodology with enough power to destroy all developer motivation.</p>
         <br>
         <p>Pursued by the Empire's sinister agents of technical debt, Princess NLJUG races home aboard her starship, custodian of the stolen plans that can save developers and restore freedom to all codebases...</p>
         <br>
@@ -88,7 +92,7 @@
         <br>
         <p>This is actually quite fun...</p>
         <br>
-        <p>How would code look like scrolling like this?</p>
+        <p>What would code look like scrolling like this?</p>
         <br>
         <pre>
         @Service(Service.Level.APP)
