@@ -16,7 +16,11 @@ class StarWarsScrollFactory: ToolWindowFactory {
             throw IllegalStateException("JCEF is not supported on this platform.")
         }
 
-        val browser = JBCefBrowser("file:///C:/Projects/intelligame/intelligame/intelligame/src/main/kotlin/com/glycin/intelligame/starwars/text.html")
+        val htmlContent = this::class.java.getResource("/starwars/text.html")?.readText() ?: ""
+
+        val browser = JBCefBrowser().apply {
+            loadHTML(htmlContent)
+        }
 
         val panel = JPanel().apply {
             layout = BorderLayout()
