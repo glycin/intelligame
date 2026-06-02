@@ -38,8 +38,8 @@ class Zonic(
     private val jumpingSprites = arrayOfNulls<BufferedImage>(2)
     private val crouchingSprites = arrayOfNulls<BufferedImage>(3)
     private val hurtSprites = arrayOfNulls<BufferedImage>(2)
-    private val jumpPower = 2.0f
-    private val speed = 0.5f
+    private val jumpPower = 1.5f
+    private val speed = 0.25f
     private var zonicState: ZonicState = ZonicState.IDLE
     private var keyIsPressed = false
     private var isRunningJump = false

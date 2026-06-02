@@ -17,7 +17,7 @@ class WalkingEnemy(
 ) {
     var alive = true
     private var state = EnemyState.WALKING_RIGHT
-    private var speed = 0.05f
+    private var speed = 0.025f
 
     private var currentIndex = 0
     private var frameHoldCount: Int = 0

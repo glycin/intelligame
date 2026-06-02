@@ -25,7 +25,7 @@ class Velocitnik(
 
     var active = true
     private val deltaTime = fps.toDeltaTime()
-    private val speed = 0.15f
+    private val speed = 0.075f
     private val idleSprites = arrayOfNulls<BufferedImage>(10)
     private val laserAttackSprites = arrayOfNulls<BufferedImage>(8)
     private val handAttackSprites = arrayOfNulls<BufferedImage>(10)

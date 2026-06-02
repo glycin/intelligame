@@ -11,7 +11,7 @@ class Bullet(
     val isHostile: Boolean = false,
     private val direction: Vec2,
     private val game: StateInvadersGame,
-    private val speed: Int = 3,
+    private val speed: Float = 1.5f,
 ) {
     val minX = position.x
     val maxX = position.x + width

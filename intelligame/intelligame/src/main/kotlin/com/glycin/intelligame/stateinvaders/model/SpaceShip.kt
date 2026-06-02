@@ -12,7 +12,7 @@ class SpaceShip(
     val height: Int,
     private val mapMinX: Int,
     private val mapMaxX: Int,
-    private val speed: Int = 2,
+    private val speed: Float = 1.0f,
     private val game: StateInvadersGame,
 ) {
     fun minX() = position.x

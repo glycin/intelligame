@@ -16,7 +16,7 @@ class VelocitnikArm(
     private val zonic: Zonic,
 ) {
     private var velocity = Vec2.left
-    private val speed = 0.8f
+    private val speed = 0.4f
     private val image : BufferedImage = ImageIO.read(this.javaClass.getResource("/Sprites/zonic/arm_projectile.png"))
     private var bounds = Rectangle(position.x.roundToInt() + 20, position.y.roundToInt() + 120, 125, 50)
     private var hitZonic = false

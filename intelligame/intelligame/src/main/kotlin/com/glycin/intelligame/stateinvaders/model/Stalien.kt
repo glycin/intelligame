@@ -14,7 +14,7 @@ class Stalien(
     val originalPsiField: PsiField,
     var label: JLabel? = null,
     private val game: StateInvadersGame,
-    private val speed : Int = 1
+    private val speed : Float = 0.5f
 ) {
     fun minX() = position.x
     fun maxX() = position.x + width
@@ -31,7 +31,7 @@ class Stalien(
 
     fun shoot() {
         if(System.currentTimeMillis() >= shootTime) {
-            val bullet = Bullet(Vec2(position.x + width / 2, position.y + height), 10, 25, true, Vec2.down, game, 1)
+            val bullet = Bullet(Vec2(position.x + width / 2, position.y + height), 10, 25, true, Vec2.down, game, 0.5f)
             game.bm.submitBullet(bullet)
             shootTime = System.currentTimeMillis() + shootCooldown
         }
