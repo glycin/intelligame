@@ -51,7 +51,7 @@ dependencies {
     testFramework(TestFrameworkType.Platform)
   }
 
-  implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
+  implementation(fileTree(mapOf("dir" to "target", "include" to listOf("*.jar"))))
 }
 
 tasks {

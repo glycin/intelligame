@@ -45,3 +45,6 @@ bin/
 
 ### Music ###
 /src/main/resources/Music
+
+### Doom ###
+/target/doom1.wad
