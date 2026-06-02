@@ -9,6 +9,7 @@ import com.glycin.intelligame.zonictestdog.level.WalkingEnemy
 import com.glycin.intelligame.zonictestdog.testretrieval.TestRetriever
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.EDT
+import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.ScrollType
@@ -58,8 +59,8 @@ class ZtdGame(
 
     fun initGame(){
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(mainMenuInput)
-        startFileContent = editor.document.text
-        TextWriter.replaceText(0, editor.document.textLength, ZtdTexts.zonicBanner, editor, project)
+        startFileContent = ReadAction.compute<String, RuntimeException> { editor.document.text }
+        TextWriter.replaceText(0, startFileContent.length, ZtdTexts.zonicBanner, editor, project)
     }
 
     private fun startGame() {
