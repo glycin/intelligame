@@ -20,6 +20,8 @@ repositories {
 }
 
 intellijPlatform  {
+  buildSearchableOptions = false
+
   pluginConfiguration {
     id = "intelligame"
     name = "INTELLIGAME"

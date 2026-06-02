@@ -4,6 +4,7 @@ import com.glycin.intelligame.shared.Vec2
 import com.glycin.intelligame.shared.SpriteSheetImageLoader
 import com.glycin.intelligame.util.toPoint
 import com.glycin.intelligame.zonictestdog.level.Portal
+import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiMethod
@@ -23,16 +24,18 @@ class PortalOpener(
     fun isNearMethod(position: Vec2): Pair<Boolean, PsiMethod?> {
         val logicalPos = ztdGame.editor.xyToLogicalPosition(position.toPoint())
         val offset = ztdGame.editor.logicalPositionToOffset(logicalPos)
-        return PsiDocumentManager.getInstance(project).getPsiFile(ztdGame.editor.document)?.let { psiFile ->
-            psiFile.findElementAt(offset)?.let { element ->
-                PsiTreeUtil.getParentOfType(element, PsiMethod::class.java)?.let { method ->
-                    (method.name == element.text) to method
+        return ReadAction.compute<Pair<Boolean, PsiMethod?>, RuntimeException> {
+            PsiDocumentManager.getInstance(project).getPsiFile(ztdGame.editor.document)?.let { psiFile ->
+                psiFile.findElementAt(offset)?.let { element ->
+                    PsiTreeUtil.getParentOfType(element, PsiMethod::class.java)?.let { method ->
+                        (method.name == element.text) to method
+                    }
                 }
-            }
-        } ?: (false to null)
+            } ?: (false to null)
+        }
     }
 
-    fun openPortals(method: PsiMethod, playerPos: Vec2) {
+    fun openPortals(method: PsiMethod, playerPos: Vec2) = ReadAction.run<RuntimeException> {
         val refs = ReferencesSearch.search(method).findAll()
 
         refs.forEachIndexed { index, ref ->

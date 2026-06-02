@@ -6,6 +6,7 @@ import com.glycin.intelligame.util.toVec2
 import com.glycin.intelligame.zonictestdog.level.Coin
 import com.glycin.intelligame.zonictestdog.level.Tile
 import com.glycin.intelligame.zonictestdog.level.WalkingEnemy
+import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.LogicalPosition
 import com.intellij.openapi.util.TextRange
@@ -32,7 +33,7 @@ class MapCreator(
         return Triple(tiles,coins, enemies)
     }
 
-    private fun createLevel(editor: Editor) : MutableList<Tile>  {
+    private fun createLevel(editor: Editor) : MutableList<Tile> = ReadAction.compute<MutableList<Tile>, RuntimeException> {
         val document = editor.document
         val tiles = mutableListOf<Tile>()
         val lineHeight = editor.lineHeight
@@ -72,7 +73,7 @@ class MapCreator(
             }
         }
 
-        return tiles
+        tiles
     }
 
 

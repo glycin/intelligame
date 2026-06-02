@@ -33,6 +33,12 @@ import java.awt.Point
 
 private const val FPS = 120L
 
+private data class PortalTravelData(
+    val virtualFile: VirtualFile,
+    val fileName: String,
+    val offset: Int,
+)
+
 class ZtdGame(
     var editor: Editor,
     private val project: Project,
@@ -80,7 +86,8 @@ class ZtdGame(
         }
 
         mapCreator = MapCreator(testMap, testMehods.size)
-        val (tiles, coins, enemies) = mapCreator.create(editor, editor.virtualFile.name)
+        val fileName = ReadAction.compute<String, RuntimeException> { editor.virtualFile.name }
+        val (tiles, coins, enemies) = mapCreator.create(editor, fileName)
         currentTiles.addAll(tiles)
         currentCoins.addAll(coins)
         currentEnemies.addAll(enemies)
@@ -112,27 +119,27 @@ class ZtdGame(
 
     fun skipToBoss() {
         val em = FileEditorManager.getInstance(project)
-        val pFile = PsiManager.getInstance(project).findFile(bossFile.second)
         component.stop()
+        val canTravel = ReadAction.compute<Boolean, RuntimeException> {
+            val psiFile = PsiManager.getInstance(project).findFile(bossFile.second) ?: return@compute false
+            PsiDocumentManager.getInstance(project).getDocument(psiFile) != null
+        }
+        if (!canTravel) return
         ApplicationManager.getApplication().invokeLater {
             em.openFile(bossFile.second, true).firstOrNull()?.let { fileEditor ->
                 if(fileEditor is TextEditor) {
                     val newEditor = fileEditor.editor
-                    pFile?.let { psiFile ->
-                        PsiDocumentManager.getInstance(project).getDocument(psiFile)?.let {
-                            if (editor.virtualFile != newEditor.virtualFile) {
-                                val oldEditor = editor
-                                em.closeFile(oldEditor.virtualFile)
-                                oldEditor.contentComponent.remove(component)
-                                oldEditor.scrollingModel.scrollVertically(0)
-                                ApplicationManager.getApplication().invokeLater {
-                                    this.editor = newEditor
-                                    newEditor.caretModel.moveToOffset(0)
-                                    newEditor.scrollingModel.scrollToCaret(ScrollType.CENTER)
-                                    portals.forEach { it.close() }
-                                    reInitLevel(newEditor.offsetToXY(0), newEditor, bossFile.first)
-                                }
-                            }
+                    if (editor.virtualFile != newEditor.virtualFile) {
+                        val oldEditor = editor
+                        em.closeFile(oldEditor.virtualFile)
+                        oldEditor.contentComponent.remove(component)
+                        oldEditor.scrollingModel.scrollVertically(0)
+                        ApplicationManager.getApplication().invokeLater {
+                            this.editor = newEditor
+                            newEditor.caretModel.moveToOffset(0)
+                            newEditor.scrollingModel.scrollToCaret(ScrollType.CENTER)
+                            portals.forEach { it.close() }
+                            reInitLevel(newEditor.offsetToXY(0), newEditor, bossFile.first)
                         }
                     }
                 }
@@ -152,24 +159,30 @@ class ZtdGame(
     fun travelTo(portal: Portal){
         val em = FileEditorManager.getInstance(project)
         component.stop()
+        val travelData = ReadAction.compute<PortalTravelData?, RuntimeException> {
+            val virtualFile = portal.file.virtualFile ?: return@compute null
+            if (PsiDocumentManager.getInstance(project).getDocument(portal.file) == null) return@compute null
+            PortalTravelData(
+                virtualFile = virtualFile,
+                fileName = portal.file.name,
+                offset = portal.textRange.startOffset + portal.element.textRange.startOffset,
+            )
+        } ?: return
         ApplicationManager.getApplication().invokeLater {
-            em.openFile(portal.file.virtualFile, true).firstOrNull()?.let { fileEditor ->
+            em.openFile(travelData.virtualFile, true).firstOrNull()?.let { fileEditor ->
                 if(fileEditor is TextEditor) {
                     val newEditor = fileEditor.editor
-                    PsiDocumentManager.getInstance(project).getDocument(portal.file)?.let {
-                        if(editor.virtualFile != newEditor.virtualFile) {
-                            val oldEditor = editor
-                            em.closeFile(oldEditor.virtualFile)
-                            oldEditor.contentComponent.remove(component)
-                            oldEditor.scrollingModel.scrollVertically(0)
-                            ApplicationManager.getApplication().invokeLater {
-                                this.editor = newEditor
-                                val offset = portal.textRange.startOffset + portal.element.textRange.startOffset
-                                newEditor.caretModel.moveToOffset(offset)
-                                newEditor.scrollingModel.scrollToCaret(ScrollType.CENTER)
-                                portals.forEach { it.close() }
-                                reInitLevel(newEditor.offsetToXY(offset), newEditor, portal.file.name)
-                            }
+                    if(editor.virtualFile != newEditor.virtualFile) {
+                        val oldEditor = editor
+                        em.closeFile(oldEditor.virtualFile)
+                        oldEditor.contentComponent.remove(component)
+                        oldEditor.scrollingModel.scrollVertically(0)
+                        ApplicationManager.getApplication().invokeLater {
+                            this.editor = newEditor
+                            newEditor.caretModel.moveToOffset(travelData.offset)
+                            newEditor.scrollingModel.scrollToCaret(ScrollType.CENTER)
+                            portals.forEach { it.close() }
+                            reInitLevel(newEditor.offsetToXY(travelData.offset), newEditor, travelData.fileName)
                         }
                     }
                 }
@@ -185,7 +198,8 @@ class ZtdGame(
     }
 
     private fun showCutscene() {
-        TextWriter.deleteText(0, editor.document.textLength, editor, project)
+        val docLength = ReadAction.compute<Int, RuntimeException> { editor.document.textLength }
+        TextWriter.deleteText(0, docLength, editor, project)
         KeyboardFocusManager.getCurrentKeyboardFocusManager().removeKeyEventDispatcher(mainMenuInput)
         mainMenuString = ""
         val javaFiles = getJavaFileCount()
@@ -216,7 +230,8 @@ class ZtdGame(
             cutsceneComponent.stop()
             editor.contentComponent.remove(cutsceneComponent)
             delay(1000L)
-            TextWriter.replaceText(0, editor.document.textLength, startFileContent, editor, project)
+            val resetLength = ReadAction.compute<Int, RuntimeException> { editor.document.textLength }
+            TextWriter.replaceText(0, resetLength, startFileContent, editor, project)
             delay(5000L)
             startGame()
         }
@@ -263,10 +278,10 @@ class ZtdGame(
         component.requestFocusInWindow()
     }
 
-    private fun getJavaFileCount(): List<VirtualFile> {
+    private fun getJavaFileCount(): List<VirtualFile> = ReadAction.compute<List<VirtualFile>, RuntimeException> {
         val javaFileType = FileTypeManager.getInstance().getFileTypeByExtension("java")
         val scope = GlobalSearchScope.projectScope(project)
-        return FileTypeIndex.getFiles(javaFileType, scope).filterNot { file ->
+        FileTypeIndex.getFiles(javaFileType, scope).filterNot { file ->
             file.path.contains("/test/") ||
                     file.path.contains("\\test\\") ||
                     file.path.contains("/Test/") ||

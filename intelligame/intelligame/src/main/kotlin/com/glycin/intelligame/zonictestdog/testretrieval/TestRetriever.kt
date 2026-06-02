@@ -1,6 +1,7 @@
 package com.glycin.intelligame.zonictestdog.testretrieval
 
 import com.intellij.codeInsight.TestFrameworks
+import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiMethod
 import com.intellij.psi.search.GlobalSearchScope
@@ -10,7 +11,7 @@ class TestRetriever(
     private val project: Project,
 ) {
 
-    fun getAllTestMethods(): List<PsiMethod> {
+    fun getAllTestMethods(): List<PsiMethod> = ReadAction.compute<List<PsiMethod>, RuntimeException> {
         val methods = mutableListOf<PsiMethod>()
         val searchScope = GlobalSearchScope.projectScope(project)
         AllClassesSearch.search(searchScope, project)
@@ -31,6 +32,6 @@ class TestRetriever(
                     }
             }
         }
-        return methods
+        methods
     }
 }
