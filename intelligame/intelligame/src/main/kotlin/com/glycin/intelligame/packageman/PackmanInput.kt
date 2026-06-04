@@ -35,6 +35,10 @@ class PackmanInput(
                     }
                 }
 
+                KeyEvent.VK_N -> {
+                    soundManager.toggleMovingSound()
+                }
+
                 KeyEvent.VK_M -> {
                     soundManager.mute = !soundManager.mute
                     if(soundManager.mute) {

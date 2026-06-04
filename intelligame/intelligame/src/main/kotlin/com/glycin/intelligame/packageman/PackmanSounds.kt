@@ -10,6 +10,7 @@ class PackmanSounds {
 
     private var movingClip: Clip? = null
     private var mainMenuClip: Clip? = null
+    private var movingSoundPath = JAVA_SOUND_PATH
 
     fun playMovingSound() {
         if(mute) {
@@ -22,7 +23,7 @@ class PackmanSounds {
 
         try {
             if(movingClip == null) {
-                this::class.java.getResourceAsStream("/Sounds/java_sound.wav")
+                this::class.java.getResourceAsStream(movingSoundPath)
                     ?.let { BufferedInputStream(it) }
                     ?.let { movingClipStream ->
                         movingClip = AudioSystem.getClip()
@@ -41,6 +42,15 @@ class PackmanSounds {
         movingClip = null
     }
 
+    fun toggleMovingSound() {
+        val wasPlaying = movingClip != null && movingClip!!.isOpen
+        stopMovingSound()
+        movingSoundPath = if(movingSoundPath == JAVA_SOUND_PATH) DEVATCGI_SOUND_PATH else JAVA_SOUND_PATH
+        if(wasPlaying) {
+            playMovingSound()
+        }
+    }
+
     fun playMainMenuSound() {
         try {
             if(mainMenuClip == null) {
@@ -55,5 +65,10 @@ class PackmanSounds {
         } catch (e: Exception) {
             e.printStackTrace()
         }
+    }
+
+    companion object {
+        private const val JAVA_SOUND_PATH = "/Sounds/java_sound.wav"
+        private const val DEVATCGI_SOUND_PATH = "/Sounds/devatcgi.wav"
     }
 }
